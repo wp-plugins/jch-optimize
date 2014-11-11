@@ -1,0 +1,590 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: JCH Optimize\n"
+"POT-Creation-Date: 2014-11-10 16:00-0500\n"
+"PO-Revision-Date: 2014-11-10 16:00-0500\n"
+"Last-Translator: \n"
+"Language-Team: Samuel Marshall <sdmarshall73@gmail.com>\n"
+"Language: en_JM\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.6.10\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;esc_attr_e;translate\n"
+"X-Poedit-SearchPath-0: jchoptimize\n"
+"X-Poedit-SearchPath-1: .\n"
+"X-Poedit-SearchPathExcluded-0: assets\n"
+"X-Poedit-SearchPathExcluded-1: assets2\n"
+"X-Poedit-SearchPathExcluded-2: cache\n"
+"X-Poedit-SearchPathExcluded-3: languages\n"
+"X-Poedit-SearchPathExcluded-4: platform\n"
+
+#: jch-optimize.php:115
+msgid "Settings"
+msgstr ""
+
+#: jchoptimize/base.php:46
+msgid ""
+"Error occurred while trying to match for search area. Check your template "
+"for open and closing head tags"
+msgstr ""
+
+#: jchoptimize/base.php:76 jchoptimize/parser.php:611
+msgid "Error occured while trying to get html"
+msgstr ""
+
+#: jchoptimize/combiner.php:280
+#, php-format
+msgid "Error occured trying to parse for @imports in %s"
+msgstr ""
+
+#: jchoptimize/combiner.php:368
+#, php-format
+msgid "Error occurred trying to minify: %s"
+msgstr ""
+
+#: jchoptimize/combiner.php:481
+msgid "Failed getting @import file contents"
+msgstr ""
+
+#: jchoptimize/cssparser.php:311
+msgid "Failed correcting urls of background images"
+msgstr ""
+
+#: jchoptimize/fileretriever.php:52
+msgid "No Http Adapter available"
+msgstr ""
+
+#: jchoptimize/fileretriever.php:62
+#, php-format
+msgid "Failed getting file contents from %s"
+msgstr ""
+
+#: jchoptimize/jchoptimize.php:126
+msgid "Error while minifying HTML"
+msgstr ""
+
+#: jchoptimize/linkbuilder.php:135
+msgid "Error creating cache file"
+msgstr ""
+
+#: jchoptimize/loader.php:82
+#, php-format
+msgid "File not found: %s"
+msgstr ""
+
+#: jchoptimize/loader.php:90
+#, php-format
+msgid "Class not found: %s"
+msgstr ""
+
+#: jchoptimize/parser.php:181
+#, php-format
+msgid "Error while parsing for links in %1$s ...turn off combine %1$s option"
+msgstr ""
+
+#: jchoptimize/parser.php:562
+msgid ""
+"Error occurred while trying to match for search area. Check your template "
+"for open and closing body tags"
+msgstr ""
+
+#: jchoptimize/parser.php:654
+msgid "Cookie-less domain function failed"
+msgstr ""
+
+#: jchoptimize/parser.php:662
+msgid "Failed retrieving head in cookie-less domain function"
+msgstr ""
+
+#: jchoptimize/parser.php:671
+msgid "Failed retrieving body in cookie-less domain function"
+msgstr ""
+
+#: jchoptimize/spritegenerator.php:134
+msgid "Error finding replacements for sprite background positions"
+msgstr ""
+
+#: jchoptimize/spritegenerator.php:213
+msgid "Error occurred matching for images to sprite"
+msgstr ""
+
+#: jchoptimize/spritegenerator.php:241
+msgid "Error occurred matching for images to include"
+msgstr ""
+
+#: options.php:14
+msgid "JCH Optimize Pro Settings"
+msgstr ""
+
+#: options.php:65 options.php:126
+msgid "Save Changes"
+msgstr ""
+
+#: options.php:80
+msgid "Description"
+msgstr ""
+
+#: options.php:81
+msgid "Basic Settings"
+msgstr ""
+
+#: options.php:82
+msgid "Advanced Settings"
+msgstr ""
+
+#: options.php:83
+msgid "Pro Options"
+msgstr ""
+
+#: options.php:84
+msgid "Sprite Generator"
+msgstr ""
+
+#: options.php:85 options.php:234
+msgid "Optimize Images"
+msgstr ""
+
+#: options.php:153
+msgid "Automatic Settings"
+msgstr ""
+
+#: options.php:156
+msgid "Combine CSS Files"
+msgstr ""
+
+#: options.php:157
+msgid "Combine Javascript Files"
+msgstr ""
+
+#: options.php:159
+msgid "Gzip Combined Files"
+msgstr ""
+
+#: options.php:160
+msgid "Minify Combined CSS File"
+msgstr ""
+
+#: options.php:162
+msgid "Minify Combined Javascript File"
+msgstr ""
+
+#: options.php:164
+msgid "Minify HTML"
+msgstr ""
+
+#: options.php:166
+msgid "Defer combined javascript"
+msgstr ""
+
+#: options.php:168
+msgid "Manage Combined Files"
+msgstr ""
+
+#: options.php:171
+msgid "Lifetime (days)"
+msgstr ""
+
+#: options.php:172
+msgid "Manage JCH Optimize Cache"
+msgstr ""
+
+#: options.php:176
+msgid "Exclude files from all plugins"
+msgstr ""
+
+#: options.php:179
+msgid "Exclude these CSS files"
+msgstr ""
+
+#: options.php:181
+msgid "Exclude these javascript files"
+msgstr ""
+
+#: options.php:183
+msgid "Exclude CSS files from these plugins"
+msgstr ""
+
+#: options.php:185
+msgid "Exclude javascript files from these plugins"
+msgstr ""
+
+#: options.php:187
+msgid "Enable url re-writing"
+msgstr ""
+
+#: options.php:189
+msgid "Debug plugin"
+msgstr ""
+
+#: options.php:190
+msgid "Log Exceptions"
+msgstr ""
+
+#: options.php:196
+msgid "Replace @imports in CSS"
+msgstr ""
+
+#: options.php:198
+msgid "Include PHP files and files from external domains"
+msgstr ""
+
+#: options.php:200
+msgid "Include inline CSS styles"
+msgstr ""
+
+#: options.php:202
+msgid "Include inline scripts"
+msgstr ""
+
+#: options.php:204
+msgid "Parse body of page for CSS/Js files"
+msgstr ""
+
+#: options.php:206
+msgid "Load combined javascript asynchronously"
+msgstr ""
+
+#: options.php:209
+msgid "Optimize CSS Delivery"
+msgstr ""
+
+#: options.php:211
+msgid "Exclude individual scripts"
+msgstr ""
+
+#: options.php:213
+msgid "Load these individual javascript files asynchronously"
+msgstr ""
+
+#: options.php:215
+msgid "CDN / Cookieless Domain"
+msgstr ""
+
+#: options.php:220
+msgid "Enable Sprite Generator"
+msgstr ""
+
+#: options.php:224
+msgid "Sprite Build Direction"
+msgstr ""
+
+#: options.php:226
+msgid "Wrap Images"
+msgstr ""
+
+#: options.php:228
+msgid "Exclude these images from the sprite"
+msgstr ""
+
+#: options.php:230
+msgid "Include these images in the sprite"
+msgstr ""
+
+#: options.php:340
+msgid "Please open a directory to optimize images"
+msgstr ""
+
+#: options.php:407
+msgid "Cache deleted successfully!"
+msgstr ""
+
+#: options.php:411
+msgid "Cache delete action failed!"
+msgstr ""
+
+#: options.php:443
+#, php-format
+msgid "%1$d images optimized in %2$s"
+msgstr ""
+
+#: options.php:452
+#, php-format
+msgid "Try again, optimize image function failed with message: %1$s"
+msgstr ""
+
+#: options.php:481
+msgid "Automatic Settings Group"
+msgstr ""
+
+#: options.php:482
+msgid ""
+"The fields in this group can be set automatically using the preconfigured "
+"automatic settings in Basic Options. That is the recommended way to set "
+"these fields to avoid conflicts. The other individual fields not in this "
+"group must each be set manually."
+msgstr ""
+
+#: options.php:498
+msgid ""
+"These six icons represent six preconfigured settings in increasingly "
+"optimized order. The risks of conflicts will also increase so try each in "
+"turn to find the optimum settings for your site. The first, which is the "
+"safest, is the default and should work on most websites. These settings do "
+"not affect the files/extensions/images etc. you have excluded."
+msgstr ""
+
+#: options.php:513
+msgid ""
+"This will combine all CSS files into one file and remove all the links to "
+"the individual files from the page, replacing it with a link generated by "
+"the plugin to the combined file."
+msgstr ""
+
+#: options.php:521
+msgid ""
+"This will combine all javascript files into one file and remove all the "
+"links to the individual files from the page, replacing it with a link "
+"generated by the plugin to the combined file."
+msgstr ""
+
+#: options.php:529
+msgid ""
+"This setting compresses the generated javascript and CSS combined file with "
+"gzip, decreasing file size dramatically. This will only work if gzip "
+"compression is supported by your server."
+msgstr ""
+
+#: options.php:537
+msgid ""
+"If yes, the plugin will remove all unnecessary whitespaces and comments from "
+"the combined CSS file to reduce the size for optimized download."
+msgstr ""
+
+#: options.php:545
+msgid ""
+"If yes, the plugin will remove all unnecessary whitespaces and comments from "
+"the combined javascript file to reduce the size for optimized download."
+msgstr ""
+
+#: options.php:553
+msgid ""
+"If yes, the plugin will remove all unneccessary whitespaces and comments "
+"from HTML to reduce the size of the page for optimized download."
+msgstr ""
+
+#: options.php:561
+msgid ""
+"This option will add a defer attribute to the link of the combined "
+"javascript file. This will defer the loading of the javascript until after "
+"the page is loaded to reduce render blocking. Use this option with care as "
+"it may break the javascript on your page. It is highly recommended not to "
+"set this one manually but to use the pre-configured settings in Pro Options."
+msgstr ""
+
+#: options.php:569
+msgid ""
+"Select where and how to place the links for the aggregated css/javascript "
+"files. Options are, 'Preserve Execution Order', that will split the combined "
+"file and place them around and between excluded files accordingly, 'Combine "
+"all files to one', that will combine all included files into one and place "
+"them just below the title tag, and 'Place JS at bottom', that will place the "
+"combined CSS file below the title tag but the combined javascript file will "
+"be just before the ending body tag."
+msgstr ""
+
+#: options.php:573
+msgid "Preserve execution order"
+msgstr ""
+
+#: options.php:574
+msgid "Combine files into one"
+msgstr ""
+
+#: options.php:575
+msgid "Place javascript at bottom"
+msgstr ""
+
+#: options.php:588
+msgid ""
+"Lifetime of aggregated cached file in days. Expires headers are added to "
+"this file reflecting this time."
+msgstr ""
+
+#: options.php:618
+msgid ""
+"Click this icon to delete all the cache of combined files saved by the plugin"
+msgstr ""
+
+#: options.php:622
+#, php-format
+msgid "Number of files: %d"
+msgstr ""
+
+#: options.php:623
+#, php-format
+msgid "Size: %s"
+msgstr ""
+
+#: options.php:637
+msgid ""
+"Exclude all files from third party plugins and external domains from the "
+"aggregation process."
+msgstr ""
+
+#: options.php:648
+msgid ""
+"Exclude individual CSS files from the aggregation process. Enter any part of "
+"the file url in the text area. Comma separate multiple entries."
+msgstr ""
+
+#: options.php:655
+msgid ""
+"Exclude individual javascript files from the aggregation process. Enter any "
+"part of the file url in the text area. Comma separate multiple entries."
+msgstr ""
+
+#: options.php:662
+msgid ""
+"Exclude CSS files from individual plugins. Enter the plugin folder name of "
+"slug here. Comma separate multiple entries."
+msgstr ""
+
+#: options.php:669
+msgid ""
+"Exclude javascript files from individual plugins. Enter the plugin folder "
+"name of slug here. Comma separate multiple entries."
+msgstr ""
+
+#: options.php:676
+msgid ""
+"By default auto is selected and the plugin will detect if mod_rewrite is "
+"enabled and will use 'url rewriting' to remove the query from the link to "
+"the combined file to promote proxy caching. The plugin will then "
+"automatically select yes or no based on whether support for url rewriting is "
+"detected. You can manually select the one you want if the plugin got it "
+"wrong."
+msgstr ""
+
+#: options.php:683
+msgid ""
+"This option will add the 'commented out' url of the individual files inside "
+"the combined file above the contents that came from that file. This is "
+"useful when configuring the plugin and trying to resolve conflicts."
+msgstr ""
+
+#: options.php:690
+msgid ""
+"If set, the plugin will log messages from caught exceptions to a jch-"
+"optimize.errors.txt file in the logs folder."
+msgstr ""
+
+#: options.php:734
+msgid ""
+"If yes, the plugin will remove all @import properties from the aggregated "
+"CSS file with internal urls, and replace them with the respective CSS "
+"content."
+msgstr ""
+
+#: options.php:748
+msgid ""
+"PHP generated files and javascript/css files from external domains will be "
+"included in the combined file. This option requires the php paramater "
+"'allow_url_fopen' or 'cURL' to be enabled on your server."
+msgstr ""
+
+#: options.php:762
+msgid ""
+"Inline CSS styles will be included in the aggregated file in the order they "
+"appear on the page."
+msgstr ""
+
+#: options.php:775
+msgid ""
+"Inline scripts will be included in the aggregated file in the order they "
+"appear on the page. This reduces the chance of conflicts when combining "
+"files."
+msgstr ""
+
+#: options.php:789
+msgid ""
+"If selected, the plugin will search HTML body section for files to "
+"aggregate. If not, only the head section will be searched."
+msgstr ""
+
+#: options.php:803
+msgid ""
+"The aggregated Javascript file will be loaded asynchronously to avoid render "
+"blocking and speed up download. Only works with supporting browsers. Use "
+"along with defer for cross-browser support."
+msgstr ""
+
+#: options.php:822
+msgid ""
+"The plugin will attempt to extract the critical CSS to format the page above "
+"the fold and inline this CSS in the head to prevent render blocking. The "
+"rest of the combined CSS will be loaded asynchronously via javascript. "
+"Select the number of HTML elements from the top of the page you want the "
+"plugin to find the applied CSS for. The smaller the number, the faster your "
+"site but you might see some jumping of the page if the number is too small."
+msgstr ""
+
+#: options.php:838
+msgid ""
+"Select the inline script you want to exclude. You can identify the scripts "
+"from the first few 'minified' characters that appear in the script. If "
+"you're seeing a text-area, exclude individual inline scripts by entering "
+"words or phrases unique to that script here. Separate multiple entries with "
+"commas."
+msgstr ""
+
+#: options.php:852
+msgid ""
+"These files will be loaded individually but asynchronously to avoid render "
+"blocking and speed up download. Try this option before excluding if there "
+"are conflicts. Only works with supporting browsers"
+msgstr ""
+
+#: options.php:866
+msgid ""
+"Enter your CDN or cookieless domain here. The plugin will load all static "
+"files including background images, combined js/css files and generated "
+"sprite from this domain. This requires that this domain is already set up "
+"and points to your site root."
+msgstr ""
+
+#: options.php:886
+msgid ""
+"If enabled, the plugin will combine select background images into one called "
+"a sprite to reduce http lookups."
+msgstr ""
+
+#: options.php:905
+msgid "Determine in which direction the images must be placed in sprite."
+msgstr ""
+
+#: options.php:914
+msgid ""
+"Will wrap images in sprite into another row or column if the length of the "
+"sprite becomes longer than 2000px."
+msgstr ""
+
+#: options.php:922
+msgid ""
+"You can exclude one or more of the images if they are displayed incorrectly "
+"by entering the name of the image complete with file extension here. Comma "
+"separate multiple entries."
+msgstr ""
+
+#: options.php:930
+msgid ""
+"You can include additional images in the sprite to the ones that were "
+"selected by default. Exercise care with this option as these files are "
+"likely to not display correctly."
+msgstr ""
+
+#: options.php:944
+msgid ""
+"Click through to open the directory that contains the images you want to "
+"optimize then click the 'Optimize Images' button. The plugin will use the "
+"Yahoo! Smush.it™ lossless compressor to optimize the images in the folder "
+"and will replace the existing images with the optimized images. Although "
+"this is relatively safe, it is recommended you do a backup first."
+msgstr ""
+
+#: options.php:957
+msgid "cURL is required for this feature but it's not enabled on this server."
+msgstr ""
