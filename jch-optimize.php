@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: JCH Optimize Pro
+ * Plugin Name: JCH Optimize
  * Plugin URI: http://www.jch-optimize.net/
  * Description: This plugin aggregates and minifies CSS and Javascript files for optimized page download
  * Version: 1.0.1

@@ -11,7 +11,7 @@ add_action('admin_menu', 'add_jch_optimize_menu');
 
 function add_jch_optimize_menu()
 {
-        $hook_suffix = add_options_page(__('JCH Optimize Pro Settings', 'jch-optimize'), 'JCH Optimize Pro', 'manage_options', 'jchoptimize-settings',
+        $hook_suffix = add_options_page(__('JCH Optimize Settings', 'jch-optimize'), 'JCH Optimize', 'manage_options', 'jchoptimize-settings',
                                            'jch_options_page');
 
         add_action('admin_print_scripts-' . $hook_suffix, 'jch_load_resource_files');
@@ -59,18 +59,18 @@ function jch_options_page()
 
         ?>
         <div>
-                <h2>JCH Optimize Pro Settings</h2>
+                <h2>JCH Optimize Settings</h2>
                 <form action="options.php" method="post" class="jch-settings-form">
                         <div style="width: 90%;">
                                 <input name="Submit" type="submit" class="button" value="<?php esc_attr_e('Save Changes', 'jch-optimize'); ?>" />
                                 <?php
 
-                                /* ##<freecode>##
+                                
                                   ?>
                                   <a class="right button button-primary" href="https://www.jch-optimize.net/test/subscribe/new/jchoptimizewp.html?layout=default" target="_blank"><?php _e('Upgrade to Pro', 'jch-optimize'); ?></a>
  
                                   <?php
-                                  ##<freecode>## */
+                                  
 
                                 ?>
 
@@ -90,16 +90,16 @@ function jch_options_page()
 
                                 <div class="tab-pane active" id="description">
                                         <div id="extension-container" style="text-align:left;">
-                                                <h1>JCH Optimize Pro Plugin</h1>
+                                                <h1>JCH Optimize Plugin</h1>
                                                 <h3>(Version 1.0.1)</h3>
                                                 <?php
 
-                                                /* ##<freecode>##
+                                                
                                                   echo '<div class="error">
                                                   <p>' . __('This is the free version of JCH Optimize for WordPress. For access to advance features please <a href="http://www.jch-optimize.net/test/subscribe/new/jchoptimizewp.html?layout=default" target="_blank">purchase the Pro Version!</a>') . '</p>
                                                   </div>';
 
-                                                  ##</freecode>## */
+                                                  
 
                                                 ?>
                                                 <p>Can automatically optimize external resources like CSS and JavaScript, which can reduce both the size and number of requests made to your website and also compress HTML output for optimized download. GZip generated CSS and JavaScript files to about 1/4 of the original size. These optimizations may reduce server load, bandwidth requirements, and page loading times.</p>
@@ -140,12 +140,7 @@ function jch_admin_init()
 
         wp_register_script('jch-bootstrap-js', JCH_PLUGIN_URL . 'assets/js/bootstrap.min.js', array('jquery'), '', TRUE);
 
-        ##<procode>## 
-        wp_register_style('jch-progressbar-css', JCH_PLUGIN_URL . 'assets/css/pro-jquery-ui-progressbar.css');
-        wp_register_style('jch-filetree-css', JCH_PLUGIN_URL . 'assets/css/pro-jqueryFileTree.css');
-
-        wp_register_script('jch-filetree-js', JCH_PLUGIN_URL . 'assets/js/pro-jqueryFileTree.js', array('jquery'), '', TRUE);
-        ##</procode>##
+        
 
         register_setting('jch_options', 'jch_options', 'jch_options_validate');
 
@@ -263,13 +258,7 @@ function jch_load_resource_files()
 
         wp_enqueue_script('jch-bootstrap-js');
 
-        ##<procode>##
-        wp_enqueue_style('jch-progressbar-css');
-        wp_enqueue_style('jch-filetree-css');
-
-        wp_enqueue_script('jch-filetree-js');
-        wp_enqueue_script('jquery-ui-progressbar');
-        ##</procode>##
+        
 }
 
 function jch_load_scripts()
@@ -297,100 +286,7 @@ function jch_load_scripts()
                         jQuery("form.jch-settings-form").submit();
                 }
                 ;
-        <?php ##<procode>##       ?>
-                jQuery(document).ready(function ()
-                {
-                        jQuery("#file-tree-container").fileTree(
-                                {
-                                        root: "",
-                                        script: ajaxurl + '?action=filetree',
-                                        expandSpeed: 1000,
-                                        collapseSpeed: 1000,
-                                        multiFolder: false
-                                }, function (file) {
-                        });
-                });
-
-                var timer = null;
-                var counter = 0;
-
-                function jchOptimizeImages(page) {
-                        li = jQuery("#file-tree-container ul.jqueryFileTree").find("li.expanded").last();
-
-                        var timestamp = getTimeStamp();
-
-                        if (li.length > 0) {
-                                dir = li.find("a").attr("rel");
-
-                                jQuery.ajax({
-                                        url: ajaxurl,
-                                        data: {"dir": dir, "action": "optimizeimages"},
-                                        async: true,
-                                        timeout: 5000
-                                });
-
-                                jQuery("#optimize-images-container").html('<div>Optimizing images. Please wait...</div><div id="progressbar"></div>');
-                                jQuery("#progressbar").progressbar({value: 0})
-
-                                timer = setInterval(function () {
-                                        updateStatus(page, dir)
-                                }, 1000);
-
-                        } else {
-                                alert("<?php _e('Please open a directory to optimize images', 'jch-optimize') ?>");
-                        }
-                }
-                ;
-
-                function updateStatus(page, dir) {
-
-                        var timestamp = getTimeStamp();
-
-                        jQuery.getJSON('<?php echo JCH_PLUGIN_URL . 'status.json?_=' ?>' + timestamp, function (data) {
-                                var pbvalue = 0;
-                                var total = data['total'];
-                                var current = data['current'];
-
-                                pbvalue = Math.floor((current / total) * 100);
-
-                                if (pbvalue > 0) {
-                                        jQuery("#progressbar").progressbar({
-                                                value: pbvalue
-                                        });
-                                }
-
-                                if (data['done'] == 1) {
-
-                                        clearTimeout(timer);
-                                        jQuery("#progressbar").progressbar({
-                                                value: 100
-                                        });
-
-                                        window.location.href = page + "&jch-dir=" + dir + "&jch-cnt=" + data['optimize']
-                                }
-
-                        })
-                                .fail(function (jqXHR) {
-
-                                        counter = jqXHR.status == 404 ? counter + 1 : 5;
-
-                                        if (counter == 5) {
-                                                postFailure(page, jqXHR);
-                                        }
-                                });
-                }
-
-                function postFailure(page, jqXHR) {
-                        clearTimeout(timer);
-                        console.log(jqXHR);
-
-                        window.location.href = page + "&status=fail&msg=" + encodeURIComponent(jqXHR.status + ": " + jqXHR.statusText);
-                }
-
-                function getTimeStamp() {
-                        return new Date().getTime();
-                }
-        <?php ##</procode>##       ?>
+        <?php        ?>
 
         </script>
         <?php
@@ -734,13 +630,11 @@ function jch_options_pro_replaceImports_string()
         $description = __('If yes, the plugin will remove all @import properties from the aggregated CSS file with internal urls, and replace them with the respective CSS content.',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_radio_field('pro_replaceImports', '1', $description, 's1-on s2-on s3-on s4-on s5-on s6-on');
-        ##</procode>##
+        
 }
 
 function jch_options_pro_phpAndExternal_string()
@@ -748,26 +642,22 @@ function jch_options_pro_phpAndExternal_string()
         $description = __('PHP generated files and javascript/css files from external domains will be included in the combined file. This option requires the php paramater \'allow_url_fopen\' or \'cURL\' to be enabled on your server.',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_radio_field('pro_phpAndExternal', '1', $description, 's1-on s2-on s3-on s4-on s5-on s6-on');
-        ##</procode>##
+        
 }
 
 function jch_options_pro_inlineStyle_string()
 {
         $description = __('Inline CSS styles will be included in the aggregated file in the order they appear on the page.', 'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_radio_field('pro_inlineStyle', '1', $description, 's1-on s2-on s3-on s4-on s5-on s6-on');
-        ##</procode>##
+        
 }
 
 function jch_options_pro_inlineScripts_string()
@@ -775,13 +665,11 @@ function jch_options_pro_inlineScripts_string()
         $description = __('Inline scripts will be included in the aggregated file in the order they appear on the page. This reduces the chance of conflicts when combining files.',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_radio_field('pro_inlineScripts', '0', $description, 's1-off s2-off s3-off s4-on s5-on s6-on');
-        ##</procode>##
+        
 }
 
 function jch_options_pro_searchBody_string()
@@ -789,13 +677,11 @@ function jch_options_pro_searchBody_string()
         $description = __('If selected, the plugin will search HTML body section for files to aggregate. If not, only the head section will be searched.',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_radio_field('pro_searchBody', '0', $description, 's1-off s2-off s3-off s4-off s5-on s6-on');
-        ##</procode>##
+        
 }
 
 function jch_options_pro_loadAsynchronous_string()
@@ -803,13 +689,11 @@ function jch_options_pro_loadAsynchronous_string()
         $description = __('The aggregated Javascript file will be loaded asynchronously to avoid render blocking and speed up download. Only works with supporting browsers. Use along with defer for cross-browser support.',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_radio_field('pro_loadAsynchronous', '0', $description, 's1-off s2-off s3-off s4-off s5-off s6-on');
-        ##</procode>##
+        
 }
 
 function jch_pro2_section_text()
@@ -824,13 +708,11 @@ function jch_options_pro_optimizeCssDelivery_string()
 
         $values = array('0' => 'Off', '200' => '200', '400' => '400', '600' => '600', '800' => '800');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_select_field('pro_optimizeCssDelivery', '0', $values, $description);
-        ##</procode>##
+        
 }
 
 function jch_options_pro_excludeScripts_string()
@@ -838,13 +720,11 @@ function jch_options_pro_excludeScripts_string()
         $description = __('Select the inline script you want to exclude. You can identify the scripts from the first few \'minified\' characters that appear in the script. If you\'re seeing a text-area, exclude individual inline scripts by entering words or phrases unique to that script here. Separate multiple entries with commas.',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_textarea_field('pro_excludeScripts', '', $description);
-        ##</procode>##
+        
 }
 
 function jch_options_pro_loadFilesAsync_string()
@@ -852,13 +732,11 @@ function jch_options_pro_loadFilesAsync_string()
         $description = __('These files will be loaded individually but asynchronously to avoid render blocking and speed up download. Try this option before excluding if there are conflicts. Only works with supporting browsers',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_textarea_field('pro_loadFilesAsync', '', $description);
-        ##</procode>##
+        
 }
 
 function jch_options_pro_cookielessdomain_string()
@@ -866,13 +744,11 @@ function jch_options_pro_cookielessdomain_string()
         $description = __('Enter your CDN or cookieless domain here. The plugin will load all static files including background images, combined js/css files and generated sprite from this domain. This requires that this domain is already set up and points to your site root.',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        echo jch_gen_text_field('pro_cookielessdomain', '', $description, '', '30');
-        ##</procode>##
+        
 }
 
 function jch_sprite_section_text()
@@ -944,33 +820,11 @@ function jch_options_optimize_images_string()
         $description = __('Click through to open the directory that contains the images you want to optimize then click the \'Optimize Images\' button. The plugin will use the Yahoo! Smush.it™ lossless compressor to optimize the images in the folder and will replace the existing images with the optimized images. Although this is relatively safe, it is recommended you do a backup first.',
                           'jch-optimize');
 
-        /* ##<freecode>##
+        
           echo jch_gen_proonly_field($description);
-          ##</freecode>## */
+          
 
-        ##<procode>##
-        if (!function_exists('curl_init') || !function_exists('curl_exec'))
-        {
-
-                ?>
-                <div class="error">
-                        <p> <?php _e('cURL is required for this feature but it\'s not enabled on this server.', 'jch-optimize'); ?></p>
-                </div> 
-                <?php
-
-        }
-        else
-        {
-                echo '<div id="optimize-images-container">';
-                echo '<div id="file-tree-container" style="max-width:350px;float:left;"></div>';
-
-                $aButton = jch_get_optimize_images_buttons();
-
-                echo jch_gen_button_icons($aButton, $description);
-
-                echo '</div>';
-        }
-        ##</procode>##
+        
 }
 
 function jch_gen_radio_field($option, $default, $description, $class = '', $auto_option = FALSE)
@@ -1112,44 +966,32 @@ function jch_get_auto_settings_buttons()
         $aButton[3]['link']   = '';
         $aButton[3]['icon']   = 'fa-forward';
         $aButton[3]['text']   = 'Deluxe';
-        ##<procode>##
-        $aButton[3]['color']  = '#E8CE0B';
-        $aButton[3]['script'] = 'onclick="applyAutoSettings(4, 2); return false;"';
-        $aButton[3]['class']  = 'enabled';
-        ##</procode>##
-        /* ##<freecode>##  
+        
+          
           $aButton[3]['color']  = '#CCC';
           $aButton[3]['script'] = '';
           $aButton[3]['class']  = 'disabled';
-          ##</freecode>## */
+          
 
         $aButton[4]['link']   = '';
         $aButton[4]['icon']   = 'fa-fast-forward';
         $aButton[4]['text']   = 'Premium';
-        ##<procode>##
-        $aButton[4]['color']  = '#9995FF';
-        $aButton[4]['script'] = 'onclick="applyAutoSettings(5, 1); return false;"';
-        $aButton[4]['class']  = 'enabled';
-        ##</procode>##
-        /* ##<freecode>##  
+        
+          
           $aButton[4]['color']  = '#CCC';
           $aButton[4]['script'] = '';
           $aButton[4]['class']  = 'disabled';
-          ##</freecode>## */
+          
 
         $aButton[5]['link']   = '';
         $aButton[5]['icon']   = 'fa-dashboard';
         $aButton[5]['text']   = 'Optimum';
-        ##<procode>##
-        $aButton[5]['color']  = '#60AF2C';
-        $aButton[5]['script'] = 'onclick="applyAutoSettings(6, 1); return false;"';
-        $aButton[5]['class']  = 'enabled';
-        ##</procode>##
-        /* ##<freecode>## 
+        
+         
           $aButton[5]['color']  = '#CCC';
           $aButton[5]['script'] = '';
           $aButton[5]['class']  = 'disabled';
-          ##</freecode>## */
+          
 
         return $aButton;
 }
@@ -1168,7 +1010,7 @@ function jch_get_manage_cache_buttons()
         return $aButton;
 }
 
-/* ##<freecode>##
+
   function jch_gen_proonly_field($description)
   {
   $field = '<div style="display:flex; margin-bottom: 5px;"><em style="padding: 5px; background-color: white; border: 1px #ccc;">Only available in Pro Version!</em></div>' .
@@ -1176,41 +1018,5 @@ function jch_get_manage_cache_buttons()
 
   return $field;
   }
-  ##</freecode>## */
+  
 
-##<procode>##
-
-function jch_get_optimize_images_buttons()
-{
-        $page    = add_query_arg(array('jch-task' => 'optimizeimages'), admin_url('options-general.php?page=jchoptimize-settings'));
-        $aButton = array();
-
-        $aButton[0]['link']   = '';
-        $aButton[0]['icon']   = 'fa-compress';
-        $aButton[0]['color']  = '#278EB1';
-        $aButton[0]['text']   = 'Optimize Images';
-        $aButton[0]['script'] = 'onclick="jchOptimizeImages(\'' . $page . '\'); return false;"';
-        $aButton[0]['class']  = 'enabled';
-
-        return $aButton;
-}
-
-add_action('wp_ajax_filetree', 'jch_ajax_file_tree');
-
-function jch_ajax_file_tree()
-{
-        echo JchOptimizeAjax::fileTree();
-
-        die();
-}
-
-add_action('wp_ajax_optimizeimages', 'jch_ajax_optimize_images');
-
-function jch_ajax_optimize_images()
-{
-        JchOptimizeAjax::optimizeImages(JchPlatformSettings::getInstance(get_option('jch_options')));
-
-        die();
-}
-
-##</procode>##
