@@ -1,6 +1,6 @@
-=== Plugin Name ===
+=== JCH Optimize ===
 Contributors: codealfa
-Tags: performance, optimize, speed, minify, aggregate
+Tags: performance, optimize, speed, minify, aggregate, pagespeed, gtmetrix, minification, css, javascript, html
 Tested up to: 4.0
 Stable tag: 1.0.1
 License: GPLv2 or later
@@ -12,7 +12,7 @@ This plugin aggregates and minifies CSS and Javascript files for optimized page 
 
 This plugin optimize your website download speed by automatically aggregating CSS and javascript files to reduce the number of http requests made by the browser to download your web page. The combined CSS and javascript files can be further optimize by minifying and compressing the file with gzip. Also, the HTML output can be compressed for optimized download. These optimizations may reduce server load, bandwidth requirements, and page loading times.
 
-=Major Features=
+= Major Features =
 
 * Javascript and CSS files aggregation and minification.
 * HTML minification.
