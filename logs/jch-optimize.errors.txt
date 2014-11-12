@@ -1,0 +1,4 @@
+C:\www\wordpress39/wp-content/plugins/jch-optimize/assets/sprites/csg-c2c47d74bf674560aeb392ee2868ab06.png: No savings
+Error occurred while trying to match for search area. Check your template for open and closing head tags
+Error occurred while trying to match for search area. Check your template for open and closing head tags
+Error occurred while trying to match for search area. Check your template for open and closing head tags
