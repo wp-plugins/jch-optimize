@@ -117,7 +117,7 @@ msgid "Error occurred matching for images to include"
 msgstr ""
 
 #: options.php:14
-msgid "JCH Optimize Pro Settings"
+msgid "JCH Optimize Settings"
 msgstr ""
 
 #: options.php:65 options.php:126

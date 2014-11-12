@@ -119,17 +119,5 @@ class JchOptimizeBase
                 return FALSE;
         }
 
-        ##<procode>##
-
-        /**
-         * Regex for body section in Html
-         * 
-         * @return string
-         */
-        public function getBodyRegex()
-        {
-                return '#<body[^>]*+>.*</body>#si';
-        }
-
-        ##</procode>##
+        
 }

@@ -314,54 +314,5 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
                 }
         }
 
-        ##<procode>##
-
-        /**
-         * 
-         * @param type $sUrl
-         */
-        protected function loadCssAsync($sUrl)
-        {
-                $sScript = '<script type="text/javascript">
-                var callback = function() {
-                        var link = document.createElement("link");
-                        var head = document.getElementsByTagName("head")[0];
-                        link.type = "text/css";
-                        link.rel = "stylesheet";
-                        link.href = "' . html_entity_decode($sUrl) . '";
-                        head.appendChild(link)
-                };
-                var raf = requestAnimationFrame || mozRequestAnimationFrame ||
-                webkitRequestAnimationFrame || msRequestAnimationFrame;
-                if (raf) raf(callback);
-                else window.addEventListener("load", callback);
-</script>' . $this->sLnEnd . $this->sTab . '</body>';
-
-                $sBodyHtml            = $this->oParser->getBodyHtml();
-                $sBodyHtml            = str_replace('</body>', $sScript, $sBodyHtml);
-                $this->oParser->sHtml = str_replace('</body>', $sScript, $this->oParser->sHtml);
-
-                $this->oParser->setSearchArea($sBodyHtml, 'body');
-        }
-
-        /**
-         * Adds the async attribute to the aggregated js file link
-         * 
-         * @return string
-         */
-        protected function getAsyncAttribute()
-        {
-                if ($this->params->get('pro_loadAsynchronous', '0'))
-                {
-                        $sAsyncAttribute = $this->isXhtml() ? ' async="async"' : ' async';
-
-                        return $sAsyncAttribute;
-                }
-                else
-                {
-                        return parent::getAsyncAttribute();
-                }
-        }
-
-        ##</procode>##
+        
 }

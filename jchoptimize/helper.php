@@ -356,29 +356,5 @@ JchOptimizeLogger::debug($out, 'out');
                 }
         }
 
-##<procode>##
-        /**
-         * 
-         */
 
-        public static function cookieLessDomain($params)
-        {
-                $cookie_less_domain = trim($params->get('pro_cookielessdomain', ''));
-
-                if ($cookie_less_domain == '')
-                {
-                        return parent::cookieLessDomain($params);
-                }
-
-                static $sDomain = '';
-
-                if ($sDomain == '')
-                {
-                        $sDomain = '//' . preg_replace('#^(?:https?:)?//|/$#i', '', $cookie_less_domain);
-                }
-
-                return $sDomain;
-        }
-
-##</procode>##
 }

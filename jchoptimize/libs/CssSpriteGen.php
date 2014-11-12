@@ -512,15 +512,7 @@ class CssSpriteGen
                                 {
                                         $this->oImageHandler->writeImage($oSprite, $sOutputFormat, $this->sTempSpriteName);
 
-                                        ##<procode>##
-                                        $curl_enabled    = function_exists('curl_version') && curl_version();
-                                        $allow_url_fopen = (bool) ini_get('allow_url_fopen');
-
-                                        if ($curl_enabled && $allow_url_fopen)
-                                        {
-                                                $this->optimizeImage($this->sTempSpriteName);
-                                        }
-                                        ##</procode>##
+                                        
                                 }
 
                                 JCH_DEBUG ? JchPlatformProfiler::mark('afterCreateSprite plgSystem (JCH Optimize)') : null;
@@ -550,27 +542,7 @@ class CssSpriteGen
                 return preg_replace("/[^a-z0-9_-]+/i", '', str_ireplace($aExtensions, '', $sClassName));
         }
 
-        ##<procode>##
-
-        protected function optimizeImage($sFileName)
-        {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeOptimizeSprite plgSystem (JCH Optimize)') : null;
-
-                $dir = JchPlatformUtility::encrypt($sFileName);
-
-                $aQuery = array(
-                        'dir'   => $dir,
-                        'async' => 1
-                );
-
-                $url = JchPlatformPaths::ajaxUrl('optimizeimages');
-
-                JchOptimizeHelper::postAsync($url, $this->params, $aQuery);
-
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterOptimizeSprite plgSystem (JCH Optimize)') : null;
-        }
-
-        ##</procode>##
+        
 
         public function ValidImages()
         {
