@@ -2,7 +2,7 @@
 Contributors: codealfa
 Tags: performance, optimize, speed, minify, aggregate, pagespeed, gtmetrix, minification, css, javascript, html
 Tested up to: 4.0
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,10 @@ The combined files are accessed by the browser via a jscss.php file in the `/wp-
 Simply deactivate or uninstall the plugin to reverse any changes it has made. The plugin doesn't modify any existing file or code but merely manipulates the HTML before it is sent to the brower. Any apparent persistent change after the plugin is deactivated is due to caching so ensure to flush all your WordPress, third party or browser cache.
 
 == Changelog ==
+
+= 1.0.2 =
+* Fixed bug in HMTL Minnify library manifested on XHTML templates
+* Fails gracefully on PHP5.2
 
 = 1.0.1 =
 * First public release on WordPress plugins repository.

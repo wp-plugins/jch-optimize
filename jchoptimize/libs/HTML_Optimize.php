@@ -163,6 +163,7 @@ class HTML_Optimize
                 );
 
 //                JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceRunsOfWs plgSystem (JCH Optimize)') : null;
+                
                 //Remove additional ws around attributes
               $this->_html = preg_replace(
                         '#(?><?[^<]*+)*?(?:<[a-z0-9]++\K\s++|\G[^\>=]++=(?(?=\s*+["\'])\s*+["\'][^"\']*+["\']|[^\s]++)\K\s++|$\K)#i', ' ',
@@ -187,7 +188,7 @@ class HTML_Optimize
 //                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveQuotes plgSystem (JCH Optimize)') : null;
                 //remove redundant attributes
                 $this->_html = preg_replace(
-                        '#(?><?[^<]*+)*?<(?:(?:script|style|link)|/html>)(?>[ ]?[^ >]*+)*?\K(?: type=["\']?text/(?:javascript|css)|[^<]*+\K$)#i', '',
+                        '#(?><?[^<]*+)*?<(?:(?:script|style|link)|/html>)(?>[ ]?[^ >]*+)*?\K(?: type=["\']?text/(?:javascript|css)["\']?|[^<]*+\K$)#i', '',
                         $this->_html
                 ); 
 

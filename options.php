@@ -57,6 +57,19 @@ function jch_options_page()
 //                $wp_filesystem->put_contents($configfile, $configs);
 //        }
 
+
+        if (version_compare(PHP_VERSION, '5.3.0', '<'))
+        {
+
+                ?>
+
+                <div class="error">
+                        <p> <?php _e('This plugin requires PHP 5.3.0 or greater to run. Your installed version is: ' . PHP_VERSION, 'jch-optimize') ?></p>
+                </div>
+                <?php
+
+        }
+
         ?>
         <div>
                 <h2>JCH Optimize Settings</h2>
@@ -68,7 +81,7 @@ function jch_options_page()
                                 
                                   ?>
                                   <a class="right button button-primary" href="https://www.jch-optimize.net/test/subscribe/new/jchoptimizewp.html?layout=default" target="_blank"><?php _e('Upgrade to Pro', 'jch-optimize'); ?></a>
- 
+
                                   <?php
                                   
 
@@ -91,7 +104,7 @@ function jch_options_page()
                                 <div class="tab-pane active" id="description">
                                         <div id="extension-container" style="text-align:left;">
                                                 <h1>JCH Optimize Plugin</h1>
-                                                <h3>(Version 1.0.1)</h3>
+                                                <h3>(Version 1.0.2)</h3>
                                                 <?php
 
                                                 
@@ -118,11 +131,11 @@ function jch_options_page()
                                                 </p> 
                                         </div>
                                 </div>
-        <?php do_settings_sections('jch-sections'); ?>
-                        <?php echo '</div>'; ?>
+                                <?php do_settings_sections('jch-sections'); ?>
+                                <?php echo '</div>'; ?>
                         </div>
 
-        <?php settings_fields('jch_options'); ?>
+                        <?php settings_fields('jch_options'); ?>
                         <input name="Submit" class="button" type="submit" value="<?php esc_attr_e('Save Changes', 'jch-optimize'); ?>" />
                 </form>
         </div>
@@ -164,9 +177,13 @@ function jch_admin_init()
                                                        'jch_basic_auto');
         add_settings_section('jch_basic', '', 'jch_basic_section_text', 'jch-sections');
         add_settings_field('jch_options_lifetime', __('Lifetime (days)', 'jch-optimize'), 'jch_options_lifetime_string', 'jch-sections', 'jch_basic');
-        add_settings_field('jch_options_manage_cache', __('Manage JCH Optimize Cache', 'jch-optimize'), 'jch_options_manage_cache_string',
-                                                          'jch-sections', 'jch_basic');
 
+        if (version_compare(PHP_VERSION, '5.3.0', '>='))
+        {
+                add_settings_field('jch_options_manage_cache', __('Manage JCH Optimize Cache', 'jch-optimize'), 'jch_options_manage_cache_string',
+                                                                  'jch-sections', 'jch_basic');
+        }
+        
         add_settings_section('jch_advanced_auto', '', 'jch_advanced_auto_section_text', 'jch-sections');
         add_settings_field('jch_options_excludeAllExtensions', __('Exclude files from all plugins', 'jch-optimize'),
                                                                   'jch_options_excludeAllExtensions_string', 'jch-sections', 'jch_advanced_auto');
@@ -244,6 +261,7 @@ function check_jch_tasks()
                 jch_optimize_images();
         }
 
+
         if ($notice = get_transient('jch_notices'))
         {
                 add_action('admin_notices', 'jch_send_notices');
@@ -286,7 +304,7 @@ function jch_load_scripts()
                         jQuery("form.jch-settings-form").submit();
                 }
                 ;
-        <?php        ?>
+        <?php           ?>
 
         </script>
         <?php
@@ -488,6 +506,7 @@ function jch_options_lifetime_string()
 
 function jch_options_manage_cache_string()
 {
+
         JchPlatformCache::initializecache();
 
         $fi = new FilesystemIterator(JCH_CACHE_DIR, FilesystemIterator::SKIP_DOTS);
