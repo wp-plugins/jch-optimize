@@ -1,8 +1,8 @@
 === JCH Optimize ===
 Contributors: codealfa
-Tags: performance, optimize, speed, minify, aggregate, pagespeed, gtmetrix, minification, css, javascript, html
+Tags: performance, optimize, speed, minify, aggregate, pagespeed, gtmetrix, minification, css, javascript, html, jch, lazy, load
 Tested up to: 4.0
-Stable tag: 1.0.2
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,15 +20,14 @@ This plugin optimize your website download speed by automatically aggregating CS
 * Generate sprite to combine background images.
 * Ability to exclude files from the aggregation to resolve conflicts
 
-This is a popular Joomla! extension that is now made available to WordPress. View the [plugin's page](http://extensions.joomla.org/extensions/core-enhancements/performance/site-performance/12088/) on Joomla!'s Extension Directory to see the reviews it has earned. 
+This plugin runs on a framework that is tried and proven within the Joomla! community. View the [plugin's page](http://extensions.joomla.org/extensions/extension/core-enhancements/performance/jch-optimize/) on Joomla!'s Extension Directory to see the reviews it has earned and why it has gain so much popularity in that community.
 
-There is a [pro version available](https://www.jch-optimize.net/test/subscribe/new/jchoptimizewp.html?layout=default) for sale on the [plugin's website](https://www.jch-optimize.net) at  with more features to further optimize your website such as:
+There is a [pro version available](https://www.jch-optimize.net/subscribe/new/jchoptimizewp.html?layout=default) on the [plugin's website](https://www.jch-optimize.net) with more features to further optimize your website such as:
 
 * Optimize CSS Delivery
 * CDN/Cookie-less Domain support
 * Optimize images
-
-Support is available for subscribers via a ticket system on the plugin's website. Please note the ticket system is offline on weekends.
+* lazy load images
 
 == Installation ==
 
@@ -38,8 +37,6 @@ Just install from your WordPress "Plugins|Add New" screen. Manual installation i
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to `Settings -> JCH Optimize` and enable the options you want
 4. It's recommended that you use the automatic pre-configured settings if you're not an advanced user
-
-If you're installing the pro version you need to do it manually. Just upload it over the free version and overwrite the files.
 
 == Frequently Asked Questions ==
 
@@ -57,6 +54,13 @@ The combined files are accessed by the browser via a jscss.php file in the `/wp-
 Simply deactivate or uninstall the plugin to reverse any changes it has made. The plugin doesn't modify any existing file or code but merely manipulates the HTML before it is sent to the brower. Any apparent persistent change after the plugin is deactivated is due to caching so ensure to flush all your WordPress, third party or browser cache.
 
 == Changelog ==
+
+= 1.1.0 =
+* Added visual indicators to show which Automatic setting is enabled
+* Added multiselect exclude options so it's easier to find files/plugins to exclude from combining if they cause problems
+* Bug fixes and improvements in the HTML, CSS, and javascript minification libraries
+* Added levels of HTML minification
+
 
 = 1.0.2 =
 * Fixed bug in HMTL Minnify library manifested on XHTML templates

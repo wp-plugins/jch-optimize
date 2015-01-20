@@ -1,7 +1,5 @@
 <?php
 
-use JchOptimize\HTML_Optimize;
-
 /**
  * JCH Optimize - Joomla! plugin to aggregate and minify external resources for
  * optmized downloads
@@ -42,6 +40,11 @@ class JchOptimize
         {
                 JCH_DEBUG ? JchPlatformProfiler::mark('beforeProcess plgSystem (JCH Optimize)') : null;
 
+                loadJchOptimizeClass(array('JchOptimizeBase', 'JchOptimizeParser', 'JchOptimizeFileRetriever', 
+                        'JchOptimizeLinkBuilder', 'JchOptimizeHelper'));
+                
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterLoadClass plgSystem (JCH Optimize)') : null;
+                
                 try
                 {
                         $oParser = new JchOptimizeParser($this->params, $sHtml, JchOptimizeFileRetriever::getInstance());
@@ -49,7 +52,7 @@ class JchOptimize
                         $oLinkBuilder = new JchOptimizeLinkBuilder($oParser);
                         $oLinkBuilder->insertJchLinks();
 
-                        $sOptimizedHtml = $this->minifyHtml($oParser->getHtml());
+                        $sOptimizedHtml = JchOptimizeHelper::minifyHtml($oParser->getHtml(), $this->params);
                 }
                 catch (Exception $ex)
                 {
@@ -61,7 +64,7 @@ class JchOptimize
                 spl_autoload_unregister('loadJchOptimizeClass');
 
                 JCH_DEBUG ? JchPlatformProfiler::mark('afterProcess plgSystem (JCH Optimize)') : null;
-                
+
                 return $sOptimizedHtml;
         }
 
@@ -72,6 +75,18 @@ class JchOptimize
          */
         public static function optimize($oParams, $sHtml)
         {
+                if (version_compare(PHP_VERSION, '5.3.0', '<'))
+                {
+                        throw new Exception(JchPlatformUtility::translate('PHP Version less than 5.3.0. Exiting plugin...'));
+                }
+
+                $pcre_version = preg_replace('#(^\d++\.\d++).++$#', '$1', PCRE_VERSION);
+
+                if (version_compare($pcre_version, '7.2', '<'))
+                {
+                        throw new Exception(JchPlatformUtility::translate('PCRE Version less than 7.2. Exiting plugin...'));
+                }
+
                 $JchOptimize = new JchOptimize($oParams);
                 return $JchOptimize->process($sHtml);
         }
@@ -83,90 +98,11 @@ class JchOptimize
          */
         private function __construct($oParams)
         {
+                loadJchOptimizeClass('JchPlatformSettings');
+                
                 ini_set('pcre.backtrack_limit', 1000000);
-                
+
                 $this->params = JchPlatformSettings::getInstance($oParams);
-                
-                if (!defined('JCH_VERSION'))
-                {
-                        define('JCH_VERSION', '4.1.1');
-                }
         }
 
-        /**
-         * If parameter is set will minify HTML before sending to browser; 
-         * Inline CSS and JS will also be minified if respective parameters are set
-         * 
-         * @return string                       Optimized HTML
-         * @throws Exception
-         */
-        public function minifyHtml($sHtml)
-        {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeMinifyHtml plgSystem (JCH Optimize)') : null;
-
-                $oParams = $this->params;
-                $aOptions = array();
-
-                if ($oParams->get('css_minify', 0))
-                {
-                        $aOptions['cssMinifier'] = array('JchOptimize\CSS_Optimize', 'process');
-                }
-
-                if ($oParams->get('js_minify', 0))
-                {
-                        $aOptions['jsMinifier'] = array('JchOptimize\JS_Optimize', 'minify');
-                }
-
-                if ($oParams->get('html_minify', 0))
-                {
-                        $sHtmlMin = HTML_Optimize::minify($sHtml, $aOptions);
-
-                        if ($sHtmlMin == '')
-                        {
-                                JchOptimizeLogger::log(JchPlatformUtility::translate('Error while minifying HTML'), $oParams);
-
-                                $sHtmlMin = $sHtml;
-                        }
-
-                        $sHtml = $sHtmlMin;
-                }
-
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterMinifyHtml plgSystem (JCH Optimize)') : null;
-
-                return $sHtml;
-        }
-
-        /**
-         * Splits a string into an array using any regular delimiter or whitespace
-         *
-         * @param string  $sString   Delimited string of components
-         * @return array            An array of the components
-         */
-        public static function getArray($sString)
-        {
-                if (is_array($sString))
-                {
-                        return $sString;
-                }
-
-                $aArray = explode(',', trim($sString));
-                $aArray = array_map(function($sValue)
-                {
-                        return trim($sValue);
-                }, $aArray);
-
-                return $aArray;
-        }
-
-        /**
-         * Returns url of current host
-         *
-         * @return string    Url of current host
-         */
-        public function getHost()
-        {
-                $sWww = $this->oUri->toString(array('scheme', 'user', 'pass', 'host', 'port'));
-
-                return $sWww;
-        }
 }

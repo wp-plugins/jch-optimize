@@ -28,14 +28,16 @@ class JchOptimizeFileRetriever
 {
 
         protected static $instance = FALSE;
-        protected $oHttpAdapter = Null;
+        protected static $oHttpAdapter = Null;
+        
+        public $response_code = null;
 
         /**
          * 
          */
-        protected function __construct()
+        private function __construct()
         {
-                $this->oHttpAdapter = JchPlatformHttp::getHttpAdapter();
+                
         }
 
         /**
@@ -45,16 +47,18 @@ class JchOptimizeFileRetriever
          */
         public function getFileContents($sPath, $aPost = array(), $sOrigPath = '')
         {
+                $oHttpAdapter = $this->getHttpAdapter();
+                
                 if ((strpos($sPath, 'http') === 0) || !empty($aPost))
                 {
-                        if (!$this->oHttpAdapter->available())
+                        if (!$oHttpAdapter->available())
                         {
                                 throw new Exception(JchPlatformUtility::translate('No Http Adapter available'));
                         }
 
                         try
                         {
-                                $response = $this->oHttpAdapter->request($sPath, $aPost);
+                                $response = $oHttpAdapter->request($sPath, $aPost);
 
                                 if ($response === FALSE)
                                 {
@@ -66,15 +70,15 @@ class JchOptimizeFileRetriever
                         catch (RuntimeException $ex)
                         {
                                 JchOptimizelogger::log($sPath . ': ' . $ex->getMessage(), JchPlatformPlugin::getPluginParams());
-
-                                $response['code'] = 404;
                         }
                         catch (BadFunctionCallException $ex)
                         {
                                 throw new Exception($ex->getMessage());
                         }
 
-                        if ($response['code'] >= 400)
+                        $this->response_code = $response['code'];
+                        
+                        if ($response['code'] != 200)
                         {
                                 $sPath     = $sOrigPath == '' ? $sPath : $sOrigPath;
                                 $sContents = $this->notFound($sPath);
@@ -90,7 +94,7 @@ class JchOptimizeFileRetriever
                         {
                                 $sContents = @file_get_contents($sPath);
                         }
-                        elseif ($this->oHttpAdapter->available())
+                        elseif ($oHttpAdapter->available())
                         {
                                 $sUriPath = JchPlatformPaths::path2Url($sPath);
 
@@ -125,7 +129,22 @@ class JchOptimizeFileRetriever
          */
         public function isHttpAdapterAvailable()
         {
-                return $this->oHttpAdapter->available();
+                $oHttpAdapter = $this->getHttpAdapter();
+                
+                return $oHttpAdapter->available();
+        }
+        
+        /**
+         * 
+         */
+        private function getHttpAdapter()
+        {
+                if(is_null(self::$oHttpAdapter))
+                {
+                        self::$oHttpAdapter = JchPlatformHttp::getHttpAdapter();
+                }
+                
+                return self::$oHttpAdapter;
         }
 
         /**

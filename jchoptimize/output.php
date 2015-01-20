@@ -52,15 +52,25 @@ class JchOptimizeOutput
                 $sTimeMFile  = $aTimeMFile['filemtime'] . ' GMT';
                 $sExpiryDate = $aTimeMFile['expiry'] . ' GMT';
 
-                $headers = array();
+                $sModifiedSinceTime = '';
 
                 if (function_exists('apache_request_headers'))
                 {
                         $headers = apache_request_headers();
+                        
+                        if (isset($headers['If-Modified-Since']))
+                        {
+                                $sModifiedSinceTime = strtotime($headers['If-Modified-Since']);
+                        }
+                        
                 }
                 
-                if (!empty($headers) && isset($headers['If-Modified-Since']) && 
-                        (strtotime($headers['If-Modified-Since']) == strtotime($sTimeMFile)))
+                if ($sModifiedSinceTime == '' && isset($_SERVER['HTTP_IF_MODIFIED_SINCE']))
+                {
+                        $sModifiedSinceTime = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+                }
+
+                if ($sModifiedSinceTime == strtotime($sTimeMFile))
                 {
                         // Client's cache IS current, so we just respond '304 Not Modified'.
                         header('HTTP/1.1 304 Not Modified');
@@ -103,14 +113,15 @@ class JchOptimizeOutput
 
                 if ($aGet['type'] == 'css')
                 {
-                        header('Content-type: text/css; charset=UTF-8');
+                        header('Content-type: text/css');
                 }
                 elseif ($aGet['type'] == 'js')
                 {
-                        header('Content-type: text/javascript; charset=UTF-8');
+                        header('Content-type: application/javascript');
                 }
 
                 header('Expires: ' . $sExpiryDate);
+                header('Accept-Ranges: bytes');
                 header('Cache-Control: Public');
                 header('Vary: Accept-Encoding');
                 
@@ -172,8 +183,6 @@ class JchOptimizeOutput
                         }
                 }
 
-                header('Content-Length: ' . strlen($sFile));
-
                 echo $sFile;
         }
 
@@ -200,7 +209,7 @@ class JchOptimizeOutput
          * @param type $array
          * @return type
          */
-        public static function getArray($array)
+        private static function getArray($array)
         {
                 $gz = isset($_GET['gz']) ? 'gz' : 'nz';
                 

@@ -40,6 +40,22 @@ class JchOptimizeCssParserBase
         {
                 return array();
         }
+        
+        /**
+         * 
+         * @param type $sContents
+         * @param type $sHtml
+         * @return string
+         */
+        public function optimizeCssDelivery($sContents, $sHtml)
+        {
+                $aContents = array(
+                        'font-face'   => '',
+                        'criticalcss' => ''
+                );
+
+                return $aContents;
+        }
 
 }
 
@@ -54,8 +70,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
         public $sLnEnd      = '';
         public $params;
         protected $bBackend = FALSE;
-        protected $oParser;
-        public $l           = '\([^)]++\)|//[^\n]*+';
+        public $l           = '\([^)]++\)|//[^\r\n]*+';
         public $b           = '/\*(?>[^/\*]++|//|\*(?!/)|(?<!\*)/)*+\*/';
 
         /**
@@ -63,11 +78,11 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          * @param type $sLnEnd
          * @param type $bBackend
          */
-        public function __construct($oParser = NULL, $bBackend = 'FALSE')
+        public function __construct($params = NULL, $bBackend = 'FALSE')
         {
-                $this->sLnEnd   = is_null($oParser) ? "\n" : $oParser->sLnEnd;
-                $this->params   = is_null($oParser) ? NULL : $oParser->params;
-                $this->oParser  = $oParser;
+                $this->sLnEnd = is_null($params) ? "\n" : JchPlatformUtility::lnEnd();
+                $this->params = is_null($params) ? NULL : $params;
+
                 $this->bBackend = $bBackend;
         }
 
@@ -280,10 +295,12 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
                         return $sContent;
                 }
 
-                if (!empty($aMatches[0]))
+                $m = array_filter($aMatches[0]);
+
+                if (!empty($m))
                 {
-                        $m = array_filter($aMatches[0]);
-                        
+                        $m = array_unique($m);
+
                         $sAtRules = implode($this->sLnEnd, $m);
 
                         $sContentReplaced = str_replace($m, '', $sContent);
@@ -303,8 +320,8 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
         public function correctUrl($sContent)
         {
                 $sCorrectedContent = preg_replace_callback(
-                        "#{$this->l}|{$this->b}|url\(\s*+\K['\"]?((?(?<=['\"])[^'\"\)]++|(?>(?:(?<=\\\\)[\s)])?[^\s)]*+)*?(?=(?<!\\\\)[\s)])))['\"]?#i",
-                                                           array(__CLASS__, '_correctUrlCB'), $sContent);
+                        "#{$this->l}|{$this->b}|url\(\s*+\K['\"]?((?<!['\"])[^\s)]*+|(?<!')[^\"]*+|[^']*+)['\"]?#i", array(__CLASS__, '_correctUrlCB'),
+                        $sContent);
 
                 if (is_null($sCorrectedContent))
                 {
@@ -329,67 +346,74 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
                 {
                         return $aMatches[0];
                 }
-
-                if ($aMatches[0] == '')
+                
+                if ($aMatches[1] == '')
                 {
-                        return ' ';
+                        return $aMatches[0];
                 }
 
                 $sUriBase    = JchPlatformUri::base(TRUE);
                 $sImageUrl   = $aMatches[1];
                 $sCssFileUrl = isset($this->aUrl['url']) ? $this->aUrl['url'] : '/';
 
-                if (preg_match('#^data:#', $sImageUrl))
+                if (!preg_match('#^data:#', $sImageUrl))
                 {
-                        return $sImageUrl;
-                }
-
-                if (!preg_match('#^/|://#', $sImageUrl))
-                {
-                        $aCssUrlArray = explode('/', $sCssFileUrl);
-                        array_pop($aCssUrlArray);
-                        $sCssRootPath = implode('/', $aCssUrlArray) . '/';
-                        $sImagePath   = $sCssRootPath . $sImageUrl;
-                        $oImageUri    = clone JchPlatformUri::getInstance($sImagePath);
-                        $sUriPath     = preg_replace('#^' . preg_quote($sUriBase, '#') . '/#', '', $oImageUri->getPath());
-                        $oImageUri->setPath($sUriBase . '/' . $sUriPath);
-
-                        $sImageUrl = $oImageUri->toString();
-                }
-
-                if (JchOptimizeHelper::isInternal($sCssFileUrl) && JchOptimizeHelper::isInternal($sImageUrl))
-                {
-                        $oImageUri = clone JchPlatformUri::getInstance($sImageUrl);
-
-                        $aStaticFiles = $this->staticFiles();
-                        $sStaticFiles = implode('|', $aStaticFiles);
-
-                        $aFontFiles = $this->fontFiles();
-                        $sFontFiles = implode('|', $aFontFiles);
-
-                        if (preg_match('#\.(?>' . $sStaticFiles . ')#', $oImageUri->getPath()))
+                        if (!preg_match('#^/|://#', $sImageUrl))
                         {
-                                $sImageUrl = JchOptimizeHelper::cookieLessDomain($this->params) . $oImageUri->toString(array('path'));
+                                $aCssUrlArray = explode('/', $sCssFileUrl);
+                                array_pop($aCssUrlArray);
+                                $sCssRootPath = implode('/', $aCssUrlArray) . '/';
+                                $sImagePath   = $sCssRootPath . $sImageUrl;
+                                $oImageUri    = clone JchPlatformUri::getInstance($sImagePath);
+
+                                if (JchOptimizeHelper::isInternal($sCssFileUrl))
+                                {
+                                        $sUriPath  = preg_replace('#^' . preg_quote($sUriBase, '#') . '/#', '', $oImageUri->getPath());
+                                        $oImageUri->setPath($sUriBase . '/' . $sUriPath);
+                                        $sImageUrl = $oImageUri->toString();
+                                }
+                                else
+                                {
+                                        $oImageUri->setPath($oImageUri->getPath());
+                                        $sImageUrl = ($oImageUri->toString(array('scheme')) ? '' : '//') . $oImageUri->toString();
+                                }
                         }
-                        elseif (preg_match('#\.php#', $oImageUri->getPath()))
-                        {
-                                $sImageUrl = $oImageUri->toString(array('path', 'query', 'fragment'));
-                        }
-                        elseif ($this->params->get('pro_cookielessdomain', '') && preg_match('#\.(?>' . $sFontFiles . ')#', $oImageUri->getPath()))
-                        {
-                                $oUri = clone JchPlatformUri::getInstance();
 
-                                $sImageUrl = '//' . $oUri->toString(array('host', 'port')) .
-                                        $oImageUri->toString(array('path'));
-                        }
-                        else
+                        if (JchOptimizeHelper::isInternal($sCssFileUrl) && JchOptimizeHelper::isInternal($sImageUrl))
                         {
-                                $sImageUrl = $oImageUri->toString(array('path'));
+                                $oImageUri = clone JchPlatformUri::getInstance($sImageUrl);
+
+                                $aStaticFiles = $this->staticFiles();
+                                $sStaticFiles = implode('|', $aStaticFiles);
+
+                                $aFontFiles = $this->fontFiles();
+                                $sFontFiles = implode('|', $aFontFiles);
+
+                                if (preg_match('#\.(?>' . $sStaticFiles . ')#', $oImageUri->getPath()))
+                                {
+                                        $sImageUrl = JchOptimizeHelper::cookieLessDomain($this->params) . $oImageUri->toString(array('path'));
+                                }
+                                elseif (preg_match('#\.php#', $oImageUri->getPath()))
+                                {
+                                        $sImageUrl = $oImageUri->toString(array('path', 'query', 'fragment'));
+                                }
+                                elseif ($this->params->get('pro_cookielessdomain', '') && preg_match('#\.(?>' . $sFontFiles . ')#',
+                                                                                                     $oImageUri->getPath()))
+                                {
+                                        $oUri = clone JchPlatformUri::getInstance();
+
+                                        $sImageUrl = '//' . $oUri->toString(array('host', 'port')) .
+                                                $oImageUri->toString(array('path'));
+                                }
+                                else
+                                {
+                                        $sImageUrl = $oImageUri->toString(array('path'));
+                                }
                         }
                 }
                 //JCH_DEBUG ? JchPlatformProfiler::mark('afterCorrectUrl plgSystem (JCH Optimize)') : null;
                 $sImageUrl = preg_match('#(?<!\\\\)[\s\'"(),]#', $sImageUrl) ? '"' . $sImageUrl . '"' : $sImageUrl;
-                
+
                 return $sImageUrl;
         }
 
@@ -450,6 +474,27 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
 
                 $sCss = str_replace($aMatches[2], $sImports, $aMatches[0]);
 
+                return $sCss;
+        }
+        
+        /**
+         * 
+         * @param type $sCss
+         * @return type
+         */
+        public function addRightBrace($sCss)
+        {
+                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeaddRightBrace - plgSystem (JCH Optimize)') : null;
+                
+                if(preg_match('#{#', $sCss))
+                {
+                        preg_match_all('#(?>{?[^{]*+)*?(?<b>{(?>[^{}]++|(?&b))*+})#', rtrim($sCss) . '}}', $m, PREG_PATTERN_ORDER);
+
+                        $sCss = implode('', $m[0]);
+                }
+               
+                //JCH_DEBUG ? JchPlatformProfiler::mark('afterAddRightBrace - plgSystem (JCH Optimize)') : null;
+                
                 return $sCss;
         }
 

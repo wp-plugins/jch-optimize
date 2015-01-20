@@ -395,13 +395,15 @@ class CssSpriteGen
                                 break;
                         }
                 }
-
+                
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterCalculateSprite plgSystem (JCH Optimize)') : null;
+                
                 if ($this->bBackend)
                 {
                         return $aValidImages;
                 }
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterCalculateSprite plgSystem (JCH Optimize)') : null;
+                
 
 
                 /*                 * **************************************** */
@@ -480,16 +482,16 @@ class CssSpriteGen
                                         $iY                  = $aFilesInfo[$i]['y'] != 0 ? '-' . $aFilesInfo[$i]['y'] . 'px' : '0';
                                         $this->aPosition[$i] = $iX . ' ' . $iY;
                                         // create CSS rules and append to overall CSS rules
-                                        $this->sCss .= "{$this->aFormValues['selector-prefix']}{$aFilesInfo[$i]['class']} "
-                                                . "{$this->aFormValues['selector-suffix']}{ background-position: $iX $iY; ";
-
-                                        // If add widths and heights the sprite image width and height are added to the CSS
-                                        if ($this->aFormValues['add-width-height-to-css'] == 'on')
-                                        {
-                                                $this->sCss .= "width: {$aFilesInfo[$i]['width']}px; height: {$aFilesInfo[$i]['height']}px;";
-                                        }
-
-                                        $this->sCss .= " } \n";
+//                                        $this->sCss .= "{$this->aFormValues['selector-prefix']}{$aFilesInfo[$i]['class']} "
+//                                                . "{$this->aFormValues['selector-suffix']}{ background-position: $iX $iY; ";
+//
+//                                        // If add widths and heights the sprite image width and height are added to the CSS
+//                                        if ($this->aFormValues['add-width-height-to-css'] == 'on')
+//                                        {
+//                                                $this->sCss .= "width: {$aFilesInfo[$i]['width']}px; height: {$aFilesInfo[$i]['height']}px;";
+//                                        }
+//
+//                                        $this->sCss .= " } \n";
                                         // destroy object created for current image to save memory
                                         $this->oImageHandler->destroy($oCurrentImage);
                                 }

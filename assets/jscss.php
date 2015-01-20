@@ -21,7 +21,7 @@
  * This plugin includes other copyrighted works. See individual 
  * files for details.
  */
-include dirname(__FILE__) . '/dir.php';
+include dirname(dirname(__FILE__)) . '/dir.php';
 
 define('SHORTINIT', TRUE);
 

@@ -52,15 +52,6 @@ class JchOptimizeBase
 
                 return $this->sHeadHtml;
         }
-        
-        /**
-         * 
-         * @return string
-         */
-        public function getBodyHtml()
-        {
-                return '';
-        }
 
         /**
          * Fetches HTML to be sent to browser
@@ -85,9 +76,10 @@ class JchOptimizeBase
          * @param string $sUrl
          * @return boolean
          */
-        protected function isHttpAdapterAvailable($sPath)
+        protected function isHttpAdapterAvailable($sUrl)
         {
-                return ((preg_match('#^http#', $sPath) === 1));
+                return ((preg_match('#^(?:http|//)#i', $sUrl) && !JchOptimizeHelper::isInternal($sUrl)) 
+                                || preg_match('#\.php|^(?!.*?\.(?:js|css)).++#i',$sUrl));
         }
 
 
@@ -98,7 +90,7 @@ class JchOptimizeBase
          */
         public function getHeadRegex()
         {
-                return '#<head[^>]*+>(?><?[^<]*+)*?</head>#i';
+                return '#<head\b[^>]*+>(?><?[^<]*+)*?</head>#i';
         }
         
         /**
@@ -118,6 +110,23 @@ class JchOptimizeBase
         {
                 return FALSE;
         }
-
         
+        /**
+         * 
+         * @return boolean
+         */
+        public function lazyLoadImages()
+        {
+                return FALSE;
+        }
+
+        /**
+         * Regex for body section in Html
+         * 
+         * @return string
+         */
+        public function getBodyRegex()
+        {
+                return '#<body\b[^>]*+>.*</body>#si';
+        }
 }

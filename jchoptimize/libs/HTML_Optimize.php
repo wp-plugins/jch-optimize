@@ -18,7 +18,7 @@ namespace JchOptimize;
  *
  * @author Samuel Marshall<sdmarshall73@gmail.com>
  */
-class HTML_Optimize
+class HTML_Optimize extends Optimize
 {
 
         /**
@@ -39,10 +39,10 @@ class HTML_Optimize
          *
          * @return string
          */
-        public static function minify($html, $options = array())
+        public static function optimize($html, $options = array())
         {
                 $min = new HTML_Optimize($html, $options);
-                return $min->process();
+                return $min->_optimize();
         }
 
         /**
@@ -83,6 +83,8 @@ class HTML_Optimize
                 {
                         $this->_jsMinifier = $options['jsMinifier'];
                 }
+
+                $this->_sMinifyLevel = isset($options['minify_level']) ? $options['minify_level'] : 0;
         }
 
         /**
@@ -90,33 +92,58 @@ class HTML_Optimize
          *
          * @return string
          */
-        public function process()
+        private function _optimize()
         {
-                JCH_DEBUG ? \JchPlatformProfiler::mark('beforeProcess plgSystem (JCH Optimize)') : null;
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('beforeProcessMinifyHtml plgSystem (JCH Optimize)') : null;
 
                 if ($this->_isXhtml === null)
                 {
-                        $this->_isXhtml = (preg_match('#^\s*+<!DOCTYPE[^X]++XHTML#i', $this->_html));
+                        $this->_isXhtml = (preg_match('#^\s*+<!DOCTYPE[^X>]++XHTML#i', $this->_html));
                 }
 
                 if ($this->_isHtml5 === null)
                 {
                         $this->_isHtml5 = (preg_match('#^\s*+<!DOCTYPE html>#i', $this->_html));
                 }
-
 //                JCH_DEBUG ? \JchPlatformProfiler::mark('afterTestHtml plgSystem (JCH Optimize)') : null;
-                //Replace comments (not containing IE conditional comments)
+//
+
+                //Remove comments (not containing IE conditional comments)
                 $this->_html = preg_replace(
-                        '#(?>(?:<(?!!))?[^<]*+(?:<(?:script|style)\b[^>]*+>(?><?[^<]*+)*?<\/(?:script|style)>|<!--\[(?>\]?[^\]]*+)*?\]--!?>|'
-                        . '<!DOCTYPE[^>]++>)?)*?\K(?:<!--(?>-?[^-\[]*+)*?--!?>|[^<]*+\K$)#i', '', $this->_html);
-
+                        '#(?>(?:<(?!!))?[^<]*+(?:<(?:script|style)\b[^>]*+>(?><?[^<]*+)*?<\/(?:script|style)>|<!--\[(?><?[^<]*+)*?'
+                        . '<!\s*\[(?>-?[^-]*+)*?--!?>|<!DOCTYPE[^>]++>)?)*?\K(?:<!--(?>-?[^-]*+)*?--!?>|[^<]*+\K$)#i', '', $this->_html);
 //                JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceComments plgSystem (JCH Optimize)') : null;
-                //Reduce whitespace outside all elements to one space
-                $this->_html = preg_replace('#(?>>?[^>]*+>(?>[^>]*+\S[^>]*+>)*?)*?\K(?:(?<=>)\s++(?=<)|[^<]*+$\K)#', ' ', $this->_html); 
-
+// 
+                //Reduce runs of whitespace outside all elements to one
+                $this->_html = preg_replace(
+                        '#(?>[^<]*+(?:<script\b[^>]*+>(?><?[^<]*+)*?</script>|<(?>[^>\'"]*+(?:"[^"]*+"|\'[^\']*+\')?)*?>)?)*?\K'
+                        . '(?:[\t\f ]++(?=[\r\n]\s*+<)|(?>\r?\n|\r)\K\s++(?=<)|[\t\f]++(?=[ ]\s*+<)|[\t\f]\K\s*+(?=<)|[ ]\K\s*+(?=<)|$)#', '',
+                        $this->_html
+                );
 //                JCH_DEBUG ? \JchPlatformProfiler::mark('afterReduceWs plgSystem (JCH Optimize)') : null;
+//
+                //Minify scripts
+                $this->_html = preg_replace_callback(
+                        '#(?><?[^<]*+)*?\K(?:(<(script|style)\b[^>]*+>)((?>(?:<(?!/\g{2}))?[^<]++)+?)(<\/\g{2}>)|$)#i', array($this, '_minifyCB'),
+                        $this->_html
+                );
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterMinifyScripts plgSystem (JCH Optimize)') : null;
+//
+                if ($this->_sMinifyLevel < 1)
+                {
+                        return trim($this->_html);
+                }
+
+                //Replace line feed with space (legacy)
+                $this->_html = preg_replace(
+                        '#(?>[^<]*+(?:<script\b[^>]*+>(?><?[^<]*+)*?</script>|<(?>[^>\'"]*+(?:"[^"]*+"|\'[^\']*+\')?)*?>)?)*?\K'
+                        . '(?:[\r\n\t\f]++(?=<)|$)#', ' ', $this->_html
+                );
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceLfwithSpace plgSystem (JCH Optimize)') : null;
+//                
+                // remove ws around block elements preserving space around inline elements
                 //block/undisplayed elements
-                $b = 'address|article|aside|audio|body|blockquote|canvas|dd|div|dl'
+                $b           = 'address|article|aside|audio|body|blockquote|canvas|dd|div|dl'
                         . '|fieldset|figcaption|figure|footer|form|h[1-6]|head|header|hgroup|html|noscript|ol|output|p'
                         . '|pre|section|style|table|title|tfoot|ul|video';
 
@@ -128,78 +155,69 @@ class HTML_Optimize
                         . '|abbr|acronym|cite|code|dfn|em|kbd|strong|samp|var'
                         . '|a|bdo|br|map|object|q|script|span|sub|sup'
                         . '|button|label|select|textarea';
-                
+
                 //self closing inline elements
                 $i2 = 'img|input';
 
-                // remove ws around block elements preserving space around inline elements
-               $this->_html = preg_replace(
+                $this->_html = preg_replace(
                         "#(?>\s*+(?:<(?:(?>$i)\b[^>]*+>|(?:/(?>$i)\b>|(?>$i2)\b[^>]*+>)\s*+)|<[^>]*+>)|[^<]++)*?\K"
-                        . "(?:\s++(?=<(?>$b|$b2)\b)|(?:</(?>$b)\b>|<(?>$b2)\b[^>]*+>)\K\s++(?!<(?>$i|$i2)\b)|$)#i",
-                        '', $this->_html 
-                ); 
-
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundBlocks plgSystem (JCH Optimize)') : null;
-                //Minify scripts
-
-               $this->_html = preg_replace_callback(
-                        '#(?><?[^<]*+)*?\K(?:(<(script|style)\b[^>]*+>)((?>(?:<(?!/\g{2}))?[^<]++)+?)(<\/\g{2}>)|$)#i', array($this, '_minifyCB'),
-                        $this->_html
-                ); 
-
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterMinifyScripts plgSystem (JCH Optimize)') : null;
+                        . "(?:\s++(?=<(?>$b|$b2)\b)|(?:</(?>$b)\b>|<(?>$b2)\b[^>]*+>)\K\s++(?!<(?>$i|$i2)\b)|$)#i", '', $this->_html
+                );
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundBlocks plgSystem (JCH Optimize)') : null;
+//
+                //Replace runs of whitespace inside elements with single space escaping pre, textarea, scripts and style elements
                 //elements to escape
-                $e = 'pre|script|style|textarea';
-                
+                $e           = 'pre|script|style|textarea';
+
                 //Regex for escape elements
                 $p  = "<pre\b[^>]*+>(?><?[^<]*+)*?</pre>";
                 $sc = "<script\b[^>]*+>(?><?[^<]*+)*?</script>";
                 $st = "<style\b[^>]*+>(?><?[^<]*+)*?</style>";
                 $t  = "<textarea\b[^>]*+>(?><?[^<]*+)*?</textarea>";
 
-                //Replace runs of whitespace inside elements with single space escaping pre, textarea, scripts and style elements
                 $this->_html = preg_replace(
                         "#(?>[^<]*+(?:$p|$sc|$st|$t|<[^>]++>[^<]*+))*?(?:(?:<(?!$e)[^>]*+>)?(?>\s?[^\s<]*+)*?\K\s{2,}|\K$)#i", ' ', $this->_html
                 );
-
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceRunsOfWs plgSystem (JCH Optimize)') : null;
-                
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceRunsOfWs plgSystem (JCH Optimize)') : null;
                 //Remove additional ws around attributes
-              $this->_html = preg_replace(
+                $this->_html = preg_replace(
                         '#(?><?[^<]*+)*?(?:<[a-z0-9]++\K\s++|\G[^\>=]++=(?(?=\s*+["\'])\s*+["\'][^"\']*+["\']|[^\s]++)\K\s++|$\K)#i', ' ',
                         $this->_html
-                ); 
+                );
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundAttributes plgSystem (JCH Optimize)') : null;
 
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundAttributes plgSystem (JCH Optimize)') : null;
-
+                if ($this->_sMinifyLevel < 2)
+                {
+                        return trim($this->_html);
+                }
+                
+                //remove redundant attributes
+                $this->_html = preg_replace(
+                        '#(?:(?=[^<>]++>)|(?><?[^<]*+)*?<(?:(?:script|style|link)|/html>))(?>[ ]?[^ >]*+)*?\K'
+                        . '(?: (?:type|language)=["\']?(?:(?:text|application)/(?:javascript|css)|javascript)["\']?|[^<]*+\K$)#i', '', $this->_html
+                );
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveAttributes plgSystem (JCH Optimize)') : null;
+//
+                //Remove quotes from selected attributes
                 if ($this->_isHtml5)
                 {
                         $ns1 = '"[^"\'`=<>\s]*+(?:[\'`=<>\s]|(?<=\\\\)")(?>(?:(?<=\\\\)")?[^"]*+)*?(?<!\\\\)"';
                         $ns2 = "'[^'\"`=<>\s]*+(?:[\"`=<>\s]|(?<=\\\\)')(?>(?:(?<=\\\\)')?[^']*+)*?(?<!\\\\)'";
 
-                        //Remove quotes from selected attributes
                         $this->_html = preg_replace(
                                 "#(?:(?=[^>]*+>)|<[a-z0-9]++ )"
                                 . "(?>[=]?[^=>]*+(?:=(?:$ns1|$ns2)|>(?><?[^<]*+)*?(?:<[a-z0-9]++ |$))?)*?"
                                 . "(?:=\K([\"'])([^\"'`=<>\s]++)\g{1}[ ]?|\K$)#i", '$2 ', $this->_html
                         );
-                }  
-
+                }
 //                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveQuotes plgSystem (JCH Optimize)') : null;
-                //remove redundant attributes
-                $this->_html = preg_replace(
-                        '#(?><?[^<]*+)*?<(?:(?:script|style|link)|/html>)(?>[ ]?[^ >]*+)*?\K(?: type=["\']?text/(?:javascript|css)["\']?|[^<]*+\K$)#i', '',
-                        $this->_html
-                ); 
-
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveAttributes plgSystem (JCH Optimize)') : null;
+//
                 //Remove last whitespace in open tag
                 $this->_html = preg_replace(
                         '#(?><?[^<]*+)*?(?:<[a-z0-9]++(?>\s*+[^\s>]++)*?\K(?:\s++(?=>)|(?<=["\'])\s++(?=/>))|$\K)#i', '', $this->_html
-                );  
-
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveLastWs plgSystem (JCH Optimize)') : null;
-
+                );
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveLastWs plgSystem (JCH Optimize)') : null;
+//
                 return trim($this->_html);
         }
 
@@ -210,7 +228,13 @@ class HTML_Optimize
         protected $_cssMinifier     = null;
         protected $_jsMinifier      = null;
         protected $_html            = '';
+        protected $_sMinifyLevel    = 0;    
 
+        /**
+         * 
+         * @param type $m
+         * @return type
+         */
         protected function _minifyCB($m)
         {
                 if ($m[0] == '')
@@ -241,11 +265,22 @@ class HTML_Optimize
                 }
         }
 
+        /**
+         * 
+         * @param type $str
+         * @return type
+         */
         protected function _needsCdata($str)
         {
                 return ($this->_isXhtml && preg_match('#(?:[<&]|\-\-|\]\]>)#', $str));
         }
 
+        /**
+         * 
+         * @param type $aFunc
+         * @param type $content
+         * @return type
+         */
         protected function _callMinifier($aFunc, $content)
         {
                 $class  = $aFunc[0];
@@ -254,11 +289,18 @@ class HTML_Optimize
                 return $class::$method($content);
         }
 
+        /**
+         * 
+         */
         public static function cleanScript($content)
         {
+                $s1 = self::DOUBLE_QUOTE_STRING;
+                $s2 = self::SINGLE_QUOTE_STRING;
+                $c = '(?:(?:<!--|-->)[^\r\n]*+|(?:<!\[CDATA\[|\]\]>))';
+                
+                
                 return preg_replace(
-                        '#(?://\s*+)?<!(?:--(?>[<>]?[^<>\n]*+)*?(?:(?=</script)|\n|(?:(?<=--)|(?<=--!))>)'
-                        . '|\[CDATA\[)?|(?://\s*+)?(?:--!?|\]\](?:--!?)?)>#i', '', $content
+                        "#(?>[<\]\-]?[^'\"<\]\-]*+(?>$s1|$s2)?)*?\K(?:$c|$)#i", '', $content
                 );
         }
 

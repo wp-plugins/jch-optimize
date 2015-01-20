@@ -4,7 +4,7 @@
  * Plugin Name: JCH Optimize
  * Plugin URI: http://www.jch-optimize.net/
  * Description: This plugin aggregates and minifies CSS and Javascript files for optimized page download
- * Version: 1.0.2
+ * Version: 1.1.0
  * Author: Samuel Marshall
  * License: GNU/GPLv3
  * Text Domain: jch-optimize
@@ -31,11 +31,6 @@
  */
 $backend = filter_input(INPUT_GET, 'jchbackend', FILTER_SANITIZE_STRING);
 
-if ($backend == '1')
-{
-        return;
-}
-
 define('_WP_EXEC', '1');
 
 define('JCH_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -44,10 +39,27 @@ define('JCH_CACHE_DIR', WP_CONTENT_DIR . '/cache/jch-optimize/');
 
 if (!defined('JCH_VERSION'))
 {
-        define('JCH_VERSION', '1.0.2');
+        define('JCH_VERSION', '1.1.0');
 }
-$dir = JCH_PLUGIN_DIR;
+
 require_once(JCH_PLUGIN_DIR . 'jchoptimize/loader.php');
+
+if (!file_exists(dirname(__FILE__) . '/dir.php'))
+{
+
+        $wp_filesystem = JchPlatformCache::getWpFileSystem();
+
+        $file    = dirname(__FILE__) . '/dir.php';
+        $abspath = ABSPATH;
+        $code    = <<<PHPCODE
+<?php
+           
+\$DIR = '$abspath';
+           
+PHPCODE;
+
+        $wp_filesystem->put_contents($file, $code);
+}
 
 if (is_admin())
 {
@@ -55,12 +67,14 @@ if (is_admin())
 }
 else
 {
-        if (defined('WP_USE_THEMES') && WP_USE_THEMES)
+        if (defined('WP_USE_THEMES') && WP_USE_THEMES && $backend != 1)
         {
                 add_action('template_redirect', 'jch_buffer_start', 0);
                 add_action('shutdown', 'jch_buffer_end', 0);
         }
 }
+
+
 
 function jch_load_plugin_textdomain()
 {
@@ -75,15 +89,12 @@ function jchoptimize($sHtml)
 
         try
         {
-                if (version_compare(PHP_VERSION, '5.3.0', '<'))
-                {
-                        throw new Exception(__('PHP Version less than 5.3.0. Exiting plugin...', 'jch-optimize'));
-                }
-
                 $sOptimizedHtml = JchOptimize::optimize($options, $sHtml);
         }
         catch (Exception $e)
         {
+                JchOptimizeLogger::log($e->getMessage(), JchPlatformSettings::getInstance($options));
+
                 $sOptimizedHtml = $sHtml;
         }
 
@@ -124,21 +135,22 @@ function jch_plugin_action_links($links, $file)
         return $links;
 }
 
-function jch_optimize_activate()
-{
-
-        $wp_filesystem = JchPlatformCache::getWpFileSystem();
-
-        $file    = dirname(__FILE__) . '/assets/dir.php';
-        $abspath = ABSPATH;
-        $code    = <<<PHPCODE
-<?php
-           
-\$DIR = '$abspath';
-           
-PHPCODE;
-
-        $wp_filesystem->put_contents($file, $code);
-}
-
-register_activation_hook(__FILE__, 'jch_optimize_activate');
+//
+//function jch_optimize_activate()
+//{
+//
+//        $wp_filesystem = JchPlatformCache::getWpFileSystem();
+//
+//        $file    = dirname(__FILE__) . '/dir.php';
+//        $abspath = ABSPATH;
+//        $code    = <<<PHPCODE
+//<?php
+//           
+//\$DIR = '$abspath';
+//           
+//PHPCODE;
+//
+//        $wp_filesystem->put_contents($file, $code);
+//}
+//
+//register_activation_hook(__FILE__, 'jch_optimize_activate');

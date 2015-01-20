@@ -31,6 +31,14 @@ class JchOptimizeLinkBuilderBase
         {
                 return '';
         }
+        
+        /**
+         * 
+         * @param type $sUrl
+         */
+        protected function loadCssAsync($sUrl)
+        {
+        }
 
 }
 
@@ -72,43 +80,91 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          */
         public function insertJchLinks()
         {
+                if (JchPlatformUtility::isMsieLT10())
+                {
+                        return;
+                }
+
                 $aLinks = $this->oParser->getReplacedFiles();
-                $params = $this->params;
 
                 if ($this->params->get('htaccess', 2) == 2)
                 {
                         JchOptimizeHelper::checkModRewriteEnabled($this->params);
                 }
 
-                if ($params->get('javascript', 1))
+                $replace_css_links = FALSE;
+                
+                if ($this->params->get('css', '1') && !empty($aLinks['css']))
                 {
-                        $sLink = $this->params->get('bottom_js', '0') == '2' ? '</title>' . $this->sLnEnd . $this->sTab : '';
-                        $sLink .= '<script type="text/javascript" src="URL"';
-                        $sLink .= $params->get('defer_js', 0) ?
-                                ($this->isXhtml() ? ' defer="defer"' : ' defer' ) :
-                                '';
-                        $sLink .= $this->getAsyncAttribute();
-                        $sLink .= '></script>';
+                        $sCssCacheId = $this->getCacheId($aLinks['css']);
+                        $sCssCache   = $this->combineFiles($aLinks['css'], $sCssCacheId, 'css');
 
-                        $sNewJsLink = ($params->get('bottom_js') == '1') ? $this->sTab . $sLink . $this->sLnEnd . '</body>' : $sLink;
-
-                        if (!empty($aLinks['js']))
+                        if ($this->params->get('pro_optimizeCssDelivery', '0'))
                         {
-                                $this->processLink('js', $sNewJsLink);
+                                $sCriticalCss = '<style type="text/css">' . $this->sLnEnd .
+                                        $sCssCache['criticalcss'] . $this->sLnEnd .
+                                        '</style>' . $this->sLnEnd .
+                                        '</head>';
+
+                                $sHeadHtml = str_replace('</head>', $sCriticalCss, $this->oParser->getHeadHtml());
+                                $this->oParser->setSearchArea($sHeadHtml, 'head');
+                                
+                                $sUrl = $this->buildUrl($sCssCacheId, 'css');
+                                $sUrl = str_replace('JCHI', '0', $sUrl);
+
+                                $this->loadCssAsync($sUrl);
+                        }
+                        else
+                        {
+                                $replace_css_links = TRUE;
                         }
                 }
 
-                if ($this->oParser->enableCssCompression())
+                if ($this->params->get('javascript', '1') && !empty($aLinks['js']))
                 {
-                        $sNewCssLink = $this->params->get('bottom_js', '0') ? '</title>' . $this->sLnEnd . $this->sTab : '';
-                        $sNewCssLink .= '<link rel="stylesheet" type="text/css" ';
-                        $sNewCssLink .= 'href="URL"/>';
-
-                        if (!empty($aLinks['css']))
-                        {
-                                $this->processLink('css', $sNewCssLink);
-                        }
+                        $sJsCacheId = $this->getCacheId($aLinks['js']);
+                        $this->combineFiles($aLinks['js'], $sJsCacheId, 'js');
+                        
+                        $this->replaceLinks($sJsCacheId, 'js');
                 }
+                
+                if ($replace_css_links)
+                {
+                        $this->replaceLinks($sCssCacheId, 'css');
+                }
+                
+        }
+
+        /**
+         * 
+         * @return type
+         */
+        protected function getNewJsLink()
+        {
+                $sLink = $this->params->get('bottom_js', '0') == '2' ? '</title>' . $this->sLnEnd . $this->sTab : '';
+                $sLink .= '<script type="application/javascript" src="URL"';
+                $sLink .= $this->params->get('defer_js', 0) ?
+                        ($this->isXhtml() ? ' defer="defer"' : ' defer' ) :
+                        '';
+                $sLink .= $this->getAsyncAttribute();
+                $sLink .= '></script>';
+
+                $sNewJsLink = ($this->params->get('bottom_js') == '1') ? $this->sTab . $sLink . $this->sLnEnd . '</body>' : $sLink;
+
+                return $sNewJsLink;
+        }
+
+        /**
+         * 
+         * @return string
+         */
+        protected function getNewCssLink()
+        {
+                $sNewCssLink = $this->params->get('bottom_js', '0') ? '</title>' . $this->sLnEnd . $this->sTab : '';
+                $sNewCssLink .= '<link rel="stylesheet" type="text/css" ';
+                $sNewCssLink .= 'href="URL"/>';
+
+                return $sNewCssLink;
         }
 
         /**
@@ -117,15 +173,13 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          * @param string $sType           css or js
          * @param string $sLink           Url for aggregated file
          */
-        protected function processLink($sType, $sLink)
+        protected function combineFiles($aLinks, $sId, $sType)
         {
                 //JCH_DEBUG ? JchPlatformProfiler::mark('beforeProcessLink plgSystem (JCH Optimize)') : null;
 
-                $aLinks = $this->oParser->getReplacedFiles();
-                $sId    = $this->getCacheId($aLinks[$sType], $sType);
-                $aArgs  = array($aLinks[$sType], $sType, $this->oParser);
+                $aArgs = array($aLinks, $sType, $this->oParser);
 
-                $oCombiner = new JchOptimizeCombiner($this->oParser);
+                $oCombiner = new JchOptimizeCombiner($this->params);
                 $aFunction = array(&$oCombiner, 'getContents');
 
                 $bCached = $this->loadCache($aFunction, $aArgs, $sId);
@@ -135,29 +189,7 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
                         throw new Exception(JchPlatformUtility::translate('Error creating cache file'));
                 }
 
-                $iTime = (int) $this->params->get('lifetime', '30');
-                $sUrl  = $this->buildUrl($sId, $sType, $iTime, $this->isGZ());
-
-
-                if ($sType == 'css' && $this->params->get('pro_optimizeCssDelivery', '0'))
-                {
-                        $sCriticalCss = '<style type="text/css">' . $this->sLnEnd .
-                                $bCached['criticalcss'] . $this->sLnEnd .
-                                '</style>' . $this->sLnEnd .
-                                '</head>';
-
-                        $sHeadHtml = str_replace('</head>', $sCriticalCss, $this->oParser->getHeadHtml());
-                        $this->oParser->setSearchArea($sHeadHtml, 'head');
-
-                        $sUrl = str_replace('JCHI', '0', $sUrl);
-
-                        $this->loadCssAsync($sUrl);
-                }
-                else
-                {
-                        $sNewLink = str_replace('URL', $sUrl, $sLink);
-                        $this->replaceLink($sNewLink, $sType);
-                }
+                return $bCached;
 
                 //JCH_DEBUG ? JchPlatformProfiler::mark('afterProcessLink plgSystem (JCH Optimize)') : null;
         }
@@ -167,21 +199,23 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          * @param type $aUrlArrays
          * @return type
          */
-        private function getCacheId($aUrlArrays, $sType)
+        private function getCacheId($aUrlArrays)
         {
-                $aIdArray = array();
-
-                foreach ($aUrlArrays as $aUrlArray)
-                {
-                        foreach ($aUrlArray as $aUrl)
-                        {
-                                $aIdArray[] = $aUrl['id'];
-                        }
-                }
-
-                $sHtmlHash = ($sType == 'css') ? $this->oParser->getHtmlHash() : '';
-
-                return md5(serialize($aIdArray) . $sHtmlHash);
+//                $aIdArray = array();
+//
+//                foreach ($aUrlArrays as $aUrlArray)
+//                {
+//                        foreach ($aUrlArray as $aUrl)
+//                        {
+//                                $aIdArray[] = $aUrl['id'];
+//                        }
+//                }
+//
+//                $sHtmlHash = (key($aUrlArrays) == 'css') ? $this->oParser->getHtmlHash() : '';
+//
+//                return md5(serialize($aIdArray) . $sHtmlHash);
+                
+                return md5(serialize($aUrlArrays));
         }
 
         /**
@@ -193,12 +227,17 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          * @param number $sTime		Expire header time
          * @return string			Url of aggregated file
          */
-        protected function buildUrl($sId, $sType, $iTime, $bGz = FALSE)
+        protected function buildUrl($sId, $sType)
         {
                 $sPath = JchPlatformPaths::assetPath();
+                $iTime = (int) $this->params->get('lifetime', '30');
+                $bGz   = $this->isGZ();
+                
+                $htaccess = $this->params->get('htaccess', 0);
 
-                if ($this->params->get('htaccess', 0) == 1)
+                if ($htaccess == 1 || $htaccess == 3)
                 {
+                        $sPath = $htaccess == 3 ? $sPath . '3' : $sPath;
                         $sUrl = JchOptimizeHelper::cookieLessDomain($this->params) . $sPath . JchPlatformPaths::rewriteBase()
                                 . ($bGz ? 'gz/' : 'nz/') . $iTime . '/JCHI/' . $sId . '.' . $sType;
                 }
@@ -228,11 +267,15 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          *
          * @param string $sNewLink   Url of aggregated file
          */
-        protected function replaceLink($sNewLink, $sType)
+        protected function replaceLinks($sId, $sType)
         {
                 $sSearchArea = $this->oParser->getHeadHtml();
                 $sSearchArea .= $this->oParser->getBodyHtml();
 
+                $sLink = $this->{'getNew' . ucfirst($sType) . 'Link'}();
+                $sUrl = $this->buildUrl($sId, $sType);
+                        
+                $sNewLink = str_replace('URL', $sUrl, $sLink);
 
                 if ($sType == 'js' && $this->params->get('bottom_js', '0') == '1')
                 {
@@ -254,15 +297,8 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
                         }, $sSearchArea);
                 }
 
-                if (!$this->params->get('pro_searchBody', '0') && !$this->params->get('pro_cookielessdomain', ''))
-                {
-                        $this->oParser->setSearchArea($sSearchArea, 'head');
-                }
-                else
-                {
-                        $this->oParser->setSearchArea(preg_replace($this->oParser->getBodyRegex(), '', $sSearchArea), 'head');
-                        $this->oParser->setSearchArea(preg_replace($this->oParser->getHeadRegex(), '', $sSearchArea), 'body');
-                }
+                $this->oParser->setSearchArea(preg_replace($this->oParser->getBodyRegex(), '', $sSearchArea, 1), 'head');
+                $this->oParser->setSearchArea(preg_replace($this->oParser->getHeadRegex(), '', $sSearchArea, 1), 'body');
         }
 
         /**

@@ -29,15 +29,23 @@ if (!defined('_JCH_EXEC'))
 
 defined('_JCH_EXEC') or die('Restricted access');
 
-/**
- * Autoloader for plugin classes
- * 
- * @param type $class
- * @return boolean
- */
 function loadJchOptimizeClass($sClass)
 {
-        $class  = $sClass;
+//        global $_PROFILER;
+//        JDEBUG ? $_PROFILER->mark('beforeLoadClass - ' . $sClass . ' (JCH Optimize)') : null;
+
+        if(is_array($sClass))
+        {
+                foreach($sClass as $class)
+                {
+                        loadJchOptimizeClass($class);
+                }
+        }
+        else
+        {
+                $class  = $sClass;
+        }
+        
         $prefix = substr($class, 0, 3);
 
         // If the class already exists do nothing.
@@ -62,8 +70,11 @@ function loadJchOptimizeClass($sClass)
         }
         elseif (strpos($class, 'Platform') === 0)
         {
-                $filename = strtolower(str_replace('Platform', '', $class));
+                $class    = str_replace('Platform', '', $class);
+                $filename = strtolower($class);
                 $file     = dirname(dirname(__FILE__)) . '/platform/' . $filename . '.php';
+
+                loadJchOptimizeClass('JchInterface' . $class);
         }
         elseif (strpos($class, 'Interface') === 0)
         {
@@ -79,20 +90,23 @@ function loadJchOptimizeClass($sClass)
 
         if (!file_exists($file))
         {
-                throw new Exception(sprintf(JchPlatformUtility::translate('File not found: %s'), $file));
+                throw new Exception(sprintf('File not found: %s', $file));
         }
         else
         {
-                include_once $file;
+                include $file;
 
                 if (!class_exists($sClass) && !interface_exists($sClass))
                 {
-                        throw new Exception(sprintf(JchPlatformUtility::translate('Class not found: %s'), $sClass));
+                        throw new Exception(sprintf('Class not found: %s', $sClass));
                 }
         }
+
+//        JDEBUG ? $_PROFILER->mark('afterLoadClass - ' . $sClass . ' (JCH Optimize)') : null;
 }
 
 spl_autoload_register('loadJchOptimizeClass');
+
 
 
 

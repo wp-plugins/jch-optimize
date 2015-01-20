@@ -45,15 +45,15 @@ namespace JchOptimize;
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * 
  */
-class JS_Optimize
+class JS_Optimize extends Optimize
 {
 
         protected $options = array();
 
-        public static function minify($js, $options = array())
+        public static function optimize($js, $options = array())
         {
                 $oMinifyJs = new JS_Optimize($options);
-                return $oMinifyJs->process($js);
+                return $oMinifyJs->_optimize($js);
         }
 
         private function __construct($options)
@@ -61,81 +61,98 @@ class JS_Optimize
                 $this->options = $options;
         }
 
-        protected function process($js)
+       
+        private function _optimize($js)
         {
-                //replace carriage return with line feeds
-                $js = str_replace(array("\r\n", "\r"), "\n", $js);
-
-                //convert all other control characters to space
-                $js = preg_replace('#[\t\f]#S', ' ', $js);
-
-
                 //regex for double quoted strings
-                $s1 = '"(?>(?:\\\\.)?[^\\\\"]*+)+?"';
+                $s1 = self::DOUBLE_QUOTE_STRING;
 
                 //regex for single quoted string
-                $s2 = "'(?>(?:\\\\.)?[^\\\\']*+)+?'";
+                $s2 = self::SINGLE_QUOTE_STRING;
 
                 //regex for block comments
                 $b = '/\*(?>[^/\*]++|//|\*(?!/)|(?<!\*)/)*+\*/';
 
                 //regex for line comments
-                $c = '//[^\n]*+';
+                $c = '//[^\r\n]*+';
 
                 //We have to do some manipulating with regexp literals; Their pattern is a little 'irregular' but 
                 //they need to be escaped
                 //
                 //characters that can precede a regexp literal
-                $x1 = '[(,=:[!&|?+\-~*{;\n]';
+                $x1 = '[(.<>%,=:[!&|?+\-~*{;\r\n^]';
                 //keywords that can precede a regex literal
-                $x2 = '\bcase|\belse|\bin|\breturn|\btypeof';
+                $x2 = '\breturn|\bthrow|\btypeof|\bcase|\bdelete|\bdo|\belse|\bin|\binstanceof|\bnew|\bvoid';
                 //actual regexp literal
-                $x3 = '/(?![/*])(?>(?(?=\\\\)\\\\.|\[(?>(?:\\\\.)?[^\]\n]*+)+?\])?[^\\\\/\n\[]*+)+?/';
+                $x3 = '/(?![/*])(?>(?(?=\\\\)\\\\.|\[(?>(?:\\\\.)?[^\]\r\n]*+)+?\])?[^\\\\/\r\n\[]*+)+?/';
+                //ambiguous characters
+                $x4 = '[)}]';
+                //methods and properties
+                $x5 = 'compile|exec|test|toString|constructor|global|ignoreCase|lastIndex|multiline|source';
 
-                //spaces not followed by possible regexp
-                $y = '[ ]*+(?!/(?![*/]))';
-                //spaces not preceded by $x1 or $x2 and possibly followed by / that is not part of a comment
-                $z = "(?<!$x1|$x2)[ ]*+(?:/(?![/*]))?";
-                
-                //Remove spaces before regexp literals preserving space after keywords
-                $js = preg_replace("#(?>[^'\"/ ]*+(?:$s1|$s2|$b|$c|$y|$z)?)*?\K(?>(?<=$x1)[ ]*+($x3)|(?<=$x2)([ ])[ ]*+($x3)|$)#siS", '$1$2$3', $js);
-              
                 //regex for complete regexp literal
-                $x = "(?<={$x1}|\bcase |\belse |\bin |\breturn |\btypeof ){$x3}";
+                $x = "(?:(?<={$x1}|$x2)(?<!\+\+|--){$x3}"
+                        . "|(?<={$x4}){$x3}(?=\.(?:{$x5})))";
 
-                //replace line comments with line feed
-                $js = preg_replace("#(?>[^'\"/]*+(?:{$s1}|{$s2}|{$x}|{$b}|/(?![*/]))?)*?\K(?:{$c}|$)#siS", "\n", $js);
+                //control characters excluding \r, \n and space
+                $ws = '\x00-\x09\x0B\x0C\x0E-\x1F\x7F';        
                 
+                //Remove spaces before regexp literals
+                $js = preg_replace(
+                        "#(?>\s*+[^'\"/$ws ]*+(?>$s1|$s2|$b|$c|$x|/)?)*?\K"
+                        . "(?>(?<=$x1|$x2)[$ws ]++($x3)|(?<=$x4)[$ws ]++($x3)(?=\.(?:$x5))|$)#si", '$1$2', $js
+                );
+          
+                //replace line comments with line feed
+                $js = preg_replace("#(?>[^'\"/]*+(?>{$s1}|{$s2}|{$x}|{$b}|/(?![*/]))?)*?\K(?>{$c}|$)#si", "\n", $js);
+
                 //replace block comments with single space
-                $js = preg_replace("#(?>[^'\"/]*+(?:{$s1}|{$s2}|{$x}|/(?![*/]))?)*?\K(?:{$b}|$)#siS", "\n", $js);
+                $js = preg_replace("#(?>[^'\"/]*+(?>{$s1}|{$s2}|{$x}|/(?![*/]))?)*?\K(?>{$b}|$)#si", ' ', $js);
+
+                //convert carriage returns to line feeds
+                $js = preg_replace("#(?>[^'\"/\\r]*+(?>$s1|$s2|$x|/)?)*?\K(?>\\r\\n?|$)#si", "\n", $js); 
+                
+                //convert all other control characters to space
+                $js = preg_replace("#(?>[^'\"/$ws]*+(?>$s1|$s2|$x|/)?)*?\K(?>[$ws]++|$)#si", ' ', $js);
 
                 //replace runs of whitespace with single space or linefeed
-                $js = preg_replace("#(?>[^'\"/\n ]*+(?:{$s1}|{$s2}|{$x}|[ \n](?![ \n])|/)?)*?\K(?:[ ]++(?=\n)|\n\K\s++|[ ]\K[ ]++|$)#siS", '', $js);
-                
-                //if regex literal ends line (without modifiers) insert semicolon
-                $js = preg_replace("#({$x})\n(?![!\#%&`*./,:;<=>?@\^|~}\])\"'])#siS", '$1;', $js);
+                $js = preg_replace("#(?>[^'\"/\\n ]*+(?>{$s1}|{$s2}|{$x}|[ \\n](?![ \\n])|/)?)*?\K(?:[ ]++(?=\\n)|\\n\K\s++|[ ]\K[ ]++|$)#si", '', $js);
 
+                //if regex literal ends line (without modifiers) insert semicolon
+                $js = preg_replace("#(?>[/]?[^'\"/]*+(?>$s1|$s2|$x(?!\\n))?)*?(?:$x\K\\n(?![!\#%&`*./,:;<=>?@\^|~}\])\"'])|\K$)#si", ';', $js);
+
+                //clean up
+                $js = preg_replace('#.+\K;$#s', '', $js);
+                
                 //regex for removing spaces
                 //remove space except when a space is preceded and followed by a non-ASCII character or by an ASCII letter or digit, 
                 //or by one of these characters \ $ _  ...ie., all ASCII characters except those listed.
-                $sp = '(?:(?<=(?P<s>["\'!\#%&`()*./,:;<=>?@\[\]\^{}|~])) | (?=(?P>s))|(?<=(?P<p>[+\-])) (?!\k<p>)|(?<=[^+\-]) (?!([^+\-])))';
+                $c = '["\'!\#%&`()*./,:;<=>?@\[\]\^{}|~+\-]';
+                $sp = "(?<=$c) | (?=$c)";
+
+                //Non-ASCII characters
+                $na = '[^\x00-\x7F]';
                 
                 //spaces to keep
-                $k1 = '(?<=[a-z0-9\\\\$_]) (?=[a-z0-9\\\\$_])';
+                $k1 = "(?<=[\$_a-z0-9\\\\]|$na) (?=[\$_a-z0-9\\\\]|$na)|(?<=\+) (?=\+)|(?<=-) (?=-)";
 
                 //regex for removing linefeeds
                 //remove linefeeds except if it precedes a non-ASCII character or an ASCII letter or digit or one of these 
                 //characters: \ $ _ [ ( { + - and if it follows a non-ASCII character or an ASCII letter or digit or one of these 
                 //characters: \ $ _ ] ) } + - " ' ...ie., all ASCII characters except those listed respectively
-                $ln = '(?:(?<=[!\#%&`*./,:;<=>?@\^|~{\[(])\n|\n(?=[!\#%&`*./,:;<=>?@\^|~}\])"\']))';
-                
+                $ln = '(?<=[!\#%&`*./,:;<=>?@\^|~{\[(])\n|\n(?=[!\#%&`*./,:;<=>?@\^|~}\])"\'])';
+
                 //line feeds to keep
-                $k2 = '(?<=[a-z0-9\\\\$_\])}+\-"\'])\n(?=[a-z0-9\\\\$_\[({+\-])';
-                
+                $k2 = "(?<=[\$_a-z0-9\\\\\])}+\-\"']|$na)\n(?=[\$_a-z0-9\\\\\[({+\-]|$na)";
+
                 //remove unnecessary linefeeds and spaces
-                $js = preg_replace("#(?>[^'\"/\n ]*+(?:$s1|$s2|(?<={$x1}){$x3}|(?<={$x2})[ ]{$x3}|/|$k1|$k2)?)*?\K(?:$sp|$ln|$)#siS", '', $js);
+                $js = preg_replace(
+                        "#(?>[^'\"/\\n ]*+(?>$s1|$s2|$x|/|$k1|$k2)?)*?\K(?>$sp|$ln|$)#si", '', $js
+                );
 
+                $js = trim($js);
 
-                return trim($js);
+                return $js;
         }
+
 }

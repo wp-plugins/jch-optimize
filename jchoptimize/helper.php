@@ -1,6 +1,7 @@
 <?php
 
 use JchOptimize\JS_Optimize;
+use JchOptimize\HTML_Optimize;
 
 /**
  * JCH Optimize - Joomla! plugin to aggregate and minify external resources for
@@ -194,10 +195,10 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                 else
                 {
                         $oUri = JchPlatformUri::getInstance();
-                        $sUrl = $oUri->toString(array('scheme', 'user', 'pass', 'host', 'port')) . JchPlatformPaths::assetPath() .
-                                JchPlatformPaths::rewriteBase() . 'test_mod_rewrite';
+                        $sUrl = $oUri->toString(array('scheme', 'user', 'pass', 'host', 'port')) . JchPlatformPaths::assetPath();
+                        $sUrl2 =  JchPlatformPaths::rewriteBase() . 'test_mod_rewrite';
 
-                        $sContents = $oFileRetriever->getFileContents($sUrl);
+                        $sContents = $oFileRetriever->getFileContents($sUrl . $sUrl2);
 
                         if ($sContents == 'TRUE')
                         {
@@ -205,7 +206,16 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                         }
                         else
                         {
-                                $params->set('htaccess', '0');
+                                $sContents2 = $oFileRetriever->getFileContents($sUrl . '3' . $sUrl2);
+                                
+                                if ($sContents2 == 'TRUE')
+                                {
+                                        $params->set('htaccess', '3');
+                                }
+                                else
+                                {
+                                        $params->set('htaccess', '0');
+                                }
                         }
                 }
 
@@ -225,7 +235,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                 {
                         if ($bScript)
                         {
-                                $sString = JS_Optimize::minify($sString);
+                                $sString = JS_Optimize::optimize($sString);
                         }
 
                         if ($sValue && strpos($sString, $sValue) !== FALSE)
@@ -299,6 +309,77 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
 
                 JchPlatformUtility::write(JCH_PLUGIN_DIR . 'status.json', $json);
         }
+        
+        
+        /**
+         * If parameter is set will minify HTML before sending to browser; 
+         * Inline CSS and JS will also be minified if respective parameters are set
+         * 
+         * @return string                       Optimized HTML
+         * @throws Exception
+         */
+        public static function minifyHtml($sHtml, $oParams)
+        {
+                JCH_DEBUG ? JchPlatformProfiler::mark('beforeMinifyHtml plgSystem (JCH Optimize)') : null;
+
+                $aOptions = array();
+
+                if ($oParams->get('css_minify', 0))
+                {
+                        $aOptions['cssMinifier'] = array('JchOptimize\CSS_Optimize', 'optimize');
+                }
+
+                if ($oParams->get('js_minify', 0))
+                {
+                        $aOptions['jsMinifier'] = array('JchOptimize\JS_Optimize', 'optimize');
+                }
+                
+                $aOptions['minify_level'] = $oParams->get('html_minify_level', 2);
+
+                if ($oParams->get('html_minify', 0))
+                {
+                        $sHtmlMin      = HTML_Optimize::optimize($sHtml, $aOptions);
+
+                        if ($sHtmlMin == '')
+                        {
+                                JchOptimizeLogger::log(JchPlatformUtility::translate('Error while minifying HTML'), $oParams);
+
+                                $sHtmlMin = $sHtml;
+                        }
+
+                        $sHtml = $sHtmlMin;
+                }
+
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterMinifyHtml plgSystem (JCH Optimize)') : null;
+
+                return $sHtml;
+        }
+
+        /**
+         * Splits a string into an array using any regular delimiter or whitespace
+         *
+         * @param string  $sString   Delimited string of components
+         * @return array            An array of the components
+         */
+        public static function getArray($sString)
+        {
+                if (is_array($sString))
+                {
+                        $aArray = $sString;
+                }
+                else
+                {
+                        $aArray = explode(',', trim($sString));
+                }
+                
+                $aArray = array_map(function($sValue)
+                {
+                        return trim($sValue);
+                }, $aArray);
+
+                return array_filter($aArray);
+        }
+
 
         /**
          * 
@@ -350,7 +431,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                         {
                                 $out.= $post_string;
                         }
-JchOptimizeLogger::debug($out, 'out');
+
                         fwrite($fp, $out);
                         fclose($fp);
                 }

@@ -59,21 +59,21 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
         public $sLnEnd            = '';
         public $sTab              = '';
         public $bBackend          = FALSE;
-        public $oParser           = NULL;
         public static $bLogErrors = FALSE;
+        public $css = '';
+        public $js  = '';
 
         /**
          * Constructor
          * 
          */
-        public function __construct($oParser, $bBackend = FALSE)
+        public function __construct($params, $bBackend = FALSE)
         {
-                $this->oParser  = $oParser;
-                $this->params   = $oParser->params;
+                $this->params   = $params;
                 $this->bBackend = $bBackend;
 
-                $this->sLnEnd = $oParser->sLnEnd;
-                $this->sTab   = $oParser->sTab;
+                $this->sLnEnd = JchPlatformUtility::lnEnd();
+                $this->sTab   = JchPlatformUtility::tab();
 
                 self::$bLogErrors = $this->params->get('jsmin_log', 0) ? TRUE : FALSE;
         }
@@ -101,7 +101,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
          */
         public function getContents($aUrlArray, $sType, $oParser)
         {
-                $oCssParser   = new JchOptimizeCssParser($oParser, $this->bBackend);
+                $oCssParser   = new JchOptimizeCssParser($this->params, $this->bBackend);
                 $sCriticalCss = '';
                 $aSpriteCss   = array();
                 $aFontFace    = array();
@@ -145,9 +145,21 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                                 $sHtml = $oParser->cleanHtml();
 
                                 $aCssContents = $oCssParser->optimizeCssDelivery($this->$sType, $sHtml);
-                                $sCriticalCss .= $aCssContents['criticalcss'];
+                                $sCriticalCss .= $oCssParser->sortImports($aCssContents['criticalcss']);
+                                $sCriticalCss = $sCriticalCss;
                                 $aFontFace    = preg_split('#}\K[^@]*+#', $aCssContents['font-face'], -1, PREG_SPLIT_NO_EMPTY);
                         }
+                }
+
+
+                try
+                {
+                        $oAdmin = new JchOptimizeAdmin($this->params);
+                        $oAdmin->getAdminLinks($oParser, JchPlatformUtility::get('Itemid'), $this->css);
+                }
+                catch (Exception $ex)
+                {
+                        JchOptimizeLogger($ex->getMessage(), $this->params);
                 }
 
                 $aContents = array(
@@ -214,7 +226,8 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                                 if ($this->sAsyncUrl == '')
                                 {
-                                        $sContents .= $this->addCommentedUrl($sType, $aUrl) . '[[JCH_' . $aUrl['id'] . ']]' . 'DELIMITER';
+                                        $sContents .= $this->addCommentedUrl($sType, $aUrl) . '[[JCH_' . $aUrl['id'] . ']]' .
+                                                $this->sLnEnd . 'DELIMITER';
                                 }
                         }
                         else
@@ -255,7 +268,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                 if (isset($aUrl['url']))
                 {
-                        $sPath = $aUrl['path'];
+                        $sPath = JchOptimizeHelper::getFilePath($aUrl['url']);
                         $sContent .= $oFileRetriever->getFileContents($sPath);
                 }
                 else
@@ -267,9 +280,11 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                 }
 
                 $sContent = $this->sLnEnd . $sContent;
-                
+
                 if ($sType == 'css')
                 {
+                        $sContent = $oCssParser->addRightBrace($sContent);
+                        
                         unset($oCssParser->sCssUrl);
                         $oCssParser->aUrl = $aUrl;
 
@@ -296,7 +311,14 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                 if ($sType == 'js' && trim($sContent) != '')
                 {
-                        $sContent = $this->addSemiColon($sContent);
+                        if ($this->params->get('try_catch', '1'))
+                        {
+                                $sContent = $this->addErrorHandler($sContent, $aUrl);
+                        }
+                        else
+                        {
+                                $sContent = $this->addSemiColon($sContent, $aUrl);
+                        }
                 }
 
                 $sContent = $this->minifyContent($sContent, $sType, $aUrl);
@@ -361,7 +383,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                         JCH_DEBUG ? JchPlatformProfiler::mark('beforeMinifyContent - "' . $sUrl . '" plgSystem (JCH Optimize)') : null;
 
-                        $sMinifiedContent = trim($sType == 'css' ? CSS_Optimize::process($sContent) : JS_Optimize::minify($sContent));
+                        $sMinifiedContent = trim($sType == 'css' ? CSS_Optimize::optimize($sContent) : JS_Optimize::optimize($sContent));
 
                         if (is_null($sMinifiedContent) || $sMinifiedContent == '')
                         {
@@ -386,7 +408,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
          */
         protected function addCommentedUrl($sType, $sUrl)
         {
-                $sComment = $this->sLnEnd;
+                $sComment = '';
 
                 if ($this->params->get('debug', '1'))
                 {
@@ -407,6 +429,26 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
          * @param string $sContent
          * @return string
          */
+        public function addErrorHandler($sContent, $aUrl)
+        {
+                if (trim($sContent) != '')
+                {
+                        $sContent = 'try {' . $this->sLnEnd . $sContent . $this->sLnEnd . '} catch (e) {' . $this->sLnEnd;
+                        $sContent .= 'console.error(\'Error in ';
+                        $sContent .= isset($aUrl['url']) ? 'file:' . $aUrl['url'] : 'script declaration';
+                        $sContent .= '; Error:\' + e.message);' . $this->sLnEnd . '};';
+                }
+
+                return $sContent;
+        }
+
+        
+        /**
+         * Add semi-colon to end of js files if non exists;
+         * 
+         * @param string $sContent
+         * @return string
+         */
         public function addSemiColon($sContent)
         {
                 $sContent = rtrim($sContent);
@@ -418,7 +460,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                 return $sContent;
         }
-
+        
         /**
          * Remove placeholders from aggregated file for caching
          * 
@@ -436,7 +478,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                         'DELIMITER'
                         ),
                         array(
-                        $this->sLnEnd . $this->sLnEnd . '/***! ',
+                        $this->sLnEnd . '/***! ',
                         $this->sLnEnd . $this->sLnEnd . '/***! @import url',
                         ' !***/' . $this->sLnEnd . $this->sLnEnd,
                         ''

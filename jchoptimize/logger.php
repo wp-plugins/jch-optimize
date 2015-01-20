@@ -36,11 +36,11 @@ class JchOptimizeLogger
          * @param JchPlatformSettings $params
          * @param type $sCategory
          */
-        public static function log($sMessage, JchPlatformSettings $params, $sCategory = 'jch-optimize')
+        public static function log($sMessage, JchPlatformSettings $params)
         {
                 if ($params->get('log', 0))
                 {
-                        JchPlatformUtility::log($sMessage, $sCategory);
+                        JchPlatformUtility::log($sMessage, 'ERROR', 'plg_jch_optimize.errors.php');
                 }
         }
         
@@ -53,7 +53,16 @@ class JchOptimizeLogger
         {
                 $sMessage = $name != '' ? "$name = '" . $variable . "'" : $variable;
                 
-                JchPlatformUtility::log($sMessage, 'jch-optimize');
+                JchPlatformUtility::log($sMessage, 'DEBUG', 'plg_jch_optimize.debug.php');
+        }
+        
+        /**
+         * 
+         * @param type $sMessage
+         */
+        public static function logInfo($sMessage)
+        {
+                JchPlatformUtility::log($sMessage, 'INFO', 'plg_jch_optimize.logs.php');
         }
 
 }

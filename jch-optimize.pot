@@ -1,15 +1,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: JCH Optimize\n"
-"POT-Creation-Date: 2014-11-10 16:00-0500\n"
-"PO-Revision-Date: 2014-11-10 16:00-0500\n"
+"POT-Creation-Date: 2015-01-20 15:44-0500\n"
+"PO-Revision-Date: 2015-01-20 15:44-0500\n"
 "Last-Translator: \n"
 "Language-Team: Samuel Marshall <sdmarshall73@gmail.com>\n"
 "Language: en_JM\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.10\n"
+"X-Generator: Poedit 1.7.3\n"
 "X-Poedit-Basepath: .\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
@@ -22,7 +22,7 @@ msgstr ""
 "X-Poedit-SearchPathExcluded-3: languages\n"
 "X-Poedit-SearchPathExcluded-4: platform\n"
 
-#: jch-optimize.php:115
+#: jch-optimize.php:143
 msgid "Settings"
 msgstr ""
 
@@ -32,285 +32,320 @@ msgid ""
 "for open and closing head tags"
 msgstr ""
 
-#: jchoptimize/base.php:76 jchoptimize/parser.php:611
+#: jchoptimize/base.php:67 jchoptimize/parser.php:615
 msgid "Error occured while trying to get html"
 msgstr ""
 
-#: jchoptimize/combiner.php:280
+#: jchoptimize/combiner.php:295
 #, php-format
 msgid "Error occured trying to parse for @imports in %s"
 msgstr ""
 
-#: jchoptimize/combiner.php:368
+#: jchoptimize/combiner.php:390
 #, php-format
 msgid "Error occurred trying to minify: %s"
 msgstr ""
 
-#: jchoptimize/combiner.php:481
+#: jchoptimize/combiner.php:523
 msgid "Failed getting @import file contents"
 msgstr ""
 
-#: jchoptimize/cssparser.php:311
+#: jchoptimize/cssparser.php:328
 msgid "Failed correcting urls of background images"
 msgstr ""
 
-#: jchoptimize/fileretriever.php:52
+#: jchoptimize/fileretriever.php:56
 msgid "No Http Adapter available"
 msgstr ""
 
-#: jchoptimize/fileretriever.php:62
+#: jchoptimize/fileretriever.php:66
 #, php-format
 msgid "Failed getting file contents from %s"
 msgstr ""
 
-#: jchoptimize/jchoptimize.php:126
+#: jchoptimize/helper.php:345
 msgid "Error while minifying HTML"
 msgstr ""
 
-#: jchoptimize/linkbuilder.php:135
+#: jchoptimize/jchoptimize.php:80
+msgid "PHP Version less than 5.3.0. Exiting plugin..."
+msgstr ""
+
+#: jchoptimize/jchoptimize.php:87
+msgid "PCRE Version less than 7.2. Exiting plugin..."
+msgstr ""
+
+#: jchoptimize/linkbuilder.php:189
 msgid "Error creating cache file"
 msgstr ""
 
-#: jchoptimize/loader.php:82
+#: jchoptimize/parser.php:234
 #, php-format
-msgid "File not found: %s"
+msgid "Error while parsing for links in %1$s"
 msgstr ""
 
-#: jchoptimize/loader.php:90
-#, php-format
-msgid "Class not found: %s"
-msgstr ""
-
-#: jchoptimize/parser.php:181
-#, php-format
-msgid "Error while parsing for links in %1$s ...turn off combine %1$s option"
-msgstr ""
-
-#: jchoptimize/parser.php:562
+#: jchoptimize/parser.php:556
 msgid ""
 "Error occurred while trying to match for search area. Check your template "
 "for open and closing body tags"
 msgstr ""
 
-#: jchoptimize/parser.php:654
+#: jchoptimize/parser.php:656
 msgid "Cookie-less domain function failed"
 msgstr ""
 
-#: jchoptimize/parser.php:662
+#: jchoptimize/parser.php:664
 msgid "Failed retrieving head in cookie-less domain function"
 msgstr ""
 
-#: jchoptimize/parser.php:671
+#: jchoptimize/parser.php:673
 msgid "Failed retrieving body in cookie-less domain function"
 msgstr ""
 
-#: jchoptimize/spritegenerator.php:134
+#: jchoptimize/parser.php:718
+msgid "Lazy load images function failed"
+msgstr ""
+
+#: jchoptimize/parser.php:726
+msgid "Failed retrieving body in lazy load images function"
+msgstr ""
+
+#: jchoptimize/spritegenerator.php:49
+msgid "EXIF extension not loaded"
+msgstr ""
+
+#: jchoptimize/spritegenerator.php:62
+msgid "No image manipulation library installed"
+msgstr ""
+
+#: jchoptimize/spritegenerator.php:147
 msgid "Error finding replacements for sprite background positions"
 msgstr ""
 
-#: jchoptimize/spritegenerator.php:213
+#: jchoptimize/spritegenerator.php:226
 msgid "Error occurred matching for images to sprite"
 msgstr ""
 
-#: jchoptimize/spritegenerator.php:241
+#: jchoptimize/spritegenerator.php:254
 msgid "Error occurred matching for images to include"
 msgstr ""
 
-#: options.php:14
+#: options.php:32
 msgid "JCH Optimize Settings"
 msgstr ""
 
-#: options.php:65 options.php:126
+#: options.php:47
+msgid ""
+"This plugin requires PHP 5.3.0 or greater to run. Your installed version is: "
+msgstr ""
+
+#: options.php:58 options.php:131
 msgid "Save Changes"
 msgstr ""
 
-#: options.php:80
+#: options.php:73
 msgid "Description"
 msgstr ""
 
-#: options.php:81
+#: options.php:82
 msgid "Basic Settings"
 msgstr ""
 
-#: options.php:82
+#: options.php:83
 msgid "Advanced Settings"
 msgstr ""
 
-#: options.php:83
+#: options.php:84
 msgid "Pro Options"
 msgstr ""
 
-#: options.php:84
+#: options.php:85
 msgid "Sprite Generator"
 msgstr ""
 
-#: options.php:85 options.php:234
+#: options.php:86 options.php:257
 msgid "Optimize Images"
 msgstr ""
 
-#: options.php:153
+#: options.php:168
 msgid "Automatic Settings"
 msgstr ""
 
-#: options.php:156
+#: options.php:171
 msgid "Combine CSS Files"
 msgstr ""
 
-#: options.php:157
+#: options.php:172
 msgid "Combine Javascript Files"
 msgstr ""
 
-#: options.php:159
+#: options.php:174
 msgid "Gzip Combined Files"
 msgstr ""
 
-#: options.php:160
+#: options.php:175
 msgid "Minify Combined CSS File"
 msgstr ""
 
-#: options.php:162
+#: options.php:177
 msgid "Minify Combined Javascript File"
 msgstr ""
 
-#: options.php:164
+#: options.php:179
 msgid "Minify HTML"
 msgstr ""
 
-#: options.php:166
+#: options.php:181
 msgid "Defer combined javascript"
 msgstr ""
 
-#: options.php:168
+#: options.php:183
 msgid "Manage Combined Files"
 msgstr ""
 
-#: options.php:171
+#: options.php:186
+msgid "HTML Minification Level"
+msgstr ""
+
+#: options.php:188
 msgid "Lifetime (days)"
 msgstr ""
 
-#: options.php:172
+#: options.php:189
 msgid "Manage JCH Optimize Cache"
 msgstr ""
 
-#: options.php:176
+#: options.php:194
 msgid "Exclude files from all plugins"
 msgstr ""
 
-#: options.php:179
+#: options.php:197
 msgid "Exclude these CSS files"
 msgstr ""
 
-#: options.php:181
+#: options.php:199
 msgid "Exclude these javascript files"
 msgstr ""
 
-#: options.php:183
+#: options.php:201
 msgid "Exclude CSS files from these plugins"
 msgstr ""
 
-#: options.php:185
+#: options.php:203
 msgid "Exclude javascript files from these plugins"
 msgstr ""
 
-#: options.php:187
+#: options.php:205
 msgid "Enable url re-writing"
 msgstr ""
 
-#: options.php:189
+#: options.php:207
 msgid "Debug plugin"
 msgstr ""
 
-#: options.php:190
+#: options.php:208
 msgid "Log Exceptions"
 msgstr ""
 
-#: options.php:196
+#: options.php:209
+msgid "Use try catch"
+msgstr ""
+
+#: options.php:214
 msgid "Replace @imports in CSS"
 msgstr ""
 
-#: options.php:198
+#: options.php:216
 msgid "Include PHP files and files from external domains"
 msgstr ""
 
-#: options.php:200
+#: options.php:218
 msgid "Include inline CSS styles"
 msgstr ""
 
-#: options.php:202
+#: options.php:220
 msgid "Include inline scripts"
 msgstr ""
 
-#: options.php:204
+#: options.php:222
 msgid "Parse body of page for CSS/Js files"
 msgstr ""
 
-#: options.php:206
+#: options.php:224
 msgid "Load combined javascript asynchronously"
 msgstr ""
 
-#: options.php:209
+#: options.php:227
+msgid "Lazy Load Images"
+msgstr ""
+
+#: options.php:229
 msgid "Optimize CSS Delivery"
 msgstr ""
 
-#: options.php:211
-msgid "Exclude individual scripts"
-msgstr ""
-
-#: options.php:213
-msgid "Load these individual javascript files asynchronously"
-msgstr ""
-
-#: options.php:215
+#: options.php:231
 msgid "CDN / Cookieless Domain"
 msgstr ""
 
-#: options.php:220
+#: options.php:233
+msgid "Exclude these images from lazy loading"
+msgstr ""
+
+#: options.php:235
+msgid "Exclude individual scripts"
+msgstr ""
+
+#: options.php:237
+msgid "Load these individual javascript files asynchronously"
+msgstr ""
+
+#: options.php:243
 msgid "Enable Sprite Generator"
 msgstr ""
 
-#: options.php:224
+#: options.php:247
 msgid "Sprite Build Direction"
 msgstr ""
 
-#: options.php:226
+#: options.php:249
 msgid "Wrap Images"
 msgstr ""
 
-#: options.php:228
+#: options.php:251
 msgid "Exclude these images from the sprite"
 msgstr ""
 
-#: options.php:230
+#: options.php:253
 msgid "Include these images in the sprite"
 msgstr ""
 
-#: options.php:340
+#: options.php:332
 msgid "Please open a directory to optimize images"
 msgstr ""
 
-#: options.php:407
+#: options.php:361
 msgid "Cache deleted successfully!"
 msgstr ""
 
-#: options.php:411
+#: options.php:365
 msgid "Cache delete action failed!"
 msgstr ""
 
-#: options.php:443
+#: options.php:397
 #, php-format
 msgid "%1$d images optimized in %2$s"
 msgstr ""
 
-#: options.php:452
+#: options.php:406
 #, php-format
 msgid "Try again, optimize image function failed with message: %1$s"
 msgstr ""
 
-#: options.php:481
+#: options.php:435
 msgid "Automatic Settings Group"
 msgstr ""
 
-#: options.php:482
+#: options.php:436
 msgid ""
 "The fields in this group can be set automatically using the preconfigured "
 "automatic settings in Basic Options. That is the recommended way to set "
@@ -318,7 +353,7 @@ msgid ""
 "group must each be set manually."
 msgstr ""
 
-#: options.php:498
+#: options.php:452
 msgid ""
 "These six icons represent six preconfigured settings in increasingly "
 "optimized order. The risks of conflicts will also increase so try each in "
@@ -327,46 +362,46 @@ msgid ""
 "not affect the files/extensions/images etc. you have excluded."
 msgstr ""
 
-#: options.php:513
+#: options.php:468
 msgid ""
 "This will combine all CSS files into one file and remove all the links to "
 "the individual files from the page, replacing it with a link generated by "
 "the plugin to the combined file."
 msgstr ""
 
-#: options.php:521
+#: options.php:476
 msgid ""
 "This will combine all javascript files into one file and remove all the "
 "links to the individual files from the page, replacing it with a link "
 "generated by the plugin to the combined file."
 msgstr ""
 
-#: options.php:529
+#: options.php:484
 msgid ""
 "This setting compresses the generated javascript and CSS combined file with "
 "gzip, decreasing file size dramatically. This will only work if gzip "
 "compression is supported by your server."
 msgstr ""
 
-#: options.php:537
+#: options.php:492
 msgid ""
 "If yes, the plugin will remove all unnecessary whitespaces and comments from "
 "the combined CSS file to reduce the size for optimized download."
 msgstr ""
 
-#: options.php:545
+#: options.php:500
 msgid ""
 "If yes, the plugin will remove all unnecessary whitespaces and comments from "
 "the combined javascript file to reduce the size for optimized download."
 msgstr ""
 
-#: options.php:553
+#: options.php:508
 msgid ""
 "If yes, the plugin will remove all unneccessary whitespaces and comments "
 "from HTML to reduce the size of the page for optimized download."
 msgstr ""
 
-#: options.php:561
+#: options.php:516
 msgid ""
 "This option will add a defer attribute to the link of the combined "
 "javascript file. This will defer the loading of the javascript until after "
@@ -375,7 +410,7 @@ msgid ""
 "set this one manually but to use the pre-configured settings in Pro Options."
 msgstr ""
 
-#: options.php:569
+#: options.php:524
 msgid ""
 "Select where and how to place the links for the aggregated css/javascript "
 "files. Options are, 'Preserve Execution Order', that will split the combined "
@@ -386,70 +421,96 @@ msgid ""
 "be just before the ending body tag."
 msgstr ""
 
-#: options.php:573
+#: options.php:528
 msgid "Preserve execution order"
 msgstr ""
 
-#: options.php:574
+#: options.php:529
 msgid "Combine files into one"
 msgstr ""
 
-#: options.php:575
+#: options.php:530
 msgid "Place javascript at bottom"
 msgstr ""
 
-#: options.php:588
+#: options.php:543
+msgid ""
+"If 'Minify HTML' is enabled, this will determine the level of minification. "
+"The incremental changes per level are as follows: Basic - Comments removed, "
+"and whitespaces (ws) outside elements reduced to one ws; Advanced - Remove "
+"ws around block elements and undisplayed elements, Remove unnecessary ws "
+"inside elements and around attributes; Ultra - Remove redundant attribute "
+"eg., text/javascript, and remove quotes from around selected attributes "
+"(HTML5)"
+msgstr ""
+
+#: options.php:547
+msgid "Basic"
+msgstr ""
+
+#: options.php:548
+msgid "Advanced"
+msgstr ""
+
+#: options.php:549
+msgid "Ultra"
+msgstr ""
+
+#: options.php:557
 msgid ""
 "Lifetime of aggregated cached file in days. Expires headers are added to "
 "this file reflecting this time."
 msgstr ""
 
-#: options.php:618
+#: options.php:588
 msgid ""
 "Click this icon to delete all the cache of combined files saved by the plugin"
 msgstr ""
 
-#: options.php:622
+#: options.php:592
 #, php-format
 msgid "Number of files: %d"
 msgstr ""
 
-#: options.php:623
+#: options.php:593
 #, php-format
 msgid "Size: %s"
 msgstr ""
 
-#: options.php:637
+#: options.php:609
 msgid ""
 "Exclude all files from third party plugins and external domains from the "
 "aggregation process."
 msgstr ""
 
-#: options.php:648
+#: options.php:620
 msgid ""
-"Exclude individual CSS files from the aggregation process. Enter any part of "
-"the file url in the text area. Comma separate multiple entries."
+"Select the CSS files you want to exclude. To add a file to the list "
+"manually, type the url in the textbox and click 'Add item'."
 msgstr ""
 
-#: options.php:655
+#: options.php:631
 msgid ""
-"Exclude individual javascript files from the aggregation process. Enter any "
-"part of the file url in the text area. Comma separate multiple entries."
+"Select the javascript files you want to exclude. Select the CSS files you "
+"want to exclude. To add a file to the list manually, type the url in the "
+"textbox and click 'Add item'."
 msgstr ""
 
-#: options.php:662
+#: options.php:642
 msgid ""
-"Exclude CSS files from individual plugins. Enter the plugin folder name of "
-"slug here. Comma separate multiple entries."
+"Select the plugins that you want to exclude CSS files from. To add a plugin "
+"to the list manually, type the folder name of the plugin in the textbox and "
+"click 'Add item'."
 msgstr ""
 
-#: options.php:669
+#: options.php:653
 msgid ""
-"Exclude javascript files from individual plugins. Enter the plugin folder "
-"name of slug here. Comma separate multiple entries."
+"Select the plugins that you want to exclude javascript files from. To add a "
+"plugin to the list manually, type the folder name of the plugin in the "
+"textbox and click 'Add item'."
 msgstr ""
 
-#: options.php:676
+#: options.php:664
 msgid ""
 "By default auto is selected and the plugin will detect if mod_rewrite is "
 "enabled and will use 'url rewriting' to remove the query from the link to "
@@ -459,60 +520,92 @@ msgid ""
 "wrong."
 msgstr ""
 
-#: options.php:683
+#: options.php:668
+msgid "No"
+msgstr ""
+
+#: options.php:669
+msgid "Yes"
+msgstr ""
+
+#: options.php:670
+msgid "Yes (Without Options +FollowSymLinks)"
+msgstr ""
+
+#: options.php:671
+msgid "Auto"
+msgstr ""
+
+#: options.php:679
 msgid ""
 "This option will add the 'commented out' url of the individual files inside "
 "the combined file above the contents that came from that file. This is "
 "useful when configuring the plugin and trying to resolve conflicts."
 msgstr ""
 
-#: options.php:690
+#: options.php:686
 msgid ""
 "If set, the plugin will log messages from caught exceptions to a jch-"
 "optimize.errors.txt file in the logs folder."
 msgstr ""
 
-#: options.php:734
+#: options.php:693
+msgid ""
+"The plugin will wrap each javascript file in a try catch block when "
+"combining to prevent errors coming in from any single file to affect the "
+"combined file. However Firefox has a bug that prevents 'function hoisting' "
+"in try blocks so if you're having errors only in Firefox browsers try "
+"disabling this."
+msgstr ""
+
+#: options.php:721
 msgid ""
 "If yes, the plugin will remove all @import properties from the aggregated "
 "CSS file with internal urls, and replace them with the respective CSS "
 "content."
 msgstr ""
 
-#: options.php:748
+#: options.php:735
 msgid ""
 "PHP generated files and javascript/css files from external domains will be "
 "included in the combined file. This option requires the php paramater "
 "'allow_url_fopen' or 'cURL' to be enabled on your server."
 msgstr ""
 
-#: options.php:762
+#: options.php:749
 msgid ""
 "Inline CSS styles will be included in the aggregated file in the order they "
 "appear on the page."
 msgstr ""
 
-#: options.php:775
+#: options.php:762
 msgid ""
 "Inline scripts will be included in the aggregated file in the order they "
 "appear on the page. This reduces the chance of conflicts when combining "
 "files."
 msgstr ""
 
-#: options.php:789
+#: options.php:776
 msgid ""
 "If selected, the plugin will search HTML body section for files to "
 "aggregate. If not, only the head section will be searched."
 msgstr ""
 
-#: options.php:803
+#: options.php:790
 msgid ""
 "The aggregated Javascript file will be loaded asynchronously to avoid render "
 "blocking and speed up download. Only works with supporting browsers. Use "
 "along with defer for cross-browser support."
 msgstr ""
 
-#: options.php:822
+#: options.php:809
+msgid ""
+"Enable to delay the loading of images until after the page loads and they "
+"are scrolled into view. This further reduces http requests and speeds up the "
+"loading of the page."
+msgstr ""
+
+#: options.php:823
 msgid ""
 "The plugin will attempt to extract the critical CSS to format the page above "
 "the fold and inline this CSS in the head to prevent render blocking. The "
@@ -522,23 +615,30 @@ msgid ""
 "site but you might see some jumping of the page if the number is too small."
 msgstr ""
 
-#: options.php:838
+#: options.php:839
 msgid ""
-"Select the inline script you want to exclude. You can identify the scripts "
-"from the first few 'minified' characters that appear in the script. If "
-"you're seeing a text-area, exclude individual inline scripts by entering "
-"words or phrases unique to that script here. Separate multiple entries with "
-"commas."
+"Select the images you want to exclude from lazy load if you've turned that "
+"option on. If you're manually entering items you should enter the full image "
+"url for this to work. Type the url in the textbox and click 'Add item'. The "
+"multiselect list will show it truncated but the full value will be saved."
 msgstr ""
 
-#: options.php:852
+#: options.php:857
+msgid ""
+"Select the inline script you want to exclude. You can identify the scripts "
+"from the first few 'minified' characters that appear in the script. To add a "
+"script to the list manually, type a unique word or phrase that occurs in the "
+"script into the textbox and click 'Add item'."
+msgstr ""
+
+#: options.php:875
 msgid ""
 "These files will be loaded individually but asynchronously to avoid render "
 "blocking and speed up download. Try this option before excluding if there "
 "are conflicts. Only works with supporting browsers"
 msgstr ""
 
-#: options.php:866
+#: options.php:893
 msgid ""
 "Enter your CDN or cookieless domain here. The plugin will load all static "
 "files including background images, combined js/css files and generated "
@@ -546,37 +646,36 @@ msgid ""
 "and points to your site root."
 msgstr ""
 
-#: options.php:886
+#: options.php:913
 msgid ""
 "If enabled, the plugin will combine select background images into one called "
 "a sprite to reduce http lookups."
 msgstr ""
 
-#: options.php:905
+#: options.php:932
 msgid "Determine in which direction the images must be placed in sprite."
 msgstr ""
 
-#: options.php:914
+#: options.php:941
 msgid ""
 "Will wrap images in sprite into another row or column if the length of the "
 "sprite becomes longer than 2000px."
 msgstr ""
 
-#: options.php:922
+#: options.php:949
 msgid ""
 "You can exclude one or more of the images if they are displayed incorrectly "
-"by entering the name of the image complete with file extension here. Comma "
-"separate multiple entries."
+"by entering the name of the image complete with file extension here."
 msgstr ""
 
-#: options.php:930
+#: options.php:961
 msgid ""
 "You can include additional images in the sprite to the ones that were "
 "selected by default. Exercise care with this option as these files are "
 "likely to not display correctly."
 msgstr ""
 
-#: options.php:944
+#: options.php:979
 msgid ""
 "Click through to open the directory that contains the images you want to "
 "optimize then click the 'Optimize Images' button. The plugin will use the "
@@ -585,6 +684,6 @@ msgid ""
 "this is relatively safe, it is recommended you do a backup first."
 msgstr ""
 
-#: options.php:957
+#: options.php:992
 msgid "cURL is required for this feature but it's not enabled on this server."
 msgstr ""

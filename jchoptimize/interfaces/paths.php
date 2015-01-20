@@ -61,4 +61,9 @@ interface JchInterfacePaths
          * 
          */
         public static function rootPath();
+        
+        /**
+         * 
+         */
+        public static function imageFolder();
 }

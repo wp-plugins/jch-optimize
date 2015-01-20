@@ -27,14 +27,7 @@ class JchPlatformPaths implements JchInterfacePaths
          */
         public static function assetPath()
         {
-                if (($rewrite_base = self::rewriteBase()) != '')
-                {
-                        return $rewrite_base . 'jch-optimize/assets';
-                }
-                else
-                {
-                        return plugins_url() . '/jch-optimize/assets';
-                }
+                return self::rewriteBase() . 'jch-optimize/assets';
         }
 
         /**
@@ -47,15 +40,10 @@ class JchPlatformPaths implements JchInterfacePaths
 
                 if (!isset($rewrite_base))
                 {
-                        $rewrite_base     = '';
+                        $uri = JchPlatformUri::getInstance();
+                        $domain = $uri->toString(array('scheme', 'user', 'pass', 'host', 'port'));
                         
-                        $plugin_file_path = untrailingslashit(str_replace('jch-optimize', '', JCH_PLUGIN_DIR));
-
-                        if (file_exists($plugin_file_path) && isset($_SERVER['DOCUMENT_ROOT']))
-                        {
-                                $rewrite_base = trailingslashit(JchOptimizeHelper::strReplace(untrailingslashit($_SERVER['DOCUMENT_ROOT']), '',
-                                                                                                                $plugin_file_path));
-                        }
+                        $rewrite_base = trailingslashit(str_replace($domain, '', plugins_url()));
                 }
 
                 return $rewrite_base;
@@ -69,10 +57,10 @@ class JchPlatformPaths implements JchInterfacePaths
         {
                 if ($url)
                 {
-                        return JchOptimizeHelper::getBaseFolder() . 'assets/sprites/';
+                        return JchOptimizeHelper::getBaseFolder() . 'media/sprites/';
                 }
 
-                return JCH_PLUGIN_DIR . 'assets/sprites';
+                return JCH_PLUGIN_DIR . 'media/sprites';
         }
 
         /**
@@ -111,6 +99,14 @@ class JchPlatformPaths implements JchInterfacePaths
         public static function rootPath()
         {
                 return ABSPATH;
+        }
+        
+        /**
+         * 
+         */
+        public static function imageFolder()
+        {
+               return JCH_PLUGIN_URL . 'media/images/'; 
         }
 
 }

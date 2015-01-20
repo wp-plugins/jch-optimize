@@ -38,16 +38,29 @@ class JchOptimizeSpriteGenerator
                 $this->params = $params;
         }
         
-        public static function getImageLibrary()
+        /**
+         * 
+         * @return string|boolean
+         */
+        public function getImageLibrary()
         {
-                if (extension_loaded('imagick') && extension_loaded('exif'))
+                if(!extension_loaded('exif'))
+                {
+                      JchOptimizeLogger::log(JchPlatformUtility::translate('EXIF extension not loaded'), $this->params);
+                      
+                      return FALSE;
+                }
+                
+                if (extension_loaded('imagick'))
                 {
                         $sImageLibrary = 'imagick';
                 }
                 else
                 {
-                        if (!extension_loaded('gd') || !extension_loaded('exif'))
+                        if (!extension_loaded('gd'))
                         {
+                                JchOptimizeLogger::log(JchPlatformUtility::translate('No image manipulation library installed'), $this->params);
+                                
                                 return FALSE;
                         }
 
@@ -171,8 +184,8 @@ class JchOptimizeSpriteGenerator
                         [^{}]++} )';
                 $sRegexEnd      = '#isx';
 
-                $aIncludeImages  = JchOptimize::getArray($params->get('csg_include_images'));
-                $aExcludeImages  = JchOptimize::getArray($params->get('csg_exclude_images'));
+                $aIncludeImages  = JchOptimizeHelper::getArray($params->get('csg_include_images'));
+                $aExcludeImages  = JchOptimizeHelper::getArray($params->get('csg_exclude_images'));
                 $sIncImagesRegex = '';
 
                 if (!empty($aIncludeImages[0]))
@@ -244,7 +257,14 @@ class JchOptimizeSpriteGenerator
                         $aImagesMatches[0] = array_diff($aImagesMatches[0], $aMatches[0]);
                         $aImagesMatches[1] = array_diff($aImagesMatches[1], $aMatches[1]);
 
-                        $oCssSpriteGen = new CssSpriteGen($this->getImageLibrary(), $this->params, $bBackend);
+                        $oImageLibrary = $this->getImageLibrary();
+                        
+                        if($oImageLibrary === FALSE)
+                        {
+                                return array();
+                        }
+                        
+                        $oCssSpriteGen = new CssSpriteGen($oImageLibrary, $this->params, $bBackend);
                         
                         $aImages['include'] = $oCssSpriteGen->CreateSprite($aImagesMatches[1]);
                         $aImages['exclude'] = $oCssSpriteGen->CreateSprite($aMatches[1]);

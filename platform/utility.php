@@ -91,9 +91,9 @@ class JchPlatformUtility implements JchInterfaceUtility
          * @param type $message
          * @param type $category
          */
-        public static function log($message, $category)
+        public static function log($message, $priority, $filename)
         {
-                $file = JCH_PLUGIN_DIR . 'logs/jch-optimize.errors.txt';
+                $file = JchPlatformUtility::getLogsPath() . '/jch-optimize.errors.txt';
 
                 file_put_contents($file, $message . "\n", FILE_APPEND);
         }
@@ -218,7 +218,7 @@ class JchPlatformUtility implements JchInterfaceUtility
          * @param type $filter
          * @param type $method
          */
-        public static function get($value, $default='', $filter='string', $method='request')
+        public static function get($value, $default='', $filter='cmd', $method='request')
         {
                 switch ($filter)
                 {
@@ -228,6 +228,7 @@ class JchPlatformUtility implements JchInterfaceUtility
                                 break;
                         
                         case 'string':
+                        case 'cmd':
                         default :        
                                 $filter = FILTER_SANITIZE_STRING;
                                 
@@ -262,5 +263,12 @@ class JchPlatformUtility implements JchInterfaceUtility
                 return is_null($input) ? $default : $input;
         }
 
+        /**
+         * 
+         */
+        public static function getLogsPath()
+        {
+                return JCH_PLUGIN_DIR . 'logs';
+        }
 
 }

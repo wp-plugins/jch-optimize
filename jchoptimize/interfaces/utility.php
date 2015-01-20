@@ -53,7 +53,7 @@ interface JchInterfaceUtility
          * @param type $message
          * @param type $category
          */
-        public static function log($message, $category);
+        public static function log($message, $priority, $filename);
         
         /**
          * 
@@ -103,6 +103,11 @@ interface JchInterfaceUtility
          * @param type $filter
          * @param type $method
          */
-        public static function get($value, $default, $filter, $method);
+        public static function get($value, $default='', $filter='cmd', $method='request');
+        
+        /**
+         * 
+         */
+        public static function getLogsPath();
 
 }
