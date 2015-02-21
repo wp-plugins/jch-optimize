@@ -4,7 +4,7 @@
  * Plugin Name: JCH Optimize
  * Plugin URI: http://www.jch-optimize.net/
  * Description: This plugin aggregates and minifies CSS and Javascript files for optimized page download
- * Version: 1.1.0.7
+ * Version: 1.1.1
  * Author: Samuel Marshall
  * License: GNU/GPLv3
  * Text Domain: jch-optimize
