@@ -59,8 +59,10 @@ class JchOptimizeFileRetriever
                         try
                         {
                                 $response = $oHttpAdapter->request($sPath, $aPost);
-
-                                if ($response === FALSE)
+                                
+                                $this->response_code = $response['code'];
+                                
+                                if (!isset($response) || $response === FALSE)
                                 {
                                         throw new RuntimeException(
                                         sprintf(JchPlatformUtility::translate('Failed getting file contents from %s'), $sPath)
@@ -76,9 +78,7 @@ class JchOptimizeFileRetriever
                                 throw new Exception($ex->getMessage());
                         }
 
-                        $this->response_code = $response['code'];
-                        
-                        if ($response['code'] != 200)
+                        if ($this->response_code != 200)
                         {
                                 $sPath     = $sOrigPath == '' ? $sPath : $sOrigPath;
                                 $sContents = $this->notFound($sPath);
@@ -154,7 +154,7 @@ class JchOptimizeFileRetriever
          */
         public function notFound($sPath)
         {
-                return 'COMMENT_START "File [' . $sPath . '] not found" COMMENT_END';
+                return '|"COMMENT_START File [' . $sPath . '] not found COMMENT_END"|';
         }
 
 }

@@ -146,7 +146,7 @@ class JchPlatformUri implements JchInterfaceUri
                 
                 if($uri == 'SERVER')
                 {
-                        $domain = str_replace(home_url(NULL, 'relative'), '', home_url());
+                        $domain = preg_replace('#' . preg_quote(home_url(NULL, 'relative'), '#') .'$#i', '', home_url());
                         $uri = $domain . $_SERVER['REQUEST_URI'];
                 }
 

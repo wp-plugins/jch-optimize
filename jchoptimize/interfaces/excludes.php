@@ -26,9 +26,9 @@ interface JchInterfaceExcludes
 {
         public static function extensions();
         
-        public static function head($type);
+        public static function head($type, $section='file');
         
-        public static function body($type);
+        public static function body($type, $section='file');
         
         public static function editors($url);
 }

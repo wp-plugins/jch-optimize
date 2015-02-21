@@ -20,6 +20,11 @@
  *
  * If LICENSE file missing, see <http://www.gnu.org/licenses/>.
  */
+if (version_compare(PHP_VERSION, '5.3.0', '>='))
+{
+        add_action('init', 'check_jch_tasks');
+}
+
 add_action('admin_menu', 'add_jch_optimize_menu');
 
 function add_jch_optimize_menu()
@@ -29,7 +34,6 @@ function add_jch_optimize_menu()
 
         add_action('admin_print_scripts-' . $hook_suffix, 'jch_load_resource_files');
         add_action('admin_footer-' . $hook_suffix, 'jch_load_scripts');
-        add_action('load-' . $hook_suffix, 'jch_initialize_settings');
 }
 
 function jch_options_page()
@@ -93,7 +97,7 @@ function jch_options_page()
                                 <div class="tab-pane active" id="description">
                                         <div id="extension-container" style="text-align:left;">
                                                 <h1>JCH Optimize Plugin</h1>
-                                                <h3>(Version 1.1.0.7)</h3>
+                                                <h3>(Version 1.1.0)</h3>
                                                 <?php
 
                                                 
@@ -110,9 +114,6 @@ function jch_options_page()
                                                         <li>GZip Compress aggregated files.</li>
                                                         <li>Generate sprite to combine background images.</li>
                                                 </ul>
-                                                <h2>Instructions</h2>
-                                                <p>Use the Automatic Settings (Minimum - Optimum) to configure the plugin. This automatically sets the options in the 'Automatic Settings Groups'. You can then try the other manual options to further configure the plugin and optimize your site. Use the Exclude options to exclude files/plugins/images that don't work so well with the plugin.</p>
-                                                <p>Check out the <a href="https://www.jch-optimize.net/documentation.html" target="_blank">documentation</a> and <a href="https://www.jch-optimize.net/documentation/tutorials.html" target="_blank">tutorials</a> on the plugin's website to learn how to use and configure the plugin.</p>
                                                 <h2>Support</h2>
                                                 <p>To get a more verbose description of the plugin options go <a href="https://www.jch-optimize.net/documentation/plugin-options.html" target="_blank">here</a>.
                                                 </p>
@@ -134,33 +135,10 @@ function jch_options_page()
 
 }
 
-add_action('admin_init', 'jch_register_options');
+add_action('admin_init', 'jch_admin_init');
 
-function jch_register_options()
+function jch_admin_init()
 {
-        register_setting('jch_options', 'jch_options', 'jch_options_validate');
-}
-
-function jch_initialize_settings()
-{
-        global $jch_redirect, $jch_notices;
-        $jch_redirect = FALSE;
-        $jch_notices  = array();
-
-        check_jch_tasks();
-
-        if (version_compare(PHP_VERSION, '5.3.0', '>='))
-        {
-                jch_get_admin_object();
-        }
-
-        jch_redirect();
-
-        if (get_transient('jch_notices'))
-        {
-                add_action('admin_notices', 'jch_send_notices');
-        }
-
         wp_register_style('jch-bootstrap-css', JCH_PLUGIN_URL . 'media/css/bootstrap.css');
         wp_register_style('jch-icons-css', JCH_PLUGIN_URL . 'media/css/icons.css');
         wp_register_style('jch-fonts-css', '//netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css');
@@ -170,7 +148,6 @@ function jch_initialize_settings()
         wp_register_script('jch-tabsstate-js', JCH_PLUGIN_URL . 'media/js/tabs-state.js', array('jquery'), JCH_VERSION, TRUE);
         wp_register_script('jch-adminutility-js', JCH_PLUGIN_URL . 'media/js/admin-utility.js', array('jquery'), JCH_VERSION, TRUE);
         wp_register_script('jch-chosen-js', JCH_PLUGIN_URL . 'media/js/jquery.chosen.min.js', array('jquery'), JCH_VERSION, TRUE);
-        wp_register_script('jch-collapsible-js', JCH_PLUGIN_URL . 'media/js/jquery.collapsible.js', array('jquery'), JCH_VERSION, TRUE);
 
         
 
@@ -178,6 +155,8 @@ function jch_initialize_settings()
         {
                 return;
         }
+        
+        register_setting('jch_options', 'jch_options', 'jch_options_validate');
 
         add_settings_section('jch_basic_pre', '', 'jch_basic_pre_section_text', 'jch-sections');
         add_settings_field('jch_options_auto_settings', __('Automatic Settings', 'jch-optimize'), 'jch_options_auto_settings_string', 'jch-sections',
@@ -197,34 +176,33 @@ function jch_initialize_settings()
                                                       'jch_basic_auto');
         add_settings_field('jch_options_bottom_js', __('Manage Combined Files', 'jch-optimize'), 'jch_options_bottom_js_string', 'jch-sections',
                                                        'jch_basic_auto');
-        add_settings_section('jch_basic_manual', '', 'jch_basic_manual_section_text', 'jch-sections');
+        add_settings_section('jch_basic', '', 'jch_basic_section_text', 'jch-sections');
         add_settings_field('jch_options_html_minify_level', __('HTML Minification Level', 'jch-optimize'), 'jch_options_html_minify_level_string',
-                                                               'jch-sections', 'jch_basic_manual');
-        add_settings_field('jch_options_lifetime', __('Lifetime (days)', 'jch-optimize'), 'jch_options_lifetime_string', 'jch-sections',
-                                                      'jch_basic_manual');
+                                                               'jch-sections', 'jch_basic');
+        add_settings_field('jch_options_lifetime', __('Lifetime (days)', 'jch-optimize'), 'jch_options_lifetime_string', 'jch-sections', 'jch_basic');
         add_settings_field('jch_options_manage_cache', __('Manage JCH Optimize Cache', 'jch-optimize'), 'jch_options_manage_cache_string',
-                                                          'jch-sections', 'jch_basic_manual');
+                                                          'jch-sections', 'jch_basic');
 
 
         add_settings_section('jch_advanced_auto', '', 'jch_advanced_auto_section_text', 'jch-sections');
         add_settings_field('jch_options_excludeAllExtensions', __('Exclude files from all plugins', 'jch-optimize'),
                                                                   'jch_options_excludeAllExtensions_string', 'jch-sections', 'jch_advanced_auto');
-        add_settings_section('jch_advanced_exclude', '', 'jch_advanced_exclude_section_text', 'jch-sections');
+        add_settings_section('jch_advanced', '', 'jch_advanced_section_text', 'jch-sections');
         add_settings_field('jch_options_excludeCss', __('Exclude these CSS files', 'jch-optimize'), 'jch_options_excludeCss_string', 'jch-sections',
-                                                        'jch_advanced_exclude');
+                                                        'jch_advanced');
         add_settings_field('jch_options_excludeJs', __('Exclude these javascript files', 'jch-optimize'), 'jch_options_excludeJs_string',
-                                                       'jch-sections', 'jch_advanced_exclude');
+                                                       'jch-sections', 'jch_advanced');
         add_settings_field('jch_options_excludeCssComponents', __('Exclude CSS files from these plugins', 'jch-optimize'),
-                                                                  'jch_options_excludeCssComponents_string', 'jch-sections', 'jch_advanced_exclude');
+                                                                  'jch_options_excludeCssComponents_string', 'jch-sections', 'jch_advanced');
         add_settings_field('jch_options_excludeJsComponents', __('Exclude javascript files from these plugins', 'jch-optimize'),
-                                                                 'jch_options_excludeJsComponents_string', 'jch-sections', 'jch_advanced_exclude');
-        add_settings_section('jch_advanced_manual', '', 'jch_advanced_manual_section_text', 'jch-sections');
+                                                                 'jch_options_excludeJsComponents_string', 'jch-sections', 'jch_advanced');
         add_settings_field('jch_options_htaccess', __('Enable url re-writing', 'jch-optimize'), 'jch_options_htaccess_string', 'jch-sections',
-                                                      'jch_advanced_manual');
-        add_settings_field('jch_options_debug', __('Debug plugin', 'jch-optimize'), 'jch_options_debug_string', 'jch-sections', 'jch_advanced_manual');
-        add_settings_field('jch_options_log', __('Log Exceptions', 'jch-optimize'), 'jch_options_log_string', 'jch-sections', 'jch_advanced_manual');
-        add_settings_field('jch_options_try_catch', __('Use try catch', 'jch-optimize'), 'jch_options_try_catch_string', 'jch-sections',
-                                                       'jch_advanced_manual');
+                                                      'jch_advanced');
+        add_settings_field('jch_options_debug', __('Debug plugin', 'jch-optimize'), 'jch_options_debug_string', 'jch-sections', 'jch_advanced');
+        add_settings_field('jch_options_log', __('Log Exceptions', 'jch-optimize'), 'jch_options_log_string', 'jch-sections', 'jch_advanced');
+        add_settings_field('jch_options_try_catch', __('Use try catch', 'jch-optimize'), 'jch_options_try_catch_string', 'jch-sections', 'jch_advanced');
+
+        add_settings_section('jch_pro', '', 'jch_pro_section_text', 'jch-sections');
 
         add_settings_section('jch_pro_auto', '', 'jch_pro_auto_section_text', 'jch-sections');
         add_settings_field('jch_options_pro_replaceImports', __('Replace @imports in CSS', 'jch-optimize'), 'jch_options_pro_replaceImports_string',
@@ -239,52 +217,67 @@ function jch_initialize_settings()
                                                             'jch_options_pro_searchBody_string', 'jch-sections', 'jch_pro_auto');
         add_settings_field('jch_options_pro_loadAsynchronous', __('Load combined javascript asynchronously', 'jch-optimize'),
                                                                   'jch_options_pro_loadAsynchronous_string', 'jch-sections', 'jch_pro_auto');
-        add_settings_section('jch_pro_manual', '', 'jch_pro_manual_section_text', 'jch-sections');
+        add_settings_section('jch_pro2', '', 'jch_pro2_section_text', 'jch-sections');
         add_settings_field('jch_options_pro_lazyload', __('Lazy Load Images', 'jch-optimize'), 'jch_options_pro_lazyload_string', 'jch-sections',
-                                                          'jch_pro_manual');
+                                                          'jch_pro2');
         add_settings_field('jch_options_pro_optimizeCssDelivery', __('Optimize CSS Delivery', 'jch-optimize'),
-                                                                     'jch_options_pro_optimizeCssDelivery_string', 'jch-sections', 'jch_pro_manual');
+                                                                     'jch_options_pro_optimizeCssDelivery_string', 'jch-sections', 'jch_pro2');
         add_settings_field('jch_options_pro_cookielessdomain', __('CDN / Cookieless Domain', 'jch-optimize'),
-                                                                  'jch_options_pro_cookielessdomain_string', 'jch-sections', 'jch_pro_manual');
-
-        add_settings_section('jch_pro_exclude', '', 'jch_pro_exclude_section_text', 'jch-sections');
+                                                                  'jch_options_pro_cookielessdomain_string', 'jch-sections', 'jch_pro2');
         add_settings_field('jch_options_pro_excludeLazyLoad', __('Exclude these images from lazy loading', 'jch-optimize'),
-                                                                 'jch_options_pro_excludeLazyLoad_string', 'jch-sections', 'jch_pro_exclude');
+                                                                 'jch_options_pro_excludeLazyLoad_string', 'jch-sections', 'jch_pro2');
         add_settings_field('jch_options_pro_excludeScripts', __('Exclude individual scripts', 'jch-optimize'),
-                                                                'jch_options_pro_excludeScripts_string', 'jch-sections', 'jch_pro_exclude');
+                                                                'jch_options_pro_excludeScripts_string', 'jch-sections', 'jch_pro2');
         add_settings_field('jch_options_pro_loadFilesAsync', __('Load these individual javascript files asynchronously', 'jch-optimize'),
-                                                                'jch_options_pro_loadFilesAsync_string', 'jch-sections', 'jch_pro_exclude');
+                                                                'jch_options_pro_loadFilesAsync_string', 'jch-sections', 'jch_pro2');
 
-        add_settings_section('jch_sprite_manual', '', 'jch_sprite_manual_section_text', 'jch-sections');
+
+
+        add_settings_section('jch_sprite', '', 'jch_sprite_section_text', 'jch-sections');
         add_settings_field('jch_options_csg_enable', __('Enable Sprite Generator', 'jch-optimize'), 'jch_options_csg_enable_string', 'jch-sections',
-                                                        'jch_sprite_manual');
+                                                        'jch_sprite');
+        /* add_settings_field('jch_options_csg_file_output', __('Image File Type', 'jch-optimize'), 'jch_options_csg_file_output_string', 'jch-sections',
+          'jch_sprite'); */
         add_settings_field('jch_options_csg_direction', __('Sprite Build Direction', 'jch-optimize'), 'jch_options_csg_direction_string',
-                                                           'jch-sections', 'jch_sprite_manual');
+                                                           'jch-sections', 'jch_sprite');
         add_settings_field('jch_options_csg_wrap_images', __('Wrap Images', 'jch-optimize'), 'jch_options_csg_wrap_images_string', 'jch-sections',
-                                                             'jch_sprite_manual');
-        add_settings_section('jch_sprite_exclude', '', 'jch_sprite_exclude_section_text', 'jch-sections');
+                                                             'jch_sprite');
         add_settings_field('jch_options_csg_exclude_images', __('Exclude these images from the sprite', 'jch-optimize'),
-                                                                'jch_options_csg_exclude_images_string', 'jch-sections', 'jch_sprite_exclude');
+                                                                'jch_options_csg_exclude_images_string', 'jch-sections', 'jch_sprite');
         add_settings_field('jch_options_csg_include_images', __('Include these images in the sprite', 'jch-optimize'),
-                                                                'jch_options_csg_include_images_string', 'jch-sections', 'jch_sprite_exclude');
+                                                                'jch_options_csg_include_images_string', 'jch-sections', 'jch_sprite');
 
         add_settings_section('jch_images', '', 'jch_images_section_text', 'jch-sections');
         add_settings_field('jch_options_optimizeimages', __('Optimize Images', 'jch-optimize'), 'jch_options_optimize_images_string', 'jch-sections',
                                                             'jch_images');
-
+        
         add_settings_section('jch_section_end', '', 'jch_section_end_text', 'jch-sections');
 }
 
 function check_jch_tasks()
 {
-        if (isset($_GET['jch-task']) && $_GET['jch-task'] == 'deletecache')
+        global $oJchAdmin;
+
+        $var = '';
+
+        if (isset($_GET['jch-task']) && $_GET['jch-task'] == 'delete-cache')
         {
                 delete_jch_cache();
         }
 
-        if (isset($_GET['jch-task']) && $_GET['jch-task'] == 'postresults')
+        if (isset($_GET['jch-task']) && $_GET['jch-task'] == 'optimizeimages')
         {
-                jch_process_optimize_images_results();
+                jch_optimize_images();
+        }
+
+        if (!$oJchAdmin = get_transient('jchadmin'))
+        {
+                $oJchAdmin = jch_get_admin_object();
+        }
+
+        if ($notice = get_transient('jch_notices'))
+        {
+                add_action('admin_notices', 'jch_send_notices');
         }
 }
 
@@ -299,7 +292,6 @@ function jch_load_resource_files()
         wp_enqueue_script('jch-tabsstate-js');
         wp_enqueue_script('jch-adminutility-js');
         wp_enqueue_script('jch-chosen-js');
-        wp_enqueue_script('jch-collapsible-js');
 
         
 }
@@ -311,7 +303,6 @@ function jch_load_scripts()
         <style type="text/css">
                 .chosen-container-multi .chosen-choices li.search-field input[type=text]{ height: 25px; }    
                 .chosen-container{margin-right: 4px;}
-        <?php                      ?>        
         </style>  
         <script type="text/javascript">
                 function submitJchSettings()
@@ -322,11 +313,8 @@ function jch_load_scripts()
                 jQuery(document).ready(function () {
                         jQuery(".chzn-custom-value").chosen({width: "240px"});
                 });
-                jQuery(document).ready(function () {
-                        jQuery('.collapsible').collapsible();
-                });
 
-        <?php                          ?>
+        <?php                   ?>
 
         </script>
         <?php
@@ -335,44 +323,30 @@ function jch_load_scripts()
 
 function delete_jch_cache()
 {
-        global $jch_redirect;
 
         $result = JchPlatformCache::deleteCache();
 
         if ($result !== FALSE)
         {
-                jch_add_notices('success', __('Cache deleted successfully!', 'jch-optimize'));
+                set_transient('jch_notices', array('type' => 'success', 'text' => __('Cache deleted successfully!', 'jch-optimize')), 30);
         }
         else
         {
-                jch_add_notices('error', __('Cache delete action failed!', 'jch-optimize'));
+                set_transient('jch_notices', array('type' => 'error', 'text' => __('Cache delete action failed!', 'jch-optimize')), 30);
         }
 
-        $jch_redirect = TRUE;
+        jch_redirect();
 }
 
 function jch_redirect()
 {
-        global $jch_notices, $jch_redirect;
-
-        if (!empty($jch_notices))
-        {
-                set_transient('jch_notices', $jch_notices, 60 * 5);
-        }
-
-        if ($jch_redirect)
-        {
-                $url = admin_url('options-general.php?page=jchoptimize-settings');
-
-                wp_redirect($url);
-                exit;
-        }
+        $url = admin_url('options-general.php?page=jchoptimize-settings');
+        wp_redirect($url);
+        exit;
 }
 
-function jch_process_optimize_images_results()
+function jch_optimize_images()
 {
-        global $jch_redirect;
-
         if (file_exists(JCH_PLUGIN_DIR . 'status.json'))
         {
                 unlink(JCH_PLUGIN_DIR . 'status.json');
@@ -387,48 +361,35 @@ function jch_process_optimize_images_results()
 
         if ($cnt !== FALSE && !is_null($cnt))
         {
-                jch_add_notices('success', sprintf(__('%1$d images optimized in %2$s', 'jch-optimize'), $cnt, $dir));
+                set_transient('jch_notices',
+                              array(
+                        'type' => 'success',
+                        'text' => sprintf(__('%1$d images optimized in %2$s', 'jch-optimize'), $cnt, $dir)
+                        )
+                        , 30);
         }
         elseif ($status !== FALSE && !is_null($status))
         {
-                jch_add_notices('error', sprintf(__('Try again, optimize image function failed with message: %1$s', 'jch-optimize'), $msg));
+                set_transient('jch_notices',
+                              array(
+                        'type' => 'error',
+                        'text' => sprintf(__('Try again, optimize image function failed with message: %1$s', 'jch-optimize'), $msg)
+                        )
+                        , 30);
         }
 
-        $jch_redirect = TRUE;
-}
-
-function jch_add_notices($type, $text)
-{
-        global $jch_notices;
-
-        $jch_notices[$type][] = $text;
+        jch_redirect();
 }
 
 function jch_send_notices()
 {
-        $jch_notices = get_transient('jch_notices');
+        $notice = get_transient('jch_notices');
 
-        foreach ($jch_notices as $type => $notices)
-        {
-
-                ?>
-                <div class="notice notice-<?php echo $type ?>">
-                        <?php
-
-                        foreach ($notices as $notice)
-                        {
-
-                                ?>
-                                <p> <?php echo $notice ?></p>
-                                <?php
-
-                        }
-
-                        ?>
-                </div>
-                <?php
-
-        }
+        ?>
+        <div class="notice notice-<?php echo $notice['type'] ?>">
+                <p> <?php echo $notice['text'] ?></p>
+        </div>
+        <?php
 
         delete_transient('jch_notices');
 }
@@ -438,44 +399,17 @@ function jch_options_validate($input)
         return $input;
 }
 
-function jch_group_start($type)
+function jch_auto_group_start()
 {
-        switch ($type)
-        {
-                case 'auto':
-                        $header      = __('Automatic Settings Group', 'jch-optimize');
-                        $description = __('The fields in this group are set automatically using the Automatic settings (Minimum - Optimum). This is highly recommended to prevent conflicts. Generally you don\'t need to set these fields manually unless you are troubleshooting an issue so don\'t change these settings yourself unless you know what you are doing.',
-                                          'jch-optimize');
-                        $class       = 'class="collapsible" ';
-                        break;
-
-                case 'manual':
-                        $header      = __('Manual Options', 'jch-optimize');
-                        $description = __('You can set these options manually, after you have configured the plugin with the Automatic Settings, to further configure the plugin and optimize your site.',
-                                          'jch-optimize');
-                        $class       = '';
-                        break;
-
-                case 'exclude':
-                        $header      = __('Exclude Options', 'jch-optimize');
-                        $description = __('These settings are used to exclude files/extensions/images if they don\'t work so well with the plugin.',
-                                          'jch-optimize');
-                        $class       = '';
-                        break;
-                default:
-                        break;
-        }
-
         echo '<div class="jch-group">'
-        . '<div ' . $class . '>'
-        . '             <h3>' . $header . '<span class="fa"></span></h3>'
-        . '             <p><em>' . $description . '</em></p>'
-        . '</div><div>';
+        . '             <h3>' . __('Automatic Settings Group', 'jch-optimize') . '</h3>'
+        . '             <p>' . __('The fields in this group can be set automatically using the preconfigured automatic settings in Basic Options. That is the recommended way to set these fields to avoid conflicts. The other individual fields not in this group must each be set manually.',
+                                  'jch-optimize') . '</p>';
 }
 
-function jch_group_end()
+function jch_auto_group_end()
 {
-        echo '</div></div>';
+        echo '</div>';
 }
 
 function jch_basic_pre_section_text()
@@ -496,7 +430,7 @@ function jch_options_auto_settings_string()
 
 function jch_basic_auto_section_text()
 {
-        jch_group_start('auto');
+        jch_auto_group_start();
 }
 
 function jch_options_css_string()
@@ -569,16 +503,14 @@ function jch_options_bottom_js_string()
         echo jch_gen_select_field('bottom_js', '0', $values, $description, 'position-javascript');
 }
 
-function jch_basic_manual_section_text()
+function jch_basic_section_text()
 {
-        jch_group_end();
-
-        jch_group_start('manual');
+        jch_auto_group_end();
 }
 
 function jch_options_html_minify_level_string()
 {
-        $description = __('If \'Minify HTML\' is enabled, this will determine the level of minification. The incremental changes per level are as follows: Basic - Whitespaces (ws) outside elements reduced to one ws; Advanced - Remove comments, ws around block elements and undisplayed elements, and unnecessary ws inside elements and around attributes; Ultra - Remove redundant attribute eg., text/javascript, and remove quotes from around selected attributes (HTML5)',
+        $description = __('If \'Minify HTML\' is enabled, this will determine the level of minification. The incremental changes per level are as follows: Basic - Comments removed, and whitespaces (ws) outside elements reduced to one ws; Advanced - Remove ws around block elements and undisplayed elements, Remove unnecessary ws inside elements and around attributes; Ultra - Remove redundant attribute eg., text/javascript, and remove quotes from around selected attributes (HTML5)',
                           'jch-optimize');
 
         $values = array(
@@ -637,12 +569,9 @@ function jch_options_manage_cache_string()
 
 function jch_advanced_auto_section_text()
 {
-        jch_group_end();
-
         echo '</div>
   <div class="tab-pane" id="advanced">';
-
-        jch_group_start('auto');
+        jch_auto_group_start();
 }
 
 function jch_options_excludeAllExtensions_string()
@@ -651,11 +580,9 @@ function jch_options_excludeAllExtensions_string()
         echo jch_gen_radio_field('excludeAllExtensions', '1', $description, 's1-on s2-on s3-off s4-off s5-off s6-off');
 }
 
-function jch_advanced_exclude_section_text()
+function jch_advanced_section_text()
 {
-        jch_group_end();
-
-        jch_group_start('exclude');
+        jch_auto_group_end();
 }
 
 function jch_options_excludeCss_string()
@@ -702,18 +629,11 @@ function jch_options_excludeJsComponents_string()
         echo jch_gen_multiselect_field($option, $values, $description);
 }
 
-function jch_advanced_manual_section_text()
-{
-        jch_group_end();
-
-        jch_group_start('manual');
-}
-
 function jch_options_htaccess_string()
 {
         $description = __('By default auto is selected and the plugin will detect if mod_rewrite is enabled and will use \'url rewriting\' to remove the query from the link to the combined file to promote proxy caching. The plugin will then automatically select yes or no based on whether support for url rewriting is detected. You can manually select the one you want if the plugin got it wrong.',
                           'jch-optimize');
-
+        
         $values = array(
                 '0' => __('No', 'jch-optimize'),
                 '1' => __('Yes', 'jch-optimize'),
@@ -740,32 +660,30 @@ function jch_options_log_string()
 
 function jch_options_try_catch_string()
 {
-        $description = __('The plugin will wrap each javascript file in a try catch block when combining to prevent errors coming in from any single file to affect the combined file. You can try this option if combine javascript breaks your site.',
+        $description = __('The plugin will wrap each javascript file in a try catch block when combining to prevent errors coming in from any single file to affect the combined file. However Firefox has a bug that prevents \'function hoisting\' in try blocks so if you\'re having errors only in Firefox browsers try disabling this.',
                           'jch-optimize');
+        
+        echo jch_gen_radio_field('try_catch', '1', $description);
+}
 
-        echo jch_gen_radio_field('try_catch', '0', $description);
+function jch_pro_section_text()
+{
+        echo '</div>
+  <div class="tab-pane" id="pro">';
 }
 
 function jch_gen_button_icons(array $aButton, $description = '', $attribute = '')
 {
         $sField = JchOptimizeAdmin::generateIcons($aButton);
         $sField .= $attribute;
-        if ($description != '')
-        {
-                $sField .= '<p class="description">' . $description . '</p>';
-        }
+        $sField .= '<p class="description">' . $description . '</p>';
 
         return $sField;
 }
 
 function jch_pro_auto_section_text()
 {
-        jch_group_end();
-
-        echo '</div>
-  <div class="tab-pane" id="pro">';
-
-        jch_group_start('auto');
+        jch_auto_group_start();
 }
 
 function jch_options_pro_replaceImports_string()
@@ -839,11 +757,9 @@ function jch_options_pro_loadAsynchronous_string()
         
 }
 
-function jch_pro_manual_section_text()
+function jch_pro2_section_text()
 {
-        jch_group_end();
-
-        jch_group_start('manual');
+        jch_auto_group_end();
 }
 
 function jch_options_pro_lazyload_string()
@@ -870,25 +786,6 @@ function jch_options_pro_optimizeCssDelivery_string()
           
 
         
-}
-
-function jch_options_pro_cookielessdomain_string()
-{
-        $description = __('Enter your CDN or cookieless domain here. The plugin will load all static files including background images, combined js/css files and generated sprite from this domain. This requires that this domain is already set up and points to your site root.',
-                          'jch-optimize');
-
-        
-          echo jch_gen_proonly_field($description);
-          
-
-        
-}
-
-function jch_pro_exclude_section_text()
-{
-        jch_group_end();
-
-        jch_group_start('exclude');
 }
 
 function jch_options_pro_excludeLazyLoad_string()
@@ -927,14 +824,22 @@ function jch_options_pro_loadFilesAsync_string()
         
 }
 
-function jch_sprite_manual_section_text()
+function jch_options_pro_cookielessdomain_string()
 {
-        jch_group_end();
+        $description = __('Enter your CDN or cookieless domain here. The plugin will load all static files including background images, combined js/css files and generated sprite from this domain. This requires that this domain is already set up and points to your site root.',
+                          'jch-optimize');
 
+        
+          echo jch_gen_proonly_field($description);
+          
+
+        
+}
+
+function jch_sprite_section_text()
+{
         echo '</div>
   <div class="tab-pane" id="sprite">';
-
-        jch_group_start('manual');
 }
 
 function jch_options_csg_enable_string()
@@ -973,13 +878,6 @@ function jch_options_csg_wrap_images_string()
         echo jch_gen_radio_field('csg_wrap_images', '0', $description);
 }
 
-function jch_sprite_exclude_section_text()
-{
-        jch_group_end();
-
-        jch_group_start('exclude');
-}
-
 function jch_options_csg_exclude_images_string()
 {
         $description = __('You can exclude one or more of the images if they are displayed incorrectly by entering the name of the image complete with file extension here.',
@@ -1006,28 +904,27 @@ function jch_options_csg_include_images_string()
 
 function jch_images_section_text()
 {
-        jch_group_end();
-
         echo '</div>
-  <div class="tab-pane" id="images"><br>
- <p class="description" style="font-size: 14px;" >' . __('Click through to open the directory that contains the images you want to optimize then click the \'Optimize Images\' button. The plugin will use the Yahoo! Smush.it™ lossless compressor to optimize the images in the folder and will replace the existing images with the optimized images. Although this is relatively safe, it is recommended you do a backup first.',
-                                                          'jch-optimize') . ' </p>    
- ';
+  <div class="tab-pane" id="images">';
 }
 
 function jch_options_optimize_images_string()
 {
-        
+        $description = __('Click through to open the directory that contains the images you want to optimize then click the \'Optimize Images\' button. The plugin will use the Yahoo! Smush.it™ lossless compressor to optimize the images in the folder and will replace the existing images with the optimized images. Although this is relatively safe, it is recommended you do a backup first.',
+                          'jch-optimize');
 
         
-          echo jch_gen_proonly_field();
+          echo jch_gen_proonly_field($description);
           
+
+        
 }
 
 function jch_section_end_text()
 {
         echo '</div>';
 }
+
 
 function jch_gen_radio_field($option, $default, $description, $class = '', $auto_option = FALSE)
 {
@@ -1071,7 +968,7 @@ function jch_gen_radio_field($option, $default, $description, $class = '', $auto
         {
                 $radio .= '        <input type="radio" id="jch_options_' . $option . '3" name="jch_options[' . $option . ']" value="3" ' . $symlink . ' >' .
                         '        <label for="jch_options_' . $option . '3" class="">Yes (Without Options +FollowSymLinks)</label>';
-
+                
                 $radio .= '        <input type="radio" id="jch_options_' . $option . '2" name="jch_options[' . $option . ']" value="2" ' . $auto . ' >' .
                         '        <label for="jch_options_' . $option . '2" class="">Auto</label>';
         }
@@ -1188,7 +1085,7 @@ function jch_get_manage_cache_buttons()
 {
         $aButton = array();
 
-        $aButton[0]['link']   = add_query_arg(array('jch-task' => 'deletecache'), admin_url('options-general.php?page=jchoptimize-settings'));
+        $aButton[0]['link']   = add_query_arg(array('jch-task' => 'delete-cache'), admin_url('options-general.php?page=jchoptimize-settings'));
         $aButton[0]['icon']   = 'fa-times-circle';
         $aButton[0]['color']  = '#C0110A';
         $aButton[0]['text']   = 'Delete plugin cache';
@@ -1200,41 +1097,34 @@ function jch_get_manage_cache_buttons()
 
 function jch_get_admin_object()
 {
-        static $oJchAdmin = NULL;
+        global $oJchAdmin;
 
-        if (is_null($oJchAdmin))
+        if (!$oJchAdmin)
         {
-                global $jch_redirect;
 
-                $params    = JchPlatformSettings::getInstance(get_option('jch_options'));
+                $params = JchPlatformSettings::getInstance(get_option('jch_options'));
+
                 $oJchAdmin = new JchOptimizeAdmin($params, TRUE);
 
-                if (get_transient('jch_optimize_ao_exception'))
+                try
                 {
-                        delete_transient('jch_optimize_ao_exception');
+                        $oJchAdmin->getAdminLinks(new JchPlatformHtml($params), $params->get('jchmenu'));
                 }
-                else
+                catch (RunTimeException $ex)
                 {
-                        try
-                        {
-                                $oJchAdmin->getAdminLinks(new JchPlatformHtml($params), '');
-                        }
-                        catch (RunTimeException $ex)
-                        {
-                                jch_add_notices('info', $ex->getMessage());
-                                set_transient('jch_optimize_ao_exception', 1, 1);
+                        set_transient('jch_notices', array('type' => 'info', 'text' => $ex->getMessage()), 30);
+                        set_transient('jchadmin', $oJchAdmin, 30);
 
-                                $jch_redirect = TRUE;
-                        }
-                        catch (Exception $ex)
-                        {
-                                JchOptimizeLogger::log($ex->getMessage(), $params);
+                        jch_redirect();
+                }
+                catch (Exception $ex)
+                {
+                        JchOptimizeLogger::log($ex->getMessage(), $params);
 
-                                jch_add_notices('error', $ex->getMessage());
-                                set_transient('jch_optimize_ao_exception', 1, 1);
+                        set_transient('jch_notices', array('type' => 'error', 'text' => $ex->getMessage()), 30);
+                        set_transient('jchadmin', $oJchAdmin, 30);
 
-                                $jch_redirect = TRUE;
-                        }
+                        jch_redirect();
                 }
         }
 
@@ -1249,17 +1139,12 @@ function jch_get_field_value($sType, $sExcludeParams, $sGroup = '')
 }
 
 
+  function jch_gen_proonly_field($description)
+  {
+  $field = '<div style="display:flex; margin-bottom: 5px;"><em style="padding: 5px; background-color: white; border: 1px #ccc;">Only available in Pro Version!</em></div>' .
+  '<p class="description">' . $description . '</p>';
 
-function jch_gen_proonly_field($description = '')
-{
-        $field = '<div style="display:flex; margin-bottom: 5px;"><em style="padding: 5px; background-color: white; border: 1px #ccc;">Only available in Pro Version!</em></div>';
-
-        if ($description != '')
-        {
-                $field .= '<p class="description">' . $description . '</p>';
-        }
-
-        return $field;
-}
-
+  return $field;
+  }
+  
 

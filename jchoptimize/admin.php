@@ -1,4 +1,5 @@
 <?php
+
 /**
  * JCH Optimize - Plugin to aggregate and minify external resources for
  * optmized downloads
@@ -48,16 +49,13 @@ class JchOptimizeAdmin
         {
                 if (empty($this->links))
                 {
-                        JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetAdminLinks plgSystem (JCH Optimize)') : null;
-
-                        $sId       = md5('getAdminLinks' . JCH_VERSION . serialize($iItemid . $this->params->get('pro_searchBody')));
+                        $hash      = $iItemid . $this->params->get('pro_searchBody') . $this->params->get('pro_cookielessdomain');
+                        $sId       = md5('getAdminLinks' . JCH_VERSION . serialize($hash));
                         $aFunction = array($this, 'generateAdminLinks');
                         $aArgs     = array($oObj, $sCss);
                         $iLifeTime = (int) $this->params->get('lifetime', '30') * 24 * 60 * 60;
 
                         $this->links = JchPlatformCache::getCallbackCache($sId, $iLifeTime, $aFunction, $aArgs);
-
-                        JCH_DEBUG ? JchPlatformProfiler::mark('afterGetAdminLinks plgSystem (JCH Optimize)') : null;
                 }
 
                 return $this->links;
@@ -71,8 +69,6 @@ class JchOptimizeAdmin
          */
         public function generateAdminLinks($oObj, $sCss)
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeGenerateAdminLinks plgSystem (JCH Optimize)') : null;
-
                 $params = clone $this->params;
                 $params->set('javascript', '1');
                 $params->set('css', '1');
@@ -87,7 +83,7 @@ class JchOptimizeAdmin
 
                 $aLinks = $oParser->getReplacedFiles();
 
-                if ($sCss == '')
+                if ($sCss == '' && !empty($aLinks['css'][0]))
                 {
                         $oCombiner  = new JchOptimizeCombiner($params, $this->bBackend);
                         $oCssParser = new JchOptimizeCssParser($params, $this->bBackend);
@@ -101,11 +97,11 @@ class JchOptimizeAdmin
 
                 
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterGenerateAdminLinks plgSystem (JCH Optimize)') : null;
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterGenerateAdminLinks') : null;
 
                 return $aLinks;
         }
-        
+
         /**
          * 
          * @param type $sExcludeParams
@@ -142,7 +138,7 @@ class JchOptimizeAdmin
                 return array_unique(array_merge($aFieldOptions, $aOptions));
 
                 return $aFieldOptions;
-        }        
+        }
 
         /**
          * 
@@ -164,9 +160,9 @@ class JchOptimizeAdmin
                                 {
                                         if ($sExclude == 'files')
                                         {
-                                                $sFile = preg_replace('#[?\#].*$#', '', $aLink['url']);
+                                                $sFile = $this->prepareFileValues($aLink['url'], 'pre');
 
-                                                $aOptions[$sFile] = $this->prepareFileValues($sFile);
+                                                $sFile            = $aOptions[$sFile] = $this->prepareFileValues($sFile, 'post');
                                         }
                                         elseif ($sExclude == 'extensions')
                                         {
@@ -200,7 +196,7 @@ class JchOptimizeAdmin
 
                 return $aOptions;
         }
-        
+
         /**
          * 
          * @return type
@@ -211,9 +207,9 @@ class JchOptimizeAdmin
 
                 $aFieldOptions = array();
 
-                if(!empty($aLinks['lazyload']))
+                if (!empty($aLinks['lazyload']))
                 {
-                        foreach($aLinks['lazyload'] as $sImage)
+                        foreach ($aLinks['lazyload'] as $sImage)
                         {
                                 $aFieldOptions[$sImage] = $this->prepareFileValues($sImage);
                         }
@@ -247,7 +243,6 @@ class JchOptimizeAdmin
                 return array_unique($aOptions);
         }
 
-        
         /**
          * 
          * @param type $sContent
@@ -276,14 +271,24 @@ class JchOptimizeAdmin
          * @param type $sUrl
          * @return type
          */
-        protected function prepareFileValues($sFile)
+        public static function prepareFileValues($sFile, $sLevel = '', $iLen = 27)
         {
+                if ($sLevel != 'post')
+                {
+                        $sFile = preg_replace('#[?\#].*$#', '', $sFile);
+
+                        if ($sLevel == 'pre')
+                        {
+                                return $sFile;
+                        }
+                }
+
                 $sEps = '';
 
-                if (strlen($sFile) > 27)
+                if (strlen($sFile) > $iLen)
                 {
-                        $sFile = substr($sFile, -27);
-                        $sFile = preg_replace('#^.*?/#', '/', $sFile);
+                        $sFile = substr($sFile, -$iLen);
+                        $sFile = preg_replace('#^[^/]*+/#', '/', $sFile);
                         $sEps  = '...';
                 }
 
@@ -306,7 +311,7 @@ class JchOptimizeAdmin
 
                 static $sHost = '';
 
-                $oUri = JchPlatformUri::getInstance();
+                $oUri  = JchPlatformUri::getInstance();
                 $sHost = $sHost == '' ? $oUri->toString(array('host')) : $sHost;
 
                 $result     = preg_match('#^(?:https?:)?//([^/]+)#', $sUrl, $m1);
@@ -314,8 +319,8 @@ class JchOptimizeAdmin
 
                 if ($result === 0 || $sExtension == $sHost)
                 {
-                        $result2    = preg_match('#' . JchPlatformExcludes::extensions() . '([^/]+)#', $sUrl, $m);
-                        
+                        $result2 = preg_match('#' . JchPlatformExcludes::extensions() . '([^/]+)#', $sUrl, $m);
+
                         if ($result2 === 0)
                         {
                                 return FALSE;
@@ -338,7 +343,7 @@ class JchOptimizeAdmin
         {
                 return $sImage;
         }
-        
+
         /**
          * 
          * @param type $aButtons

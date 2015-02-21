@@ -29,4 +29,6 @@ interface JchInterfaceSettings
         public function get($param, $default=NULL);
         
         public function set($param, $value);
+        
+        public function getOptions();
 }

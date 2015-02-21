@@ -24,9 +24,89 @@ defined('_WP_EXEC') or die('Restricted access');
 
 class JchPlatformProfiler implements JchInterfaceProfiler
 {
+
+        /**
+         * 
+         * @return type
+         */
+        protected static function getAdminBarNodeBegin()
+        {
+
+                return '<li id="wp-admin-bar-root-default" class="menupop">' .
+                        '<a class="ab-item" aria-haspopup="true">Profiler (JCH Optimize)</a>' .
+                        '<div class="ab-sub-wrapper">' .
+                        '<ul id="wp-admin-bar-jch-profiler-items" class="ab-submenu" style="overflow:auto;max-width:700px;max-height:500px;">';
+        }
+
+        /**
+         * 
+         * @return string
+         */
+        protected static function getAdminBarNodeEnd()
+        {
+                return '</ul></div><li>';
+        }
+
+        /**
+         * 
+         * @param type $item
+         * @return type
+         */
+        protected static function addAdminBarItem($item)
+        {
+                return '<li id="wp-admin-bar-jch-profiler-item1">' .
+                        '<a class="ab-item">' . $item . '</a>' .
+                        '</li>';
+        }
+
+        /**
+         * 
+         * @staticvar string $item
+         * @param type $text
+         * @return string
+         */
         public static function mark($text)
         {
-                apply_filters("debug", $text);
+                static $item = '';
+                
+                if ($text === TRUE)
+                {
+                        return $item;
+                }
+                
+                static $last_time = 0;
+                
+                $current_time = timer_stop();
+                
+                $time_taken = $last_time > 0 ? $current_time - $last_time : 0;
+                $time_taken = number_format($time_taken, 3);
+                
+                $last_time = $current_time;
+
+                $item .= self::addAdminBarItem($current_time . '  (+' . $time_taken . ') - ' . $text);
+        }
+
+        /**
+         * 
+         * @param type $sHtml
+         */
+        public static function attachProfiler(&$sHtml)
+        {
+                if(!is_super_admin())
+                {
+                        return;
+                }
+                
+                $items = JchPlatformProfiler::mark(TRUE);
+
+                $node = self::getAdminBarNodeBegin() . $items . self::getAdminBarNodeEnd();
+
+                $script = '<script type="application/javascript">' .
+                           'var ul = document.getElementById("wp-admin-bar-root-default");' .
+                           'ul.insertAdjacentHTML(\'beforeend\', \'' . $node . '\');' .
+                        '</script>';
+
+                $sHtml = str_replace('</body>', $script . '</body>', $sHtml);
         }
 
 }

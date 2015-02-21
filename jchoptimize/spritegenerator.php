@@ -80,8 +80,6 @@ class JchOptimizeSpriteGenerator
          */
         public function getSprite($sCss)
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetSprite plgSystem (JCH Optimize)') : null;
-
                 $sImageLibrary = $this->getImageLibrary();
 
                 $aMatches = $this->processCssUrls($sCss);
@@ -94,8 +92,6 @@ class JchOptimizeSpriteGenerator
                 $this->params->set('sprite-path', JchPlatformPaths::spriteDir());
 
                 $aSearch = $this->generateSprite($aMatches, new CssSpriteGen($sImageLibrary, $this->params));
-
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterGetSprite plgSystem (JCH Optimize)') : null;
 
                 return $aSearch;
         }
@@ -151,6 +147,8 @@ class JchOptimizeSpriteGenerator
                         }
                 }
 
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterGenerateSprite') : null;
+                
                 return $aSearch;
         }
 
@@ -162,8 +160,6 @@ class JchOptimizeSpriteGenerator
          */
         public function processCssUrls($sCss, $bBackend = FALSE)
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeProcessCssUrls plgSystem (JCH Optimize)') : null;
-                
                 $params         = $this->params;
                 $aRegexStart    = array();
                 $aRegexStart[0] = '
@@ -274,7 +270,7 @@ class JchOptimizeSpriteGenerator
                         return $aImages;
                 }
 
-                //JCH_DEBUG ? JchPlatformProfiler::mark('afterProcessCssUrls plgSystem (JCH Optimize)') : null;
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterProcessCssUrls') : null;
                 
                 return $aMatches;
         }

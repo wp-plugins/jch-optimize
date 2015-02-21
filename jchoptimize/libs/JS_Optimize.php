@@ -71,10 +71,10 @@ class JS_Optimize extends Optimize
                 $s2 = self::SINGLE_QUOTE_STRING;
 
                 //regex for block comments
-                $b = '/\*(?>[^/\*]++|//|\*(?!/)|(?<!\*)/)*+\*/';
+                $b = self::BLOCK_COMMENTS;
 
                 //regex for line comments
-                $c = '//[^\r\n]*+';
+                $c = self::LINE_COMMENTS;
 
                 //We have to do some manipulating with regexp literals; Their pattern is a little 'irregular' but 
                 //they need to be escaped

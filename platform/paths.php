@@ -70,8 +70,7 @@ class JchPlatformPaths implements JchInterfacePaths
         public static function path2Url($sPath)
         {
                 $oUri        = clone JchPlatformUri::getInstance();
-                $sJbase      = JchPlatformUri::base(true);
-                $sBaseFolder = $sJbase == '/' ? $sJbase : $sJbase . '/';
+                $sBaseFolder = JchOptimizeHelper::getBaseFolder();
 
                 $abspath = str_replace(DIRECTORY_SEPARATOR, '/', ABSPATH);
                 $sPath   = str_replace(DIRECTORY_SEPARATOR, '/', $sPath);
@@ -106,7 +105,7 @@ class JchPlatformPaths implements JchInterfacePaths
          */
         public static function imageFolder()
         {
-               return JCH_PLUGIN_URL . 'media/images/'; 
+               return self::rewriteBase() . 'jch-optimize/media/images/'; 
         }
 
 }

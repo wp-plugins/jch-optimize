@@ -20,7 +20,7 @@
  */
 defined('_JCH_EXEC') or die('Restricted access');
 
-class JchOptimizeCssParserBase
+class JchOptimizeCssParserBase extends JchOptimize\CSS_Optimize
 {
 
         /**
@@ -40,7 +40,7 @@ class JchOptimizeCssParserBase
         {
                 return array();
         }
-        
+
         /**
          * 
          * @param type $sContents
@@ -66,12 +66,11 @@ class JchOptimizeCssParserBase
 class JchOptimizeCssParser extends JchOptimizeCssParserBase
 {
 
-        public $aUrl        = array();
         public $sLnEnd      = '';
         public $params;
         protected $bBackend = FALSE;
-        public $l           = '\([^)]++\)|//[^\r\n]*+';
-        public $b           = '/\*(?>[^/\*]++|//|\*(?!/)|(?<!\*)/)*+\*/';
+        public $e           = '';
+        public $u           = '';
 
         /**
          * 
@@ -84,6 +83,9 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
                 $this->params = is_null($params) ? NULL : $params;
 
                 $this->bBackend = $bBackend;
+                $this->e        = self::DOUBLE_QUOTE_STRING . '|' . self::SINGLE_QUOTE_STRING . '|' . self::BLOCK_COMMENTS . '|'
+                        . self::LINE_COMMENTS;
+                $this->u        = self::URI . '|' . $this->e;
         }
 
         /**
@@ -91,26 +93,34 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          * @param type $sContent
          * @return type
          */
-        public function handleMediaQueries($sContent)
+        public function handleMediaQueries($sContent, $sParentMedia = '')
         {
                 if ($this->bBackend)
                 {
                         return $sContent;
                 }
 
-                $sCommentRegex = '#COMMENT_START.*?COMMENT_END#';
-
-                if (isset($this->aUrl['media']) && ($this->aUrl['media'] != ''))
+                if (isset($sParentMedia) && ($sParentMedia != ''))
                 {
-                        $sMedia   = $this->aUrl['media'];
-                        $sContent = preg_replace(array($sCommentRegex, '#DELIMITER#'), '', $sContent);
-                        $sContent = preg_replace_callback("#{$this->l}|{$this->b}|@media ([^{]*+)#i", array($this, '_mediaFeaturesCB'), $sContent);
-                        $sContent = preg_replace('#' . self::nestedAtRulesRegex() . '#',
-                                                 '}' . $this->sLnEnd . '$0' . $this->sLnEnd . '@media ' . $sMedia . ' {' . $this->sLnEnd, $sContent);
+                        $obj = $this;
 
-                        $sContent = '@media ' . $sMedia . ' {' . $this->sLnEnd . $sContent . $this->sLnEnd . ' }' . $this->sLnEnd;
+                        $sContent = preg_replace_callback(
+                                "#(?>@?[^@'\"/]*+(?:{$this->u}|/|\()?)*?\K(?:@media ([^{]*+)|\K$)#i",
+                                function($aMatches) use ($sParentMedia, $obj)
+                        {
+                                return $obj->_mediaFeaturesCB($aMatches, $sParentMedia);
+                        }, $sContent
+                        );
 
-                        $sContent = preg_replace('#@media[^{]*+{[^\S}]*+}#', '', $sContent);
+                        $a = $this->nestedAtRulesRegex();
+
+                        $sContent = preg_replace(
+                                "#(?>(?:\|\"[^|]++(?<=\")\||$a)\s*+)*\K"
+                                . "(?>(?:$this->u|/|\(|@(?![^{};]++(?1)))?(?:[^|@'\"/(]*+|$))*+#i",
+                                '@media ' . $sParentMedia . ' {' . $this->sLnEnd . '$0' . $this->sLnEnd . '}', trim($sContent)
+                        );
+
+                        $sContent = preg_replace("#(?>@?[^@]*+)*?\K(?:@media[^{]*+{((?>\s*+|$this->e)++)}|$)#i", '$1', $sContent);
                 }
 
                 return $sContent;
@@ -122,16 +132,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          */
         public static function nestedAtRulesRegex()
         {
-                return '@(?:-[^-]+-)?(?:media|font-face|page|keyframes|supports|document)[^{]*+(?<b>{(?>[^{}]++|(?&b))*+})';
-        }
-
-        /**
-         * 
-         * @return string
-         */
-        public static function cssDeclarationRegex()
-        {
-                return '(?<=^|[{}\s;/])([^@{}/]*+)\{[^{}]*+\}';
+                return '@[^{};]++({(?>[^{}]++|(?1))*+})';
         }
 
         /**
@@ -139,14 +140,14 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          * @param type $aMatches
          * @return type
          */
-        protected function _mediaFeaturesCB($aMatches)
+        public function _mediaFeaturesCB($aMatches, $sParentMedia)
         {
-                if (preg_match('#^(?>\(|/(?>/|\*))#', $aMatches[0]))
+                if (!isset($aMatches[1]) || $aMatches[1] == '' || preg_match('#^(?>\(|/(?>/|\*))#', $aMatches[0]))
                 {
                         return $aMatches[0];
                 }
 
-                return '@media ' . $this->combineMediaQueries($this->aUrl['media'], trim($aMatches[1]));
+                return '@media ' . $this->combineMediaQueries($sParentMedia, trim($aMatches[1]));
         }
 
         /**
@@ -317,11 +318,16 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          * @param string $sContent
          * @return string
          */
-        public function correctUrl($sContent)
+        public function correctUrl($sContent, $aUrl)
         {
+                $obj = $this;
+
                 $sCorrectedContent = preg_replace_callback(
-                        "#{$this->l}|{$this->b}|url\(\s*+\K['\"]?((?<!['\"])[^\s)]*+|(?<!')[^\"]*+|[^']*+)['\"]?#i", array(__CLASS__, '_correctUrlCB'),
-                        $sContent);
+                        "#(?>[(]?[^('\"/]*+(?:{$this->e}|/)?)*?(?:(?<=url)\(\s*+\K['\"]?((?<!['\"])[^\s)]*+|(?<!')[^\"]*+|[^']*+)['\"]?|\K$)#i",
+                        function ($aMatches) use ($aUrl, $obj)
+                {
+                        return $obj->_correctUrlCB($aMatches, $aUrl);
+                }, $sContent);
 
                 if (is_null($sCorrectedContent))
                 {
@@ -339,22 +345,17 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          * @param array $aMatches Array of all matches
          * @return string         Correct url of images from aggregated css file
          */
-        public function _correctUrlCB($aMatches)
+        public function _correctUrlCB($aMatches, $aUrl)
         {
                 //JCH_DEBUG ? JchPlatformProfiler::mark('beforeCorrectUrl plgSystem (JCH Optimize)') : null;
-                if (preg_match('#^(?:\(|/(?:/|\*))#', $aMatches[0]))
-                {
-                        return $aMatches[0];
-                }
-                
-                if ($aMatches[1] == '')
+                if (!isset($aMatches[1]) || $aMatches[1] == '' || preg_match('#^(?:\(|/(?:/|\*))#', $aMatches[0]))
                 {
                         return $aMatches[0];
                 }
 
                 $sUriBase    = JchPlatformUri::base(TRUE);
                 $sImageUrl   = $aMatches[1];
-                $sCssFileUrl = isset($this->aUrl['url']) ? $this->aUrl['url'] : '/';
+                $sCssFileUrl = isset($aUrl['url']) ? $aUrl['url'] : '/';
 
                 if (!preg_match('#^data:#', $sImageUrl))
                 {
@@ -426,7 +427,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          */
         public function sortImports($sCss)
         {
-                $sCssMediaImports = preg_replace_callback("#{$this->l}|{$this->b}|@media\s([^{]++)({(?>[^{}]++|(?2))*+})#i",
+                $sCssMediaImports = preg_replace_callback("#(?>@?[^@'\"/]*+(?:{$this->u}|/|\()?)*?\K(?:@media\s([^{]++)({(?>[^{}]++|(?2))*+})|\K$)#i",
                                                           array(__CLASS__, '_sortImportsCB'), $sCss);
 
                 if (is_null($sCssMediaImports))
@@ -438,8 +439,8 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
 
                 $sCss = $sCssMediaImports;
 
-                $sCss = preg_replace('#@charset[^;}]++;#i', '', $sCss);
-                $sCss = $this->removeAtRules($sCss, '#(?>[/@]?[^/@]*+(?:/\*(?>\*?[^\*]*+)*?\*/)?)*?\K(?:@import[^;}]++(?:;|.(?=\}))|\K$)#i');
+                $sCss = preg_replace('#@charset[^;}]++;?#i', '', $sCss);
+                $sCss = $this->removeAtRules($sCss, '#(?>[/@]?[^/@]*+(?:/\*(?>\*?[^\*]*+)*?\*/)?)*?\K(?:@import[^;}]++;?|\K$)#i');
 
                 return $sCss;
         }
@@ -452,7 +453,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          */
         protected function _sortImportsCB($aMatches)
         {
-                if (preg_match('#^(?>\(|/(?>/|\*))#', $aMatches[0]))
+                if (!isset($aMatches[1]) || $aMatches[1] == '' || preg_match('#^(?>\(|/(?>/|\*))#', $aMatches[0]))
                 {
                         return $aMatches[0];
                 }
@@ -476,7 +477,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
 
                 return $sCss;
         }
-        
+
         /**
          * 
          * @param type $sCss
@@ -484,17 +485,18 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          */
         public function addRightBrace($sCss)
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeaddRightBrace - plgSystem (JCH Optimize)') : null;
-                
-                if(preg_match('#{#', $sCss))
+                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeaddRightBrace') : null;
+
+                if (preg_match('#{#', $sCss))
                 {
-                        preg_match_all('#(?>{?[^{]*+)*?(?<b>{(?>[^{}]++|(?&b))*+})#', rtrim($sCss) . '}}', $m, PREG_PATTERN_ORDER);
+                        preg_match_all("#(?>[^{}'\"/]*+(?:{$this->u}|/|\()?)+?(?:(?<b>{(?>[^{}]++|(?&b))*+})?)#", rtrim($sCss) . '}}', $m,
+                                                                                                                        PREG_PATTERN_ORDER);
 
                         $sCss = implode('', $m[0]);
                 }
-               
-                //JCH_DEBUG ? JchPlatformProfiler::mark('afterAddRightBrace - plgSystem (JCH Optimize)') : null;
-                
+
+                //JCH_DEBUG ? JchPlatformProfiler::mark('afterAddRightBrace') : null;
+
                 return $sCss;
         }
 

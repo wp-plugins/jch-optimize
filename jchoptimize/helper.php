@@ -190,7 +190,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
 
                 if (!$oFileRetriever->isHttpAdapterAvailable())
                 {
-                        $params->set('htaccess', '0');
+                        $params->set('htaccess', 0);
                 }
                 else
                 {
@@ -202,7 +202,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
 
                         if ($sContents == 'TRUE')
                         {
-                                $params->set('htaccess', '1');
+                                $params->set('htaccess', 1);
                         }
                         else
                         {
@@ -210,17 +210,19 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                                 
                                 if ($sContents2 == 'TRUE')
                                 {
-                                        $params->set('htaccess', '3');
+                                        $params->set('htaccess', 3);
                                 }
                                 else
                                 {
-                                        $params->set('htaccess', '0');
+                                        $params->set('htaccess', 0);
                                 }
                         }
                 }
 
 
                 JchPlatformPlugin::saveSettings($params);
+                
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterCheckModRewriteEnabled') : null;
         }
 
         /**
@@ -279,38 +281,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
         {
                 return str_replace(array('\\\\', '\\'), '/', $str);
         }
-
-        /**
-         * 
-         * @staticvar int $cnt
-         * @staticvar int $no
-         * @param type $arr
-         * @param type $count
-         * @param type $optimized
-         */
-        public static function postStatus($arr, $count = FALSE, $optimized = FALSE)
-        {
-                if (($arr['total']) == 0)
-                {
-                        return;
-                }
-
-                static $cnt = 0;
-                static $no  = 0;
-
-                if ($count)
-                {
-                        $arr['current'] = ++$cnt;
-                }
-
-                $arr['optimize'] = $optimized ? ++$no : $no;
-
-                $json = json_encode($arr);
-
-                JchPlatformUtility::write(JCH_PLUGIN_DIR . 'status.json', $json);
-        }
-        
-        
+      
         /**
          * If parameter is set will minify HTML before sending to browser; 
          * Inline CSS and JS will also be minified if respective parameters are set
@@ -320,8 +291,6 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
          */
         public static function minifyHtml($sHtml, $oParams)
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeMinifyHtml plgSystem (JCH Optimize)') : null;
-
                 $aOptions = array();
 
                 if ($oParams->get('css_minify', 0))
@@ -350,7 +319,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                         $sHtml = $sHtmlMin;
                 }
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterMinifyHtml plgSystem (JCH Optimize)') : null;
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterMinifyHtml') : null;
 
                 return $sHtml;
         }

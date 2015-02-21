@@ -2,7 +2,7 @@
 Contributors: codealfa
 Tags: performance, optimize, speed, minify, aggregate, pagespeed, gtmetrix, minification, css, javascript, html, jch, lazy, load
 Tested up to: 4.1
-Stable tag: 1.1.0
+Stable tag: 1.1.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ Just install from your WordPress "Plugins|Add New" screen. Manual installation i
 1. Upload the zip-file and unzip it in the /wp-content/plugins/ directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Go to `Settings -> JCH Optimize` and enable the options you want
-4. It's recommended that you use the automatic pre-configured settings if you're not an advanced user
+4. Use the Automatic Settings (Minimum - Optimum) to configure the plugin. This automatically sets the options in the 'Automatic Settings Groups'. You can then try the other manual options to further configure the plugin and optimize your site. Use the Exclude options to exclude files/plugins/images that don't work so well with the plugin.
 
 == Frequently Asked Questions ==
 
@@ -55,12 +55,18 @@ Simply deactivate or uninstall the plugin to reverse any changes it has made. Th
 
 == Changelog ==
 
+= 1.1.1 =
+* Improved code running in admin section
+* Add Profiler menu item on Admin Bar to review the times taken for the plugin methods to run.
+* Keep HTML comments in 'Basic' HTML Minification level. Required for some plugins to work eg. Nextgen gallery.
+* Saving cache in non-PHP files to make it compatible with  WP Engine platform.
+* Minor bug fixes and improvements.
+
 = 1.1.0 =
 * Added visual indicators to show which Automatic setting is enabled
 * Added multiselect exclude options so it's easier to find files/plugins to exclude from combining if they cause problems
 * Bug fixes and improvements in the HTML, CSS, and javascript minification libraries
 * Added levels of HTML minification
-
 
 = 1.0.2 =
 * Fixed bug in HMTL Minnify library manifested on XHTML templates

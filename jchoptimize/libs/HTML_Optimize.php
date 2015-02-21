@@ -94,7 +94,7 @@ class HTML_Optimize extends Optimize
          */
         private function _optimize()
         {
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('beforeProcessMinifyHtml plgSystem (JCH Optimize)') : null;
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('beforeProcessMinifyHtml') : null;
 
                 if ($this->_isXhtml === null)
                 {
@@ -105,29 +105,30 @@ class HTML_Optimize extends Optimize
                 {
                         $this->_isHtml5 = (preg_match('#^\s*+<!DOCTYPE html>#i', $this->_html));
                 }
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterTestHtml plgSystem (JCH Optimize)') : null;
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterTestHtml') : null;
 //
-
-                //Remove comments (not containing IE conditional comments)
-                $this->_html = preg_replace(
-                        '#(?>(?:<(?!!))?[^<]*+(?:<(?:script|style)\b[^>]*+>(?><?[^<]*+)*?<\/(?:script|style)>|<!--\[(?><?[^<]*+)*?'
-                        . '<!\s*\[(?>-?[^-]*+)*?--!?>|<!DOCTYPE[^>]++>)?)*?\K(?:<!--(?>-?[^-]*+)*?--!?>|[^<]*+\K$)#i', '', $this->_html);
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceComments plgSystem (JCH Optimize)') : null;
-// 
+                if ($this->_sMinifyLevel > 0)
+                {
+                        //Remove comments (not containing IE conditional comments)
+                        $this->_html = preg_replace(
+                                '#(?>(?:<(?!!))?[^<]*+(?:<(?:script|style)\b[^>]*+>(?><?[^<]*+)*?<\/(?:script|style)>|<!--\[(?><?[^<]*+)*?'
+                                . '<!\s*\[(?>-?[^-]*+)*?--!?>|<!DOCTYPE[^>]++>)?)*?\K(?:<!--(?>-?[^-]*+)*?--!?>|[^<]*+\K$)#i', '', $this->_html);
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceComments') : null;
+                }
                 //Reduce runs of whitespace outside all elements to one
                 $this->_html = preg_replace(
                         '#(?>[^<]*+(?:<script\b[^>]*+>(?><?[^<]*+)*?</script>|<(?>[^>\'"]*+(?:"[^"]*+"|\'[^\']*+\')?)*?>)?)*?\K'
                         . '(?:[\t\f ]++(?=[\r\n]\s*+<)|(?>\r?\n|\r)\K\s++(?=<)|[\t\f]++(?=[ ]\s*+<)|[\t\f]\K\s*+(?=<)|[ ]\K\s*+(?=<)|$)#', '',
                         $this->_html
                 );
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterReduceWs plgSystem (JCH Optimize)') : null;
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterReduceWs') : null;
 //
                 //Minify scripts
                 $this->_html = preg_replace_callback(
                         '#(?><?[^<]*+)*?\K(?:(<(script|style)\b[^>]*+>)((?>(?:<(?!/\g{2}))?[^<]++)+?)(<\/\g{2}>)|$)#i', array($this, '_minifyCB'),
                         $this->_html
                 );
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterMinifyScripts plgSystem (JCH Optimize)') : null;
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterMinifyScripts') : null;
 //
                 if ($this->_sMinifyLevel < 1)
                 {
@@ -139,7 +140,7 @@ class HTML_Optimize extends Optimize
                         '#(?>[^<]*+(?:<script\b[^>]*+>(?><?[^<]*+)*?</script>|<(?>[^>\'"]*+(?:"[^"]*+"|\'[^\']*+\')?)*?>)?)*?\K'
                         . '(?:[\r\n\t\f]++(?=<)|$)#', ' ', $this->_html
                 );
-//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceLfwithSpace plgSystem (JCH Optimize)') : null;
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceLfwithSpace') : null;
 //                
                 // remove ws around block elements preserving space around inline elements
                 //block/undisplayed elements
@@ -163,7 +164,7 @@ class HTML_Optimize extends Optimize
                         "#(?>\s*+(?:<(?:(?>$i)\b[^>]*+>|(?:/(?>$i)\b>|(?>$i2)\b[^>]*+>)\s*+)|<[^>]*+>)|[^<]++)*?\K"
                         . "(?:\s++(?=<(?>$b|$b2)\b)|(?:</(?>$b)\b>|<(?>$b2)\b[^>]*+>)\K\s++(?!<(?>$i|$i2)\b)|$)#i", '', $this->_html
                 );
-//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundBlocks plgSystem (JCH Optimize)') : null;
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundBlocks') : null;
 //
                 //Replace runs of whitespace inside elements with single space escaping pre, textarea, scripts and style elements
                 //elements to escape
@@ -178,25 +179,25 @@ class HTML_Optimize extends Optimize
                 $this->_html = preg_replace(
                         "#(?>[^<]*+(?:$p|$sc|$st|$t|<[^>]++>[^<]*+))*?(?:(?:<(?!$e)[^>]*+>)?(?>\s?[^\s<]*+)*?\K\s{2,}|\K$)#i", ' ', $this->_html
                 );
-//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceRunsOfWs plgSystem (JCH Optimize)') : null;
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterReplaceRunsOfWs') : null;
                 //Remove additional ws around attributes
                 $this->_html = preg_replace(
                         '#(?><?[^<]*+)*?(?:<[a-z0-9]++\K\s++|\G[^\>=]++=(?(?=\s*+["\'])\s*+["\'][^"\']*+["\']|[^\s]++)\K\s++|$\K)#i', ' ',
                         $this->_html
                 );
-//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundAttributes plgSystem (JCH Optimize)') : null;
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundAttributes') : null;
 
                 if ($this->_sMinifyLevel < 2)
                 {
                         return trim($this->_html);
                 }
-                
+
                 //remove redundant attributes
                 $this->_html = preg_replace(
                         '#(?:(?=[^<>]++>)|(?><?[^<]*+)*?<(?:(?:script|style|link)|/html>))(?>[ ]?[^ >]*+)*?\K'
                         . '(?: (?:type|language)=["\']?(?:(?:text|application)/(?:javascript|css)|javascript)["\']?|[^<]*+\K$)#i', '', $this->_html
                 );
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveAttributes plgSystem (JCH Optimize)') : null;
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveAttributes') : null;
 //
                 //Remove quotes from selected attributes
                 if ($this->_isHtml5)
@@ -210,13 +211,13 @@ class HTML_Optimize extends Optimize
                                 . "(?:=\K([\"'])([^\"'`=<>\s]++)\g{1}[ ]?|\K$)#i", '$2 ', $this->_html
                         );
                 }
-//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveQuotes plgSystem (JCH Optimize)') : null;
+//                JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveQuotes') : null;
 //
                 //Remove last whitespace in open tag
                 $this->_html = preg_replace(
                         '#(?><?[^<]*+)*?(?:<[a-z0-9]++(?>\s*+[^\s>]++)*?\K(?:\s++(?=>)|(?<=["\'])\s++(?=/>))|$\K)#i', '', $this->_html
                 );
-//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveLastWs plgSystem (JCH Optimize)') : null;
+//              JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveLastWs') : null;
 //
                 return trim($this->_html);
         }
@@ -228,7 +229,7 @@ class HTML_Optimize extends Optimize
         protected $_cssMinifier     = null;
         protected $_jsMinifier      = null;
         protected $_html            = '';
-        protected $_sMinifyLevel    = 0;    
+        protected $_sMinifyLevel    = 0;
 
         /**
          * 
@@ -296,9 +297,9 @@ class HTML_Optimize extends Optimize
         {
                 $s1 = self::DOUBLE_QUOTE_STRING;
                 $s2 = self::SINGLE_QUOTE_STRING;
-                $c = '(?:(?:<!--|-->)[^\r\n]*+|(?:<!\[CDATA\[|\]\]>))';
-                
-                
+                $c  = '(?:(?:<!--|-->)[^\r\n]*+|(?:<!\[CDATA\[|\]\]>))';
+
+
                 return preg_replace(
                         "#(?>[<\]\-]?[^'\"<\]\-]*+(?>$s1|$s2)?)*?\K(?:$c|$)#i", '', $content
                 );

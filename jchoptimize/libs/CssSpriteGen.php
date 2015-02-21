@@ -110,8 +110,6 @@ class CssSpriteGen
 
         public function CreateSprite($aFilePaths)
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeCalculateSprite plgSystem (JCH Optimize)') : null;
-
                 // set up variable defaults used when calculating offsets etc
                 $aFilesInfo   = array();
                 $aFilesMD5    = array();
@@ -140,6 +138,8 @@ class CssSpriteGen
                 $k             = 0;
                 $bValidImages  = false;
                 $sOutputFormat = strtolower($this->aFormValues['image-output']);
+
+                $optimize = FALSE;
 
                 /*                 * **************************************** */
                 /* this section calculates all offsets etc */
@@ -395,15 +395,15 @@ class CssSpriteGen
                                 break;
                         }
                 }
-                
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterCalculateSprite plgSystem (JCH Optimize)') : null;
-                
+
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterCalculateSprite') : null;
+
                 if ($this->bBackend)
                 {
                         return $aValidImages;
                 }
 
-                
+
 
 
                 /*                 * **************************************** */
@@ -418,7 +418,6 @@ class CssSpriteGen
                         // temporary files are cleaned up
                         try
                         {
-                                JCH_DEBUG ? JchPlatformProfiler::mark('beforeCreateSprite plgSystem (JCH Optimize)') : null;
                                 // get the sprite width and height
                                 if ($this->aFormValues['build-direction'] == 'horizontal')
                                 {
@@ -514,10 +513,10 @@ class CssSpriteGen
                                 {
                                         $this->oImageHandler->writeImage($oSprite, $sOutputFormat, $this->sTempSpriteName);
 
-                                        
+                                        $optimize = TRUE;
                                 }
 
-                                JCH_DEBUG ? JchPlatformProfiler::mark('afterCreateSprite plgSystem (JCH Optimize)') : null;
+                                
 
                                 // destroy object created for sprite image to save memory
                                 $this->oImageHandler->destroy($oSprite);
@@ -529,7 +528,12 @@ class CssSpriteGen
                         {
                                 JchOptimizeLogger::log($e->getMessage(), $this->params);
                         }
+                        
+                        JCH_DEBUG ? JchPlatformProfiler::mark('afterCreateSprite') : null;
                 }
+
+                
+                
         }
 
         protected function FormatClassName($sClassName)

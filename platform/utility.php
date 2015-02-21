@@ -67,16 +67,6 @@ class JchPlatformUtility implements JchInterfaceUtility
                 return current_time('timestamp', TRUE);
         }
 
-        /**
-         * 
-         * @param type $url
-         * @return type
-         */
-        public static function loadAsync($url)
-        {
-                return FALSE;
-        }
-
         /*
          * 
          */
@@ -93,9 +83,9 @@ class JchPlatformUtility implements JchInterfaceUtility
          */
         public static function log($message, $priority, $filename)
         {
-                $file = JchPlatformUtility::getLogsPath() . '/jch-optimize.errors.txt';
+                $file = JchPlatformUtility::getLogsPath() . '/jch-optimize.log';
 
-                file_put_contents($file, $message . "\n", FILE_APPEND);
+                error_log($message . "\n", 3, $file);
         }
 
         /**
@@ -200,17 +190,31 @@ class JchPlatformUtility implements JchInterfaceUtility
 
                 if ($action == 'encrypt')
                 {
-                        $output = openssl_encrypt($value, $encrypt_method, $key, 0, $iv);
+                        if (version_compare(PHP_VERSION, '5.3.3', '<'))
+                        {
+                                $output = @openssl_encrypt($value, $encrypt_method, $key, 0);
+                        }
+                        else
+                        {
+                                $output = openssl_encrypt($value, $encrypt_method, $key, 0, $iv);
+                        }
                         $output = base64_encode($output);
                 }
                 else if ($action == 'decrypt')
                 {
-                        $output = openssl_decrypt(base64_decode($value), $encrypt_method, $key, 0, $iv);
+                        if (version_compare(PHP_VERSION, '5.3.3', '<'))
+                        {
+                                $output = @openssl_decrypt(base64_decode($value), $encrypt_method, $key, 0);
+                        }
+                        else
+                        {
+                                $output = openssl_decrypt(base64_decode($value), $encrypt_method, $key, 0, $iv);
+                        }
                 }
 
                 return $output;
         }
-        
+
         /**
          * 
          * @param type $value
@@ -218,48 +222,48 @@ class JchPlatformUtility implements JchInterfaceUtility
          * @param type $filter
          * @param type $method
          */
-        public static function get($value, $default='', $filter='cmd', $method='request')
+        public static function get($value, $default = '', $filter = 'cmd', $method = 'request')
         {
                 switch ($filter)
                 {
                         case 'int':
                                 $filter = FILTER_SANITIZE_NUMBER_INT;
-                                
+
                                 break;
-                        
+
                         case 'string':
                         case 'cmd':
-                        default :        
+                        default :
                                 $filter = FILTER_SANITIZE_STRING;
-                                
+
                                 break;
                 }
-                
-                switch($method)
+
+                switch ($method)
                 {
                         case 'get':
                                 $type = INPUT_GET;
-                                
+
                                 break;
 
                         case 'post':
                                 $type = INPUT_POST;
-                                
+
                                 break;
 
                         default:
-                                
-                                if(!isset($_REQUEST[$value]))
+
+                                if (!isset($_REQUEST[$value]))
                                 {
                                         $_REQUEST[$value] = $default;
                                 }
-                                
+
                                 return filter_var($_REQUEST[$value], $filter);
                 }
-                
-                
-                $input = filter_input ($type , $value, $filter); 
-                
+
+
+                $input = filter_input($type, $value, $filter);
+
                 return is_null($input) ? $default : $input;
         }
 
@@ -269,6 +273,23 @@ class JchPlatformUtility implements JchInterfaceUtility
         public static function getLogsPath()
         {
                 return JCH_PLUGIN_DIR . 'logs';
+        }
+
+        /**
+         * 
+         * @param type $url
+         */
+        public static function loadAsync($url)
+        {
+                
+        }
+
+        /**
+         * 
+         */
+        public static function menuId()
+        {
+                
         }
 
 }

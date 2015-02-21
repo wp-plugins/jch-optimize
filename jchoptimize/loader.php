@@ -32,7 +32,7 @@ defined('_JCH_EXEC') or die('Restricted access');
 function loadJchOptimizeClass($sClass)
 {
 //        global $_PROFILER;
-//        JDEBUG ? $_PROFILER->mark('beforeLoadClass - ' . $sClass . ' (JCH Optimize)') : null;
+//        JDEBUG ? $_PROFILER->mark('beforeLoadClass - ' . $sClass) : null;
 
         if(is_array($sClass))
         {
@@ -102,7 +102,7 @@ function loadJchOptimizeClass($sClass)
                 }
         }
 
-//        JDEBUG ? $_PROFILER->mark('afterLoadClass - ' . $sClass . ' (JCH Optimize)') : null;
+//        JDEBUG ? $_PROFILER->mark('afterLoadClass - ' . $sClass) : null;
 }
 
 spl_autoload_register('loadJchOptimizeClass');

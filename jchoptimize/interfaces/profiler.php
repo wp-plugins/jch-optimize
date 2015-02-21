@@ -25,4 +25,6 @@ defined('_JCH_EXEC') or die('Restricted access');
 interface JchInterfaceProfiler
 {
       public static function mark($text);  
+      
+      public static function attachProfiler(&$html);
 }

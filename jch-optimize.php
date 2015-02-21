@@ -4,7 +4,7 @@
  * Plugin Name: JCH Optimize
  * Plugin URI: http://www.jch-optimize.net/
  * Description: This plugin aggregates and minifies CSS and Javascript files for optimized page download
- * Version: 1.1.0
+ * Version: 1.1.0.7
  * Author: Samuel Marshall
  * License: GNU/GPLv3
  * Text Domain: jch-optimize
@@ -39,26 +39,14 @@ define('JCH_CACHE_DIR', WP_CONTENT_DIR . '/cache/jch-optimize/');
 
 if (!defined('JCH_VERSION'))
 {
-        define('JCH_VERSION', '1.1.0');
+        define('JCH_VERSION', '1.1.0.7');
 }
 
 require_once(JCH_PLUGIN_DIR . 'jchoptimize/loader.php');
 
 if (!file_exists(dirname(__FILE__) . '/dir.php'))
 {
-
-        $wp_filesystem = JchPlatformCache::getWpFileSystem();
-
-        $file    = dirname(__FILE__) . '/dir.php';
-        $abspath = ABSPATH;
-        $code    = <<<PHPCODE
-<?php
-           
-\$DIR = '$abspath';
-           
-PHPCODE;
-
-        $wp_filesystem->put_contents($file, $code);
+        jch_optimize_activate();
 }
 
 if (is_admin())
@@ -110,9 +98,10 @@ function jch_buffer_end()
 {
         $sHtml = ob_get_clean();
 
-        ob_start();
-
-        echo jchoptimize($sHtml);
+        if ($sHtml && preg_match('#<html#i', $sHtml))
+        {
+                echo jchoptimize($sHtml);
+        }
 }
 
 add_filter('plugin_action_links', 'jch_plugin_action_links', 10, 2);
@@ -135,22 +124,21 @@ function jch_plugin_action_links($links, $file)
         return $links;
 }
 
-//
-//function jch_optimize_activate()
-//{
-//
-//        $wp_filesystem = JchPlatformCache::getWpFileSystem();
-//
-//        $file    = dirname(__FILE__) . '/dir.php';
-//        $abspath = ABSPATH;
-//        $code    = <<<PHPCODE
-//<?php
-//           
-//\$DIR = '$abspath';
-//           
-//PHPCODE;
-//
-//        $wp_filesystem->put_contents($file, $code);
-//}
-//
-//register_activation_hook(__FILE__, 'jch_optimize_activate');
+function jch_optimize_activate()
+{
+
+        $wp_filesystem = JchPlatformCache::getWpFileSystem();
+
+        $file    = dirname(__FILE__) . '/dir.php';
+        $abspath = ABSPATH;
+        $code    = <<<PHPCODE
+<?php
+           
+\$DIR = '$abspath';
+           
+PHPCODE;
+
+        $wp_filesystem->put_contents($file, $code);
+}
+
+register_activation_hook(__FILE__, 'jch_optimize_activate');

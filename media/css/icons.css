@@ -90,6 +90,10 @@ div.icon.enabled[class*="settings"] a i#toggle.on:before{
         float: left;
 }
      
+.sticky-wp{
+        position: fixed;
+        top: 65px;
+}
 
 
 
@@ -115,4 +119,17 @@ div.icon.enabled[class*="settings"] a i#toggle.on:before{
 
 #optimize-log li{
         font-size: 11px;
+}
+
+
+
+.collapsible span{
+        margin-left: 10px;
+}
+
+.collapsible.collapse-open span:before {
+        content: "\f151"
+}
+.collapsible.collapse-close span:before {
+        content: "\f150"
 }

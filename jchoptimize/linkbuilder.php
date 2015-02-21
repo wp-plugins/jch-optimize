@@ -94,10 +94,10 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
 
                 $replace_css_links = FALSE;
                 
-                if ($this->params->get('css', '1') && !empty($aLinks['css']))
+                if ($this->params->get('css', 1) && !empty($aLinks['css']))
                 {
                         $sCssCacheId = $this->getCacheId($aLinks['css']);
-                        $sCssCache   = $this->combineFiles($aLinks['css'], $sCssCacheId, 'css');
+                        $sCssCache   = $this->getCombinedFiles($aLinks['css'], $sCssCacheId, 'css');
 
                         if ($this->params->get('pro_optimizeCssDelivery', '0'))
                         {
@@ -120,10 +120,10 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
                         }
                 }
 
-                if ($this->params->get('javascript', '1') && !empty($aLinks['js']))
+                if ($this->params->get('javascript', 1) && !empty($aLinks['js']))
                 {
                         $sJsCacheId = $this->getCacheId($aLinks['js']);
-                        $this->combineFiles($aLinks['js'], $sJsCacheId, 'js');
+                        $this->getCombinedFiles($aLinks['js'], $sJsCacheId, 'js');
                         
                         $this->replaceLinks($sJsCacheId, 'js');
                 }
@@ -173,9 +173,9 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          * @param string $sType           css or js
          * @param string $sLink           Url for aggregated file
          */
-        protected function combineFiles($aLinks, $sId, $sType)
+        protected function getCombinedFiles($aLinks, $sId, $sType)
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeProcessLink plgSystem (JCH Optimize)') : null;
+                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeProcessLink') : null;
 
                 $aArgs = array($aLinks, $sType, $this->oParser);
 
@@ -189,9 +189,9 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
                         throw new Exception(JchPlatformUtility::translate('Error creating cache file'));
                 }
 
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterGetCombinedFiles - ' . $sType) : null;
+                
                 return $bCached;
-
-                //JCH_DEBUG ? JchPlatformProfiler::mark('afterProcessLink plgSystem (JCH Optimize)') : null;
         }
 
         /**
@@ -201,21 +201,9 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          */
         private function getCacheId($aUrlArrays)
         {
-//                $aIdArray = array();
-//
-//                foreach ($aUrlArrays as $aUrlArray)
-//                {
-//                        foreach ($aUrlArray as $aUrl)
-//                        {
-//                                $aIdArray[] = $aUrl['id'];
-//                        }
-//                }
-//
-//                $sHtmlHash = (key($aUrlArrays) == 'css') ? $this->oParser->getHtmlHash() : '';
-//
-//                return md5(serialize($aIdArray) . $sHtmlHash);
+                $id = md5(serialize($aUrlArrays));
                 
-                return md5(serialize($aUrlArrays));
+                return $id;
         }
 
         /**
@@ -258,7 +246,7 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
 
                         $sUrl = htmlentities($oUri->toString(array('path', 'query')));
                 }
-
+                
                 return ($sUrl);
         }
 
@@ -299,6 +287,8 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
 
                 $this->oParser->setSearchArea(preg_replace($this->oParser->getBodyRegex(), '', $sSearchArea, 1), 'head');
                 $this->oParser->setSearchArea(preg_replace($this->oParser->getHeadRegex(), '', $sSearchArea, 1), 'body');
+                
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterReplaceLinks - ' . $sType) : null;
         }
 
         /**
@@ -312,12 +302,8 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          */
         public function loadCache($aFunction, $aArgs, $sId)
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeLoadCache plgSystem (JCH Optimize)') : null;
-
                 $iLifeTime = (int) $this->params->get('lifetime', '30') * 24 * 60 * 60;
                 $bCached   = JchPlatformCache::getCallbackCache($sId, $iLifeTime, $aFunction, $aArgs);
-
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterLoadCache plgSystem (JCH Optimize)') : null;
 
                 return $bCached;
         }

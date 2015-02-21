@@ -38,12 +38,12 @@ class JchOptimize
          */
         public function process($sHtml)
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeProcess plgSystem (JCH Optimize)') : null;
+                JCH_DEBUG ? JchPlatformProfiler::mark('beforeProcess') : null;
 
                 loadJchOptimizeClass(array('JchOptimizeBase', 'JchOptimizeParser', 'JchOptimizeFileRetriever', 
                         'JchOptimizeLinkBuilder', 'JchOptimizeHelper'));
                 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterLoadClass plgSystem (JCH Optimize)') : null;
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterLoadClass') : null;
                 
                 try
                 {
@@ -63,7 +63,9 @@ class JchOptimize
 
                 spl_autoload_unregister('loadJchOptimizeClass');
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterProcess plgSystem (JCH Optimize)') : null;
+                JCH_DEBUG ? JchPlatformProfiler::mark('afterProcess') : null;
+                
+                JCH_DEBUG ? JchPlatformProfiler::attachProfiler($sOptimizedHtml) : null;
 
                 return $sOptimizedHtml;
         }

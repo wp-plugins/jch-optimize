@@ -44,12 +44,6 @@ interface JchInterfaceUtility
         
         /**
          * 
-         * @param type $url
-         */
-        public static function loadAsync($url);
-        
-        /**
-         * 
          * @param type $message
          * @param type $category
          */
@@ -79,13 +73,6 @@ interface JchInterfaceUtility
         
         /**
          * 
-         * @param type $file
-         * @param type $contents
-         */
-        public static function write($file, $contents);
-        
-        /**
-         * 
          * @param type $value
          */
         public static function encrypt($value);
@@ -110,4 +97,8 @@ interface JchInterfaceUtility
          */
         public static function getLogsPath();
 
+        /**
+         * 
+         */
+        public static function menuId();
 }

@@ -20,4 +20,10 @@ class Optimize
         
         //regex for single quoted string
         const SINGLE_QUOTE_STRING = "'(?>(?:\\\\.)?[^\\\\']*+)+?(?:'|(?=$))";
+        
+        //regex for block comments
+        const BLOCK_COMMENTS = '/\*(?>[^/\*]++|//|\*(?!/)|(?<!\*)/)*+\*/';
+        
+        //regex for line comments
+        const LINE_COMMENTS = '//[^\r\n]*+';
 }

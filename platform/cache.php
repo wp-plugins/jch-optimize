@@ -37,7 +37,7 @@ class JchPlatformCache implements JchInterfaceCache
         {
                 $filename = self::_getFileName($id);
 
-                $file = JCH_CACHE_DIR . $filename . '.php';
+                $file = JCH_CACHE_DIR . $filename;
 
                 if (!file_exists($file))
                 {
@@ -61,13 +61,13 @@ class JchPlatformCache implements JchInterfaceCache
 
                 $filename = self::_getFileName($id);
 
-                $file = JCH_CACHE_DIR . $filename . '.php';
+                $file = JCH_CACHE_DIR . $filename;
 
                 if (!file_exists($file) || filemtime($file) > (time() + $lifetime))
                 {
                         $contents = call_user_func_array($function, $args);
 
-                        $filecontents = '<?php die("Access Denied"); ?>#x#' . base64_encode(serialize($contents));
+                        $filecontents = base64_encode(serialize($contents));
 
                         self::initializeCache();
                         
@@ -121,7 +121,6 @@ class JchPlatformCache implements JchInterfaceCache
         private static function _getCacheFile($file)
         {
                 $content = file_get_contents($file);
-                $content = str_replace('<?php die("Access Denied"); ?>#x#', '', $content);
 
                 return unserialize(base64_decode($content));
         }
