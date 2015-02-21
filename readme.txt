@@ -2,7 +2,7 @@
 Contributors: codealfa
 Tags: performance, optimize, speed, minify, aggregate, pagespeed, gtmetrix, minification, css, javascript, html, jch, lazy, load
 Tested up to: 4.1
-Stable tag: 1.1.0.7
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
