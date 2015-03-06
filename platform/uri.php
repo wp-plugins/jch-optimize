@@ -157,7 +157,7 @@ class JchPlatformUri implements JchInterfaceUri
          * 
          * @param type $query
          */
-        public function setQuery(array $query)
+        public function setQuery($query)
         {
                 $this->aUri['query'] = http_build_query($query);
         }

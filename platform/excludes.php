@@ -57,19 +57,6 @@ class JchPlatformExcludes implements JchInterfaceExcludes
          */
         public static function extensions()
         {
-//                static $plugins_url_path = '';
-//
-//                if ($plugins_url_path == '')
-//                {
-//                        $uri = JchPlatformUri::getInstance(plugins_url());
-//
-//                        $uribase = preg_quote(JchPlatformUri::base(TRUE));
-//                        
-//                        $plugins_url_path = preg_replace("#{$uribase}#", '', $uri->toString(array('path')));
-//                        $plugins_url_path = preg_replace('#^/#', '', $plugins_url_path);
-//                        JchPlatformPaths::rewriteBase();
-//                }
-
                 return JchPlatformPaths::rewriteBase();
         }
 

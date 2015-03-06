@@ -33,7 +33,7 @@ class JchPlatformHtml implements JchInterfaceHtml
         
         public function getOriginalHtml()
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetHtml plgSystem (JCH Optimize)') : null;
+                JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetHtml') : null;
                 
                 $url = site_url() . '/?jchbackend=1';
                 
@@ -50,7 +50,7 @@ class JchPlatformHtml implements JchInterfaceHtml
                                 );
                         }
 
-                        JCH_DEBUG ? JchPlatformProfiler::mark('afterGetHtml plgSystem (JCH Optimize)') : null;
+                        JCH_DEBUG ? JchPlatformProfiler::mark('afterGetHtml') : null;
 
                         return $response;
                 }
@@ -58,7 +58,7 @@ class JchPlatformHtml implements JchInterfaceHtml
                 {
                         JchOptimizeLogger::log($url . ': ' . $e->getMessage(), $this->params);
 
-                        JCH_DEBUG ? JchPlatformProfiler::mark('afterGetHtml plgSystem (JCH Optimize)') : null;
+                        JCH_DEBUG ? JchPlatformProfiler::mark('afterGetHtml)') : null;
 
                         throw new RunTimeException(_('Load or refresh the front-end site first then refresh this page '
                                 . 'to populate the multi select exclude lists.'));

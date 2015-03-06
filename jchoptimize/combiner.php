@@ -104,7 +104,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
          */
         public function getContents($aUrlArray, $sType, $oParser)
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterCallbackGetContents - ' . $sType) : null;                
+                JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetContents - ' . $sType) : null;                
                 
                 $oCssParser   = $this->oCssParser;
                 $sCriticalCss = '';
@@ -471,7 +471,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
         {
                 $sContent = rtrim($sContent);
 
-                if (substr($sContent, -1) != ';' && preg_match('#\|"COMMENT_START File[^"]+not found COMMENT_END"\|#', $sContent))
+                if (substr($sContent, -1) != ';' && !preg_match('#\|"COMMENT_START File[^"]+not found COMMENT_END"\|#', $sContent))
                 {
                         $sContent = $sContent . ';';
                 }

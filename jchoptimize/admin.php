@@ -49,7 +49,7 @@ class JchOptimizeAdmin
         {
                 if (empty($this->links))
                 {
-                        $hash      = $iItemid . $this->params->get('pro_searchBody') . $this->params->get('pro_cookielessdomain');
+                        $hash      = $iItemid . $this->params->get('pro_searchBody', 0) . $this->params->get('pro_cookielessdomain', 0);
                         $sId       = md5('getAdminLinks' . JCH_VERSION . serialize($hash));
                         $aFunction = array($this, 'generateAdminLinks');
                         $aArgs     = array($oObj, $sCss);
@@ -215,7 +215,7 @@ class JchOptimizeAdmin
                         }
                 }
 
-                return $aFieldOptions;
+                return array_filter($aFieldOptions);
         }
 
         /**

@@ -55,7 +55,7 @@ interface JchInterfaceUri
          * 
          * @param array $query
          */
-        public function setQuery(array $query);
+        public function setQuery($query);
         
         /**
          * 

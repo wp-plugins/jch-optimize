@@ -194,34 +194,41 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                 }
                 else
                 {
-                        $oUri = JchPlatformUri::getInstance();
-                        $sUrl = $oUri->toString(array('scheme', 'user', 'pass', 'host', 'port')) . JchPlatformPaths::assetPath();
-                        $sUrl2 =  JchPlatformPaths::rewriteBase() . 'test_mod_rewrite';
+                        $oUri  = JchPlatformUri::getInstance();
+                        $sUrl  = $oUri->toString(array('scheme', 'user', 'pass', 'host', 'port')) . JchPlatformPaths::assetPath();
+                        $sUrl2 = JchPlatformPaths::rewriteBase() . 'test_mod_rewrite';
 
-                        $sContents = $oFileRetriever->getFileContents($sUrl . $sUrl2);
+                        try
+                        {
+                                $sContents = $oFileRetriever->getFileContents($sUrl . $sUrl2);
 
-                        if ($sContents == 'TRUE')
-                        {
-                                $params->set('htaccess', 1);
-                        }
-                        else
-                        {
-                                $sContents2 = $oFileRetriever->getFileContents($sUrl . '3' . $sUrl2);
-                                
-                                if ($sContents2 == 'TRUE')
+                                if ($sContents == 'TRUE')
                                 {
-                                        $params->set('htaccess', 3);
+                                        $params->set('htaccess', 1);
                                 }
                                 else
                                 {
-                                        $params->set('htaccess', 0);
+                                        $sContents2 = $oFileRetriever->getFileContents($sUrl . '3' . $sUrl2);
+
+                                        if ($sContents2 == 'TRUE')
+                                        {
+                                                $params->set('htaccess', 3);
+                                        }
+                                        else
+                                        {
+                                                $params->set('htaccess', 0);
+                                        }
                                 }
+                        }
+                        catch (Exception $e)
+                        {
+                                $params->set('htaccess', 0);
                         }
                 }
 
 
                 JchPlatformPlugin::saveSettings($params);
-                
+
                 JCH_DEBUG ? JchPlatformProfiler::mark('afterCheckModRewriteEnabled') : null;
         }
 
@@ -281,7 +288,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
         {
                 return str_replace(array('\\\\', '\\'), '/', $str);
         }
-      
+
         /**
          * If parameter is set will minify HTML before sending to browser; 
          * Inline CSS and JS will also be minified if respective parameters are set
@@ -302,12 +309,12 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                 {
                         $aOptions['jsMinifier'] = array('JchOptimize\JS_Optimize', 'optimize');
                 }
-                
+
                 $aOptions['minify_level'] = $oParams->get('html_minify_level', 2);
 
                 if ($oParams->get('html_minify', 0))
                 {
-                        $sHtmlMin      = HTML_Optimize::optimize($sHtml, $aOptions);
+                        $sHtmlMin = HTML_Optimize::optimize($sHtml, $aOptions);
 
                         if ($sHtmlMin == '')
                         {
@@ -340,7 +347,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                 {
                         $aArray = explode(',', trim($sString));
                 }
-                
+
                 $aArray = array_map(function($sValue)
                 {
                         return trim($sValue);
@@ -348,7 +355,6 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
 
                 return array_filter($aArray);
         }
-
 
         /**
          * 
@@ -371,14 +377,14 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
 
                 $parts = parse_url($url);
 
-                if(isset($parts['scheme']) && ($parts['scheme'] == 'https')) 
+                if (isset($parts['scheme']) && ($parts['scheme'] == 'https'))
                 {
-                        $protocol  = 'ssl://';
+                        $protocol     = 'ssl://';
                         $default_port = 443;
                 }
                 else
                 {
-                        $protocol = '';
+                        $protocol     = '';
                         $default_port = 80;
                 }
 

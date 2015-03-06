@@ -235,7 +235,7 @@ class JchOptimizeParser extends JchOptimizeBase
          */
         public function replaceScripts($aMatches, $aCBArgs)
         {
-//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeReplaceScript plgSystem (JCH Optimize)') : null; 
+//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeReplaceScript') : null; 
 
                 $sUrl         = isset($aMatches[1]) && $aMatches[1] != '' ? $aMatches[1] : (isset($aMatches[3]) ? $aMatches[3] : '');
                 $sDeclaration = isset($aMatches[2]) && $aMatches[2] != '' ? $aMatches[2] : (isset($aMatches[4]) ? $aMatches[4] : '');
@@ -277,7 +277,7 @@ class JchOptimizeParser extends JchOptimizeBase
                         $sMedia .= $aMediaTypes[1] ? $aMediaTypes[1] : $aMediaTypes[2];
                 }
 
-//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeReplaceScript - ' . $sFile . ' plgSystem (JCH Optimize)') : null;
+//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeReplaceScript - ' . $sFile) : null;
 
                 switch (TRUE)
                 {
