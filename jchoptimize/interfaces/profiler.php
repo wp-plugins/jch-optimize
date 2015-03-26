@@ -27,4 +27,8 @@ interface JchInterfaceProfiler
       public static function mark($text);  
       
       public static function attachProfiler(&$html);
+      
+      public static function start($text, $mark=FALSE);
+      
+      public static function stop($text, $mark=FALSE);
 }

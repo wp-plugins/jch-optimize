@@ -105,6 +105,8 @@ class JchOptimizeSpriteGenerator
          */
         public function generateSprite($aMatches, $oSpriteGen)
         {
+                JCH_DEBUG ? JchPlatformProfiler::start('GenerateSprite') : null;
+                
                 $aDeclaration = $aMatches[0];
                 $aImages      = $aMatches[1];
 
@@ -147,7 +149,7 @@ class JchOptimizeSpriteGenerator
                         }
                 }
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterGenerateSprite') : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('GenerateSprite', TRUE) : null;
                 
                 return $aSearch;
         }
@@ -160,6 +162,8 @@ class JchOptimizeSpriteGenerator
          */
         public function processCssUrls($sCss, $bBackend = FALSE)
         {
+                JCH_DEBUG ? JchPlatformProfiler::start('ProcessCssUrls') : null;
+                
                 $params         = $this->params;
                 $aRegexStart    = array();
                 $aRegexStart[0] = '
@@ -270,7 +274,7 @@ class JchOptimizeSpriteGenerator
                         return $aImages;
                 }
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterProcessCssUrls') : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('ProcessCssUrls', TRUE) : null;
                 
                 return $aMatches;
         }

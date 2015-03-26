@@ -93,7 +93,7 @@ function jch_options_page()
                                 <div class="tab-pane active" id="description">
                                         <div id="extension-container" style="text-align:left;">
                                                 <h1>JCH Optimize Plugin</h1>
-                                                <h3>(Version 1.1.2)</h3>
+                                                <h3>(Version 1.1.3)</h3>
                                                 <?php
 
                                                 
@@ -266,9 +266,10 @@ function jch_initialize_settings()
                                                                 'jch_options_csg_include_images_string', 'jch-sections', 'jch_sprite_exclude');
 
         add_settings_section('jch_images', '', 'jch_images_section_text', 'jch-sections');
+                
         add_settings_field('jch_options_optimizeimages', __('Optimize Images', 'jch-optimize'), 'jch_options_optimize_images_string', 'jch-sections',
                                                             'jch_images');
-
+        
         add_settings_section('jch_section_end', '', 'jch_section_end_text', 'jch-sections');
 }
 
@@ -968,7 +969,7 @@ function jch_options_csg_direction_string()
 {
         $description = __('Determine in which direction the images must be placed in sprite.', 'jch-optimize');
 
-        $values = array('vertical' => 'vertical', 'horizontal' => 'horizontal');
+        $values = array('vertical' => __('vertical', 'jch-optimize'), 'horizontal' => __('horizontal', 'jch-optimize'));
 
         echo jch_gen_select_field('csg_direction', 'vertical', $values, $description);
 }
@@ -1018,10 +1019,12 @@ function jch_images_section_text()
 
         echo '</div>
   <div class="tab-pane" id="images"><br>
- <p class="description" style="font-size: 14px;" >' . __('Click through to open the directory that contains the images you want to optimize then click the \'Optimize Images\' button. The plugin will use the Yahoo! Smush.it™ lossless compressor to optimize the images in the folder and will replace the existing images with the optimized images. Although this is relatively safe, it is recommended you do a backup first.',
+ <p class="description" style="font-size: 14px;" >' . __('Click through to open the directory that contains the images you want to optimize then click the \'Optimize Images\' button. The plugin will use the https://kraken.io/ API to optimize the images in the folder and will replace the existing images with the optimized images. Although this is relatively safe, it is recommended you do a backup first.',
                                                           'jch-optimize') . ' </p>    
  ';
 }
+
+
 
 function jch_options_optimize_images_string()
 {

@@ -31,6 +31,7 @@ class JchOptimizeFileRetriever
         protected static $oHttpAdapter = Null;
         
         public $response_code = null;
+        public $allow_400 = FALSE;
 
         /**
          * 
@@ -78,7 +79,7 @@ class JchOptimizeFileRetriever
                                 throw new Exception($ex->getMessage());
                         }
 
-                        if ($this->response_code != 200)
+                        if ($this->response_code != 200 && !$this->allow_400)
                         {
                                 $sPath     = $sOrigPath == '' ? $sPath : $sOrigPath;
                                 $sContents = $this->notFound($sPath);

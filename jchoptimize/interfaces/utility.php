@@ -67,12 +67,6 @@ interface JchInterfaceUtility
         
         /**
          * 
-         * @param type $array
-         */
-        public static function RFC1123DateAdd($filemtime, $days);
-        
-        /**
-         * 
          * @param type $value
          */
         public static function encrypt($value);

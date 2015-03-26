@@ -347,7 +347,6 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          */
         public function _correctUrlCB($aMatches, $aUrl)
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeCorrectUrl plgSystem (JCH Optimize)') : null;
                 if (!isset($aMatches[1]) || $aMatches[1] == '' || preg_match('#^(?:\(|/(?:/|\*))#', $aMatches[0]))
                 {
                         return $aMatches[0];
@@ -412,7 +411,6 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
                                 }
                         }
                 }
-                //JCH_DEBUG ? JchPlatformProfiler::mark('afterCorrectUrl plgSystem (JCH Optimize)') : null;
                 $sImageUrl = preg_match('#(?<!\\\\)[\s\'"(),]#', $sImageUrl) ? '"' . $sImageUrl . '"' : $sImageUrl;
 
                 return $sImageUrl;
@@ -485,8 +483,6 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
          */
         public function addRightBrace($sCss)
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeaddRightBrace') : null;
-
                 if (preg_match('#{#', $sCss))
                 {
                         preg_match_all("#(?>[^{}'\"/]*+(?:{$this->u}|/|\()?)+?(?:(?<b>{(?>[^{}]++|(?&b))*+})?)#", rtrim($sCss) . '}}', $m,
@@ -494,8 +490,6 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
 
                         $sCss = implode('', $m[0]);
                 }
-
-                //JCH_DEBUG ? JchPlatformProfiler::mark('afterAddRightBrace') : null;
 
                 return $sCss;
         }

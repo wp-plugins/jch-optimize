@@ -175,7 +175,7 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          */
         protected function getCombinedFiles($aLinks, $sId, $sType)
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeProcessLink') : null;
+                JCH_DEBUG ? JchPlatformProfiler::start('GetCombinedFiles - ' . $sType) : null;
 
                 $aArgs = array($aLinks, $sType, $this->oParser);
 
@@ -189,7 +189,7 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
                         throw new Exception(JchPlatformUtility::translate('Error creating cache file'));
                 }
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterGetCombinedFiles - ' . $sType) : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('GetCombinedFiles - ' . $sType, TRUE) : null;
                 
                 return $bCached;
         }
@@ -257,6 +257,8 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          */
         protected function replaceLinks($sId, $sType)
         {
+                JCH_DEBUG ? JchPlatformProfiler::start('ReplaceLinks - ' . $sType) : null;
+                
                 $sSearchArea = $this->oParser->getHeadHtml();
                 $sSearchArea .= $this->oParser->getBodyHtml();
 
@@ -288,7 +290,7 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
                 $this->oParser->setSearchArea(preg_replace($this->oParser->getBodyRegex(), '', $sSearchArea, 1), 'head');
                 $this->oParser->setSearchArea(preg_replace($this->oParser->getHeadRegex(), '', $sSearchArea, 1), 'body');
                 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterReplaceLinks - ' . $sType) : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('ReplaceLinks - ' . $sType, TRUE) : null;
         }
 
         /**

@@ -80,12 +80,10 @@ class CSS_Optimize extends Optimize
                 $u = self::URI;
                 $e = $s . '|' . $u;
 
-                //JCH_DEBUG ? \JchPlatformProfiler::mark('beforeMinifyCss') : null;
                 // Remove all comments
 
                 $css = preg_replace("#(?>/?[^/\"'(]*+(?:$e|\()?)*?\K(?>/\*(?:\*?[^*]*+)*?\*/|//[^\r\n]*+|$)#s", '', $css);
 
-                //JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveComments') : null;
                 // remove ws around , ; : { } in CSS Declarations and media queries
                 $css = preg_replace(
                         "#(?>(?:[{};]|^)[^{}@;]*+{|(?:(?<![,;:{}])\s++(?![,;:{}]))?[^\s{};\"'(]*+(?:$e|[\"'({};])?)+?\K"
@@ -99,26 +97,20 @@ class CSS_Optimize extends Optimize
                         . "(?:\s++(?=[,+>~{}])|(?<=[,+>~{};])\s++|$\K)#s", '', $css
                 );
 
-                //JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundBrackets') : null;
                 //remove last ; in block
                 $css = preg_replace("#(?>(?:;(?!}))?[^;\"'(]*+(?:$e|\()?)*?(?:\K;(?=})|$\K)#s", '', $css);
 
-                //JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveLastSemicolon') : null;
                 // remove ws inside urls
                 $css = preg_replace("#(?>\(?[^\"'(]*+(?:$s)?)*?(?:(?<=\burl)\(\K\s++|\G"
                         . "(?(?=[\"'])['\"][^'\"]++['\"]|[^\s]++)\K\s++(?=\))|$\K)#s", '', $css);
 
-                //JCH_DEBUG ? \JchPlatformProfiler::mark('afterRemoveWsAroundUrls') : null;
                 // minimize hex colors
-               
                 $css = preg_replace("/(?>\#?[^\#\"'(]*+(?:$e|\()?)*?(?:(?<!=)\#\K"
-                        . "([a-f\d])\g{1}([a-f\d])\g{2}([a-f\d])\g{3}|$\K)/is", '$1$2$3', $css);
+                        . "([a-f\d])\g{1}([a-f\d])\g{2}([a-f\d])\g{3}(?=[\s;}])|$\K)/is", '$1$2$3', $css);
 
-                //JCH_DEBUG ? \JchPlatformProfiler::mark('afterMinimizeHexColors') : null;
                 // reduce remaining ws to single space
                 $css = preg_replace("#(?>[^\s'\"(]*+(?:$e|\(|\s(?!\s))?)*?\K(?:\s\s++|$)#s", ' ', $css);
 
-                //JCH_DEBUG ? \JchPlatformProfiler::mark('afterReduceWsToSingleSpace') : null;
                 return trim($css);
         }
 

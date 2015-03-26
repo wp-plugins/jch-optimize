@@ -117,26 +117,6 @@ class JchPlatformUtility implements JchInterfaceUtility
 
         /**
          * 
-         * @param type $filemtime
-         * @param type $days
-         */
-        public static function RFC1123DateAdd($filemtime, $days)
-        {
-                $aTime = array();
-
-                $date = new DateTime();
-                $date->setTimestamp($filemtime);
-
-                $aTime['filemtime'] = $date->format('D, d M Y H:i:s');
-
-                $date->add(DateInterval::createFromDateString($days . ' days'));
-                $aTime['expiry'] = $date->format('D, d M Y H:i:s');
-
-                return $aTime;
-        }
-
-        /**
-         * 
          * @param type $file
          * @param type $contents
          */

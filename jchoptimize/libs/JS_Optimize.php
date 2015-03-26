@@ -103,6 +103,15 @@ class JS_Optimize extends Optimize
                         . "(?>(?<=$x1|$x2)[$ws ]++($x3)|(?<=$x4)[$ws ]++($x3)(?=\.(?:$x5))|$)#si", '$1$2', $js
                 );
           
+                if (isset($this->options['prepare_only']) &&  $this->options['prepare_only'] ==  TRUE)
+                {
+                        global $REXEXP_LITERAL;
+                        
+                        $REXEXP_LITERAL = $x;
+                        
+                        return $js;
+                }
+                
                 //replace line comments with line feed
                 $js = preg_replace("#(?>[^'\"/]*+(?>{$s1}|{$s2}|{$x}|{$b}|/(?![*/]))?)*?\K(?>{$c}|$)#si", "\n", $js);
 

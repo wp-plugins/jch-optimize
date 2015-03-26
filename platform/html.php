@@ -46,7 +46,7 @@ class JchPlatformHtml implements JchInterfaceHtml
                         if ($oFileRetriever->response_code != 200)
                         {
                                 throw new Exception(
-                                JchPlatformUtilityt::translate('Failed fetching front end HTML with response code ' . $oFileRetriever->response_code)
+                                JchPlatformUtility::translate('Failed fetching front end HTML with response code ' . $oFileRetriever->response_code)
                                 );
                         }
 

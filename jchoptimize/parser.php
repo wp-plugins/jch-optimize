@@ -49,8 +49,6 @@ class JchOptimizeParser extends JchOptimizeBase
          */
         public function __construct($oParams, $sHtml, $oFileRetriever)
         {
-//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeConstructParser') : null;
-
                 $this->params = $oParams;
                 $this->sHtml  = $sHtml;
 
@@ -63,8 +61,6 @@ class JchOptimizeParser extends JchOptimizeBase
                 {
                         $this->sFileHash = serialize($this->params->getOptions()) . JCH_VERSION;
                 }
-
-//                JCH_DEBUG ? JchPlatformProfiler::mark('afterConstructParser') : null;
 
                 $this->parseHtml();
         }
@@ -84,8 +80,6 @@ class JchOptimizeParser extends JchOptimizeBase
          */
         public function cleanHtml()
         {
-//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeCleanHtml') : null;
-
                 $hash = preg_replace(array(
                         $this->getHeadRegex(),
                         '#' . $this->ifRegex() . '#',
@@ -93,7 +87,6 @@ class JchOptimizeParser extends JchOptimizeBase
                         '#' . implode('', $this->getCssRegex()) . '#six'
                         ), '', $this->sHtml);
 
-//                JCH_DEBUG ? JchPlatformProfiler::mark('afterCleanHtml') : null;
 
                 return $hash;
         }
@@ -103,8 +96,6 @@ class JchOptimizeParser extends JchOptimizeBase
          */
         public function getHtmlHash()
         {
-//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetHtmlhash') : null;
-
                 $sHtmlHash = '';
 
                 preg_replace_callback('#<(?!/)[^>]++>#i',
@@ -115,7 +106,6 @@ class JchOptimizeParser extends JchOptimizeBase
                         return;
                 }, $this->cleanHtml(), 200);
 
-//                JCH_DEBUG ? JchPlatformProfiler::mark('afterGetHtmlHash') : null;
 
                 return $sHtmlHash;
         }
@@ -126,8 +116,6 @@ class JchOptimizeParser extends JchOptimizeBase
          */
         public function parseHtml()
         {
-//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeParseHtml') : null;
-
                 $oParams = $this->params;
 
                 $aCBArgs = array();
@@ -156,9 +144,6 @@ class JchOptimizeParser extends JchOptimizeBase
                                                              JchPlatformExcludes::head('css'));
                 $aCBArgs['excludes']['script'] = $aExcludeScript;
 
-
-//                JCH_DEBUG ? JchPlatformProfiler::mark('afterParserHtml') : null;
-
                 $this->initSearch($aCBArgs);
 
                 $this->runCookieLessDomain();
@@ -172,6 +157,8 @@ class JchOptimizeParser extends JchOptimizeBase
          */
         protected function initSearch($aCBArgs)
         {
+                JCH_DEBUG ? JchPlatformProfiler::start('InitSearch') : null;
+                
                 if (JchPlatformUtility::isMsieLT10())
                 {
                         return;
@@ -192,7 +179,7 @@ class JchOptimizeParser extends JchOptimizeBase
                 $this->bExclude_js  = TRUE;
                 $this->bExclude_css = TRUE;
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterInitSearch') : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('InitSearch', TRUE) : null;
                 
                 $this->searchArea($sRegex, 'head', $aCBArgs);
 
@@ -209,6 +196,8 @@ class JchOptimizeParser extends JchOptimizeBase
          */
         protected function searchArea($sRegex, $sSection, $aCBArgs)
         {
+                JCH_DEBUG ? JchPlatformProfiler::start('SearchArea - ' . $sSection) : null;
+                
                 $obj = $this;
 
                 $sProcessedHtml = preg_replace_callback($sRegex,
@@ -224,7 +213,7 @@ class JchOptimizeParser extends JchOptimizeBase
 
                 $this->{'s' . ucfirst($sSection) . 'Html'} = $sProcessedHtml;
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterSearchArea - ' . $sSection) : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('SearchArea - ' . $sSection, TRUE) : null;
         }
 
         /**
@@ -235,8 +224,6 @@ class JchOptimizeParser extends JchOptimizeBase
          */
         public function replaceScripts($aMatches, $aCBArgs)
         {
-//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeReplaceScript') : null; 
-
                 $sUrl         = isset($aMatches[1]) && $aMatches[1] != '' ? $aMatches[1] : (isset($aMatches[3]) ? $aMatches[3] : '');
                 $sDeclaration = isset($aMatches[2]) && $aMatches[2] != '' ? $aMatches[2] : (isset($aMatches[4]) ? $aMatches[4] : '');
 
@@ -277,8 +264,6 @@ class JchOptimizeParser extends JchOptimizeBase
                         $sMedia .= $aMediaTypes[1] ? $aMediaTypes[1] : $aMediaTypes[2];
                 }
 
-//                JCH_DEBUG ? JchPlatformProfiler::mark('beforeReplaceScript - ' . $sFile) : null;
-
                 switch (TRUE)
                 {
                         case (($sUrl != '') && !empty($aExcludes[$sType]) && JchOptimizeHelper::findExcludes($aExcludes[$sType], $sUrl)):
@@ -289,8 +274,6 @@ class JchOptimizeParser extends JchOptimizeBase
                         case ($sDeclaration != '' && JchOptimizeHelper::findExcludes($aExcludes['script'], $sDeclaration, TRUE)):
                         case (($sUrl != '') && $this->excludeExternalExtensions($sUrl)):
 
-//                        JCH_DEBUG ? JchPlatformProfiler::mark('afterSkipScript - ' . $sFile) : null;
-
                                 $this->{'bExclude_' . $sType} = TRUE;
 
                                 return $aMatches[0];
@@ -300,7 +283,6 @@ class JchOptimizeParser extends JchOptimizeBase
                                 return '';
 
                         default:
-//                        JCH_DEBUG ? JchPlatformProfiler::mark('afterTestScript - ' . $sFile) : null;                                
                                 $return = '';
 
                                 if ($this->{'bExclude_' . $sType} && $this->bPreserveOrder)
@@ -325,7 +307,7 @@ class JchOptimizeParser extends JchOptimizeBase
 
                                 if ($sUrl == '' && trim($sDeclaration) != '')
                                 {
-                                        $content = JchOptimize\HTML_Optimize::cleanScript($sDeclaration);
+                                        $content = JchOptimize\HTML_Optimize::cleanScript($sDeclaration, $sType);
 
                                         $array['content'] = $content;
                                         $id               = $content;
@@ -348,7 +330,6 @@ class JchOptimizeParser extends JchOptimizeBase
 
                                 $this->aLinks[$sType][$iIndex][] = $array;
 
-//JCH_DEBUG ? JchPlatformProfiler::mark('afterReplaceScript - ' . $sFile) : null;
                                 return $return;
                 }
         }
@@ -535,8 +516,6 @@ URLREGEX;
          */
         public function getBodyHtml()
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetSearchArea') : null;
-
                 if ($this->sBodyHtml == '')
                 {
                         if (preg_match($this->getBodyRegex(), $this->sHtml, $aBodyMatches) === FALSE || empty($aBodyMatches))
@@ -547,8 +526,6 @@ URLREGEX;
 
                         $this->sBodyHtml = $aBodyMatches[0];
                 }
-
-                //JCH_DEBUG ? JchPlatformProfiler::mark('afterGetSearchArea') : null;
 
                 return $this->sBodyHtml;
         }

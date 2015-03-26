@@ -51,8 +51,6 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
          */
         public static function fileExists($sPath)
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeFileExists - ' . $sPath . ' plgSystem (JCH Optimize)') : null;
-
                 if ((strpos($sPath, 'http') === 0))
                 {
                         $sFileHeaders = @get_headers($sPath);
@@ -63,8 +61,6 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                 {
                         return file_exists($sPath);
                 }
-
-                //JCH_DEBUG ? JchPlatformProfiler::mark('afterFileExists - ' . $sPath . ' plgSystem (JCH Optimize)') : null;
         }
 
         /**
@@ -76,8 +72,6 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
          */
         public static function getFilePath($sUrl)
         {
-                //JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetFilePath - ' . $sUrl . ' plgSystem (JCH Optimize)') : null;
-
                 $sUriBase = JchPlatformUri::base();
                 $sUriPath = JchPlatformUri::base(TRUE);
 
@@ -93,8 +87,6 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                                 '#^' . preg_quote($sUriPath, '#') . '/#',
                                 '#\?.*?$#'
                                 ), '', $sUrl);
-
-                        //JCH_DEBUG ? JchPlatformProfiler::mark('afterGetFilePath - ' . $sUrl . ' plgSystem (JCH Optimize)') : null;
 
                         return JchPlatformPaths::absolutePath($sUrl);
                 }
@@ -121,9 +113,6 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                                         $sUrl = $sUriBase . $sUrl;
                                         break;
                         }
-
-
-                        //JCH_DEBUG ? JchPlatformProfiler::mark('afterGetFilePath - ' . $sUrl . ' plgSystem (JCH Optimize)') : null;
 
                         return html_entity_decode($sUrl);
                 }
@@ -186,6 +175,8 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
          */
         public static function checkModRewriteEnabled($params)
         {
+                JCH_DEBUG ? JchPlatformProfiler::start('CheckModRewriteEnabled') : null;
+                
                 $oFileRetriever = JchOptimizeFileRetriever::getInstance();
 
                 if (!$oFileRetriever->isHttpAdapterAvailable())
@@ -229,7 +220,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
 
                 JchPlatformPlugin::saveSettings($params);
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterCheckModRewriteEnabled') : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('CheckModRewriteEnabled', TRUE) : null;
         }
 
         /**
@@ -298,6 +289,8 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
          */
         public static function minifyHtml($sHtml, $oParams)
         {
+                JCH_DEBUG ? JchPlatformProfiler::start('MinifyHtml') : null;
+                
                 $aOptions = array();
 
                 if ($oParams->get('css_minify', 0))
@@ -326,7 +319,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                         $sHtml = $sHtmlMin;
                 }
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterMinifyHtml') : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('MinifyHtml', TRUE) : null;
 
                 return $sHtml;
         }

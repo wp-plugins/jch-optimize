@@ -23,7 +23,7 @@ class JchPlatformHttp implements JchInterfaceHttp
                 if (is_null($available))
                 {
                         global $wp_version;
-                        
+
                         $args = array(
                                 'method'              => 'GET',
                                 'timeout'             => apply_filters('http_request_timeout', 5),
@@ -51,7 +51,7 @@ class JchPlatformHttp implements JchInterfaceHttp
                         foreach ($request_order as $transport)
                         {
                                 $class = 'WP_HTTP_' . ucfirst($transport);
-                                
+
                                 // Check to see if this transport is a possibility, calls the transport statically.
                                 if (!call_user_func(array($class, 'test'), $args, NULL))
                                 {
@@ -59,7 +59,7 @@ class JchPlatformHttp implements JchInterfaceHttp
                                 }
 
                                 $available = TRUE;
-                                
+
                                 return $available;
                         }
 
@@ -82,9 +82,12 @@ class JchPlatformHttp implements JchInterfaceHttp
                 if (!empty($aPost))
                 {
                         $args['body'] = $aPost;
+                        $response     = wp_remote_post($sPath, $args);
                 }
-
-                $response = wp_remote_get($sPath, $args);
+                else
+                {
+                        $response = wp_remote_get($sPath);
+                }
 
                 $return = array(
                         'body' => wp_remote_retrieve_body($response),

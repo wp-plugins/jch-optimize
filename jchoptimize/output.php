@@ -47,7 +47,7 @@ class JchOptimizeOutput
                         die('File not found');
                 }
 
-                $aTimeMFile = JchPlatformUtility::RFC1123DateAdd($aCache['filemtime'], $aGet['d']);
+                $aTimeMFile = self::RFC1123DateAdd($aCache['filemtime'], $aGet['d']);
 
                 $sTimeMFile  = $aTimeMFile['filemtime'] . ' GMT';
                 $sExpiryDate = $aTimeMFile['expiry'] . ' GMT';
@@ -240,5 +240,25 @@ class JchOptimizeOutput
                 }
                 
                 return $aGet;
+        }
+        
+        /**
+         * 
+         * @param type $filemtime
+         * @param type $days
+         */
+        public static function RFC1123DateAdd($filemtime, $days)
+        {
+                $aTime = array();
+
+                $date = new DateTime();
+                $date->setTimestamp($filemtime);
+
+                $aTime['filemtime'] = $date->format('D, d M Y H:i:s');
+
+                $date->add(DateInterval::createFromDateString($days . ' days'));
+                $aTime['expiry'] = $date->format('D, d M Y H:i:s');
+
+                return $aTime;
         }
 }

@@ -69,6 +69,8 @@ class JchOptimizeAdmin
          */
         public function generateAdminLinks($oObj, $sCss)
         {
+                JCH_DEBUG ? JchPlatformProfiler::start('GenerateAdminLinks') : null;
+                
                 $params = clone $this->params;
                 $params->set('javascript', '1');
                 $params->set('css', '1');
@@ -97,7 +99,7 @@ class JchOptimizeAdmin
 
                 
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterGenerateAdminLinks') : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('GenerateAdminLinks', TRUE) : null;
 
                 return $aLinks;
         }
@@ -180,7 +182,7 @@ class JchOptimizeAdmin
                                 {
                                         if ($sExclude == 'scripts')
                                         {
-                                                $sScript = JchOptimize\HTML_Optimize::cleanScript($aLink['content']);
+                                                $sScript = JchOptimize\HTML_Optimize::cleanScript($aLink['content'], 'js');
                                                 $sScript = trim(JchOptimize\JS_Optimize::optimize($sScript));
 
                                                 if (strlen($sScript) > 60)

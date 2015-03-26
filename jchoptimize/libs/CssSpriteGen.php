@@ -147,6 +147,8 @@ class CssSpriteGen
 
                 foreach ($aFilePaths as $sFile)
                 {
+                        JCH_DEBUG ? JchPlatformProfiler::start('CalculateSprite') : null;
+                        
                         $sFilePath = str_replace(JchOptimizeHelper::cookieLessDomain($this->params), '', $sFile);
                         $sFilePath = JchOptimizeHelper::getFilepath($sFilePath);
 
@@ -396,14 +398,14 @@ class CssSpriteGen
                         }
                 }
 
-                JCH_DEBUG ? JchPlatformProfiler::mark('afterCalculateSprite') : null;
+                JCH_DEBUG ? JchPlatformProfiler::stop('CalculateSprite', TRUE) : null;
 
                 if ($this->bBackend)
                 {
                         return $aValidImages;
                 }
 
-
+                JCH_DEBUG ? JchPlatformProfiler::start('CreateSprite') : null;
 
 
                 /*                 * **************************************** */
@@ -529,7 +531,7 @@ class CssSpriteGen
                                 JchOptimizeLogger::log($e->getMessage(), $this->params);
                         }
                         
-                        JCH_DEBUG ? JchPlatformProfiler::mark('afterCreateSprite') : null;
+                        JCH_DEBUG ? JchPlatformProfiler::stop('CreateSprite', TRUE) : null;
                 }
 
                 

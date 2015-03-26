@@ -104,7 +104,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
          */
         public function getContents($aUrlArray, $sType, $oParser)
         {
-                JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetContents - ' . $sType) : null;                
+                JCH_DEBUG ? JchPlatformProfiler::start('GetContents - ' . $sType, TRUE) : null;                
                 
                 $oCssParser   = $this->oCssParser;
                 $sCriticalCss = '';
@@ -174,6 +174,8 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                         'font-face'   => $aFontFace
                 );
 
+                JCH_DEBUG ? JchPlatformProfiler::stop('GetContents - ' . $sType) : null; 
+                
                 return $aContents;
         }
 
@@ -197,6 +199,10 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                 foreach ($aUrlArray as $aUrl)
                 {
+                        $sUrl = $this->prepareFileUrl($aUrl, $sType);
+                        
+                        JCH_DEBUG ? JchPlatformProfiler::start('CombineFile - ' . $sUrl) : null;
+                        
                         if ($sType == 'js')
                         {
                                 $sJsContents = $this->handleAsyncUrls($aUrl);
@@ -236,9 +242,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                                 $sContents .= $this->addCommentedUrl($sType, $aUrl) . $sContent . '|"LINE_END"|';
                         }
                         
-                        $sUrl = $this->prepareFileUrl($aUrl, $sType);
-                        
-                        JCH_DEBUG ? JchPlatformProfiler::mark('afterCombineFile - ' . $sUrl) : null;
+                        JCH_DEBUG ? JchPlatformProfiler::stop('CombineFile - ' . $sUrl, TRUE) : null;
                 }
 
                 if ($this->bAsync)
@@ -385,8 +389,6 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                 {
                         $sUrl = $this->prepareFileUrl($aUrl, $sType);
 
-//                        JCH_DEBUG ? JchPlatformProfiler::mark('beforeMinifyContent - "' . $sUrl . '"') : null;
-
                         $sMinifiedContent = trim($sType == 'css' ? CSS_Optimize::optimize($sContent) : JS_Optimize::optimize($sContent));
 
                         if (is_null($sMinifiedContent) || $sMinifiedContent == '')
@@ -395,8 +397,6 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                                                                                              $this->params);
                                 $sMinifiedContent = $sContent;
                         }
-
-//                        JCH_DEBUG ? JchPlatformProfiler::mark('afterMinifyContent - "' . $sUrl . '"') : null;
 
                         return $sMinifiedContent;
                 }

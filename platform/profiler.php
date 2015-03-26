@@ -108,5 +108,31 @@ class JchPlatformProfiler implements JchInterfaceProfiler
 
                 $sHtml = str_replace('</body>', $script . '</body>', $sHtml);
         }
+        
+        /**
+         * 
+         * @param type $text
+         * @param type $mark
+         */
+        public static function start($text, $mark=FALSE)
+        {
+                if($mark)
+                {
+                        self::mark('before' . $text);
+                }
+        }
+        
+        /**
+         * 
+         * @param type $text
+         * @param type $mark
+         */
+        public static function stop($text, $mark=FALSE)
+        {
+                if($mark)
+                {
+                        self::mark('after' . $text);
+                }
+        }
 
 }
