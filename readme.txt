@@ -10,7 +10,7 @@ This plugin aggregates and minifies CSS and Javascript files for optimized page 
 
 == Description ==
 
-This plugin optimize your website download speed by automatically aggregating CSS and javascript files to reduce the number of http requests made by the browser to download your web page. The combined CSS and javascript files can be further optimize by minifying and compressing the file with gzip. Also, the HTML output can be compressed for optimized download. These optimizations may reduce server load, bandwidth requirements, and page loading times.
+Speed up your WordPress site instantly with JCH Optimize! This plugin optimize your website download speed by automatically aggregating CSS and javascript files to reduce the number of http requests made by the browser to download your web page. The combined CSS and javascript files can be further optimize by minifying and compressing the file with gzip. Also, the HTML output can be compressed for optimized download. These optimizations may reduce server load, bandwidth requirements, and page loading times.
 
 = Major Features =
 
