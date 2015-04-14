@@ -92,12 +92,12 @@ class JchOptimizeOutput
 
                 if (($aGet['type'] == 'css'))
                 {
-                        if (!empty($aSpriteCss))
+                        if (is_array($aSpriteCss) && !empty($aSpriteCss) && isset($aSpriteCss['needles']) && $aSpriteCss['replacements'])
                         {
                                 $sFile = str_replace($aSpriteCss['needles'], $aSpriteCss['replacements'], $sFile);
                         }
 
-                        if (!empty($aCache['font-face']))
+                        if (isset($aCache['font-face']))
                         {
                                 $sFile = str_replace($aCache['font-face'], '', $sFile);
                         }

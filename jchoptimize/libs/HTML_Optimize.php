@@ -103,24 +103,37 @@ class HTML_Optimize extends Optimize
                 {
                         $this->_isHtml5 = (preg_match('#^\s*+<!DOCTYPE html>#i', $this->_html));
                 }
-
+                
+                $x = '<!--(?>-?[^-]*+)*?--!?>';
+                $s1 = self::DOUBLE_QUOTE_STRING;
+                $s2 = self::SINGLE_QUOTE_STRING;
+                
+                //Regex for escape elements
+                $pr  = "<pre\b[^>]*+>(?><?[^<]*+)*?</pre>";
+                $sc = "<script\b[^>]*+>(?><?[^<]*+)*?</script>";
+                $st = "<style\b[^>]*+>(?><?[^<]*+)*?</style>";
+                $tx  = "<textarea\b[^>]*+>(?><?[^<]*+)*?</textarea>";
+                
                 if ($this->_sMinifyLevel > 0)
                 {
                         //Remove comments (not containing IE conditional comments)
                         $this->_html = preg_replace(
-                                '#(?>(?:<(?!!))?[^<]*+(?:<(?:script|style)\b[^>]*+>(?><?[^<]*+)*?<\/(?:script|style)>|<!--\[(?><?[^<]*+)*?'
-                                . '<!\s*\[(?>-?[^-]*+)*?--!?>|<!DOCTYPE[^>]++>)?)*?\K(?:<!--(?>-?[^-]*+)*?--!?>|[^<]*+\K$)#i', '', $this->_html);
+                                "#(?><?[^<]*+(?>$sc|$st|<!--\[(?><?[^<]*+)*?"
+                                . "<!\s*\[(?>-?[^-]*+)*?--!?>|<!DOCTYPE[^>]++>)?)*?\K(?:$x|$)#i", '', $this->_html);
                 }
+              
                 //Reduce runs of whitespace outside all elements to one
                 $this->_html = preg_replace(
-                        '#(?>[^<]*+(?:<script\b[^>]*+>(?><?[^<]*+)*?</script>|<(?>[^>\'"]*+(?:"[^"]*+"|\'[^\']*+\')?)*?>)?)*?\K'
-                        . '(?:[\t\f ]++(?=[\r\n]\s*+<)|(?>\r?\n|\r)\K\s++(?=<)|[\t\f]++(?=[ ]\s*+<)|[\t\f]\K\s*+(?=<)|[ ]\K\s*+(?=<)|$)#', '',
+                        "#(?>[^<]*+(?:$sc|$st|$x|<(?>[^>'\"]*+(?:$s1|$s2)?)*?>)?)*?\K"
+                        . '(?:[\t\f ]++(?=[\r\n]\s*+<)|(?>\r?\n|\r)\K\s++(?=<)|[\t\f]++(?=[ ]\s*+<)|[\t\f]\K\s*+(?=<)|[ ]\K\s*+(?=<)|$)#i', '',
                         $this->_html
                 );
 
                 //Minify scripts
                 $this->_html = preg_replace_callback(
-                        '#(?><?[^<]*+)*?\K(?:(<(script|style)\b[^>]*+>)((?>(?:<(?!/\g{2}))?[^<]++)+?)(<\/\g{2}>)|$)#i', array($this, '_minifyCB'),
+                        "#(?><?[^<]*+(?:$x)?)*?\K"
+                        . "(?:(<script\b[^>]*+>)((?><?[^<]*+)*?)(</script>)|"
+                        . "(<style\b[^>]*+>)((?><?[^<]*+)*?)(</style>)|$)#i", array($this, '_minifyCB'),
                         $this->_html
                 );
 
@@ -131,8 +144,8 @@ class HTML_Optimize extends Optimize
 
                 //Replace line feed with space (legacy)
                 $this->_html = preg_replace(
-                        '#(?>[^<]*+(?:<script\b[^>]*+>(?><?[^<]*+)*?</script>|<(?>[^>\'"]*+(?:"[^"]*+"|\'[^\']*+\')?)*?>)?)*?\K'
-                        . '(?:[\r\n\t\f]++(?=<)|$)#', ' ', $this->_html
+                        "#(?>[^<]*+(?:<script\b[^>]*+>(?><?[^<]*+)*?</script>|$x|<(?>[^>'\"]*+(?:$s1|$s2)?)*?>)?)*?\K"
+                        . '(?:[\r\n\t\f]++(?=<)|$)#i', ' ', $this->_html
                 );
 
                 // remove ws around block elements preserving space around inline elements
@@ -154,7 +167,7 @@ class HTML_Optimize extends Optimize
                 $i2 = 'img|input';
 
                 $this->_html = preg_replace(
-                        "#(?>\s*+(?:<(?:(?>$i)\b[^>]*+>|(?:/(?>$i)\b>|(?>$i2)\b[^>]*+>)\s*+)|<[^>]*+>)|[^<]++)*?\K"
+                        "#(?>\s*+(?:$x|<(?:(?>$i)\b[^>]*+>|(?:/(?>$i)\b>|(?>$i2)\b[^>]*+>)\s*+)|<[^>]*+>)|[^<]++)*?\K"
                         . "(?:\s++(?=<(?>$b|$b2)\b)|(?:</(?>$b)\b>|<(?>$b2)\b[^>]*+>)\K\s++(?!<(?>$i|$i2)\b)|$)#i", '', $this->_html
                 );
 
@@ -162,19 +175,14 @@ class HTML_Optimize extends Optimize
                 //elements to escape
                 $e = 'pre|script|style|textarea';
 
-                //Regex for escape elements
-                $p  = "<pre\b[^>]*+>(?><?[^<]*+)*?</pre>";
-                $sc = "<script\b[^>]*+>(?><?[^<]*+)*?</script>";
-                $st = "<style\b[^>]*+>(?><?[^<]*+)*?</style>";
-                $t  = "<textarea\b[^>]*+>(?><?[^<]*+)*?</textarea>";
-
                 $this->_html = preg_replace(
-                        "#(?>[^<]*+(?:$p|$sc|$st|$t|<[^>]++>[^<]*+))*?(?:(?:<(?!$e)[^>]*+>)?(?>\s?[^\s<]*+)*?\K\s{2,}|\K$)#i", ' ', $this->_html
+                        "#(?>[^<]*+(?:$pr|$sc|$st|$tx|$x|<[^>]++>[^<]*+))*?(?:(?:<(?!$e|!)[^>]*+>)?(?>\s?[^\s<]*+)*?\K\s{2,}|\K$)#i", ' ', $this->_html
                 );
 
                 //Remove additional ws around attributes
                 $this->_html = preg_replace(
-                        '#(?><?[^<]*+)*?(?:<[a-z0-9]++\K\s++|\G[^\>=]++=(?(?=\s*+["\'])\s*+["\'][^"\']*+["\']|[^\s]++)\K\s++|$\K)#i', ' ',
+                        "#(?>\s?(?>[^<>]*+(?:<!(?!DOCTYPE)(?>>?[^>]*+)*?>[^<>]*+)?<|(?=[^<>]++>)[^\s>'\"]++(?>$s1|$s2)?|[^<]*+))*?\K"
+                        . "(?>\s\s++|$)#i", ' ',
                         $this->_html
                 );
 
@@ -185,7 +193,7 @@ class HTML_Optimize extends Optimize
 
                 //remove redundant attributes
                 $this->_html = preg_replace(
-                        '#(?:(?=[^<>]++>)|(?><?[^<]*+)*?<(?:(?:script|style|link)|/html>))(?>[ ]?[^ >]*+)*?\K'
+                        "#(?:(?=[^<>]++>)|(?><?[^<]*+(?>$x|<(?!(?:script|style|link)|/html>))?)*?<(?:(?:script|style|link)|/html>))(?>[ ]?[^ >]*+)*?\K"
                         . '(?: (?:type|language)=["\']?(?:(?:text|application)/(?:javascript|css)|javascript)["\']?|[^<]*+\K$)#i', '', $this->_html
                 );
 
@@ -200,14 +208,15 @@ class HTML_Optimize extends Optimize
 
                         $this->_html = preg_replace(
                                 "#(?:(?=[^>]*+>)|<[a-z0-9]++ )"
-                                . "(?>[=]?[^=><]*+(?:=(?:$ns1|$ns2)|>(?><?[^<]*+(?:$j)?)*?(?:<[a-z0-9]++ |$))?)*?"
+                                . "(?>[=]?[^=><]*+(?:=(?:$ns1|$ns2)|>(?>[^<]*+(?:$j|$x|<(?![a-z0-9]++ ))?)*?(?:<[a-z0-9]++ |$))?)*?"
                                 . "(?:=\K([\"'])([^\"'`=<>\s]++)\g{1}[ ]?|\K$)#i", '$2 ', $this->_html
                         );
                 }
 
                 //Remove last whitespace in open tag
                 $this->_html = preg_replace(
-                        "#(?><?[^<]*+(?:$j)?)*?(?:<[a-z0-9]++(?>\s*+[^\s>]++)*?\K(?:\s++(?=>)|(?<=[\"'])\s++(?=/>))|$\K)#i", '', $this->_html
+                        "#(?>[^<]*+(?:$j|$x|<(?![a-z0-9]++))?)*?(?:<[a-z0-9]++(?>\s*+[^\s>]++)*?\K"
+                        . "(?:\s*+(?=>)|(?<=[\"'])\s++(?=/>))|$\K)#i", '', $this->_html
                 );
 
                 return trim($this->_html);
@@ -234,11 +243,16 @@ class HTML_Optimize extends Optimize
                         return $m[0];
                 }
 
-                $openTag  = $m[1];
-                $content  = $m[3];
-                $closeTag = $m[4];
+                $openTag  = isset($m[1]) && $m[1] != '' ? $m[1] : (isset($m[4]) && $m[4] != '' ? $m[4] : '');
+                $content  = isset($m[2]) && $m[2] != '' ? $m[2] : (isset($m[5]) && $m[5] != '' ? $m[5] : '');
+                $closeTag = isset($m[3]) && $m[3] != '' ? $m[3] : (isset($m[6]) && $m[6] != '' ? $m[6] : '');
+                
+                if(trim($content) == '')
+                {
+                        return $m[0];
+                }
 
-                $type = strcasecmp($m[2], 'script') == 0 ? 'js' : 'css';
+                $type = stripos($openTag, 'script') == 1 ? 'js' : 'css';
 
                 if ($this->{'_' . $type . 'Minifier'})
                 {
@@ -247,7 +261,6 @@ class HTML_Optimize extends Optimize
 
                         // minify
                         $content = $this->_callMinifier($this->{'_' . $type . 'Minifier'}, $content);
-
 
                         return $this->_needsCdata($content) ? "{$openTag}/*<![CDATA[*/{$content}/*]]>*/{$closeTag}" : "{$openTag}{$content}{$closeTag}";
                 }
@@ -286,15 +299,12 @@ class HTML_Optimize extends Optimize
          */
         public static function cleanScript($content, $type)
         {
-
                 $s1 = self::DOUBLE_QUOTE_STRING;
                 $s2 = self::SINGLE_QUOTE_STRING;
                 $b  = self::BLOCK_COMMENTS;
                 $l  = self::LINE_COMMENTS;
 
-
                 $c = '(?:(?:<!--|-->)[^\r\n]*+)|(?:<!\[CDATA\[|\]\]>)';
-
 
                 if ($type == 'css')
                 {
@@ -305,7 +315,7 @@ class HTML_Optimize extends Optimize
                 else
                 {
                         $content = JS_Optimize::optimize($content, array('prepare_only' => TRUE));
-                        $r = $GLOBALS['REXEXP_LITERAL'];
+                        $r = $GLOBALS['REGEXP_LITERAL'];
                         
                         return preg_replace(
                                 "#(?>[<\]\-]?[^'\"<\]\-/]*+(?>$s1|$s2|$b|$l|$r|/)?)*?\K(?:$c|$)#i", '', $content

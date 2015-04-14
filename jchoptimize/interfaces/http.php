@@ -31,7 +31,7 @@ interface JchInterfaceHttp
          * @param type $sPath
          * @param type $aPost
          */
-        public function request($sPath, $aPost=array());
+        public function request($sPath, $aPost=null, $aHeaders=null);
         
         /**
          * 

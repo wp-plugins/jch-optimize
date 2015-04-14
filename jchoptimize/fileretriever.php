@@ -46,11 +46,11 @@ class JchOptimizeFileRetriever
          * @param type $sPath
          * @return type
          */
-        public function getFileContents($sPath, $aPost = array(), $sOrigPath = '')
+        public function getFileContents($sPath, $aPost = null, $aHeader = null, $sOrigPath = '')
         {
                 $oHttpAdapter = $this->getHttpAdapter();
                 
-                if ((strpos($sPath, 'http') === 0) || !empty($aPost))
+                if (strpos($sPath, 'http') === 0)
                 {
                         if (!$oHttpAdapter->available())
                         {
@@ -59,7 +59,7 @@ class JchOptimizeFileRetriever
 
                         try
                         {
-                                $response = $oHttpAdapter->request($sPath, $aPost);
+                                $response = $oHttpAdapter->request($sPath, $aPost, $aHeader);
                                 
                                 $this->response_code = $response['code'];
                                 
@@ -99,7 +99,7 @@ class JchOptimizeFileRetriever
                         {
                                 $sUriPath = JchPlatformPaths::path2Url($sPath);
 
-                                $sContents = $this->getFileContents($sUriPath, array(), $sPath);
+                                $sContents = $this->getFileContents($sUriPath, null, null, $sPath);
                         }
                         else
                         {

@@ -26,7 +26,7 @@ class JchPlatformHttp implements JchInterfaceHttp
 
                         $args = array(
                                 'method'              => 'GET',
-                                'timeout'             => apply_filters('http_request_timeout', 5),
+                                'timeout'             => apply_filters('http_request_timeout', 10),
                                 'redirection'         => apply_filters('http_request_redirection_count', 5),
                                 'httpversion'         => apply_filters('http_request_version', '1.0'),
                                 'user-agent'          => apply_filters('http_headers_useragent',
@@ -75,14 +75,20 @@ class JchPlatformHttp implements JchInterfaceHttp
          * @param type $aPost
          * @return type
          */
-        public function request($sPath, $aPost = array())
+        public function request($sPath, $aPost = null, $aHeaders = null)
         {
-                $args = array();
+                $args = array('timeout' => 10);
 
-                if (!empty($aPost))
+                if (isset($aHeaders))
+                {
+                        $args['headers'] = $aHeaders;
+                }
+
+                if (isset($aPost))
                 {
                         $args['body'] = $aPost;
-                        $response     = wp_remote_post($sPath, $args);
+
+                        $response = wp_remote_post($sPath, $args);
                 }
                 else
                 {

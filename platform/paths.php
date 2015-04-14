@@ -57,7 +57,7 @@ class JchPlatformPaths implements JchInterfacePaths
         {
                 if ($url)
                 {
-                        return JchOptimizeHelper::getBaseFolder() . 'media/sprites/';
+                        return self::rewriteBase() . 'jch-optimize/media/sprites/';
                 }
 
                 return JCH_PLUGIN_DIR . 'media/sprites';

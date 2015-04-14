@@ -93,7 +93,7 @@ function jch_options_page()
                                 <div class="tab-pane active" id="description">
                                         <div id="extension-container" style="text-align:left;">
                                                 <h1>JCH Optimize Plugin</h1>
-                                                <h3>(Version 1.1.3)</h3>
+                                                <h3>(Version 1.1.4)</h3>
                                                 <?php
 
                                                 
@@ -160,10 +160,9 @@ function jch_initialize_settings()
         {
                 return;
         }
-        
-        global $jch_redirect, $jch_notices;
+
+        global $jch_redirect;
         $jch_redirect = FALSE;
-        $jch_notices  = array();
 
         check_jch_tasks();
         jch_get_cache_info();
@@ -174,8 +173,8 @@ function jch_initialize_settings()
         {
                 add_action('admin_notices', 'jch_send_notices');
         }
-        
-        
+
+
         add_settings_section('jch_basic_pre', '', 'jch_basic_pre_section_text', 'jch-sections');
         add_settings_field('jch_options_auto_settings', __('Automatic Settings', 'jch-optimize'), 'jch_options_auto_settings_string', 'jch-sections',
                                                            'jch_basic_pre');
@@ -269,7 +268,7 @@ function jch_initialize_settings()
                 
         add_settings_field('jch_options_optimizeimages', __('Optimize Images', 'jch-optimize'), 'jch_options_optimize_images_string', 'jch-sections',
                                                             'jch_images');
-        
+
         add_settings_section('jch_section_end', '', 'jch_section_end_text', 'jch-sections');
 }
 
@@ -324,7 +323,7 @@ function jch_load_scripts()
                         jQuery('.collapsible').collapsible();
                 });
 
-        <?php                           ?>
+        <?php                             ?>
 
         </script>
         <?php
@@ -351,12 +350,7 @@ function delete_jch_cache()
 
 function jch_redirect()
 {
-        global $jch_notices, $jch_redirect;
-
-        if (!empty($jch_notices))
-        {
-                set_transient('jch_notices', $jch_notices, 60 * 5);
-        }
+        global $jch_redirect;
 
         if ($jch_redirect)
         {
@@ -397,9 +391,16 @@ function jch_process_optimize_images_results()
 
 function jch_add_notices($type, $text)
 {
-        global $jch_notices;
+        $jch_notices = array();
+        
+        if ($notices = get_transient('jch_notices'))
+        {
+                $jch_notices = $notices;
+        }
 
         $jch_notices[$type][] = $text;
+        
+        set_transient('jch_notices', $jch_notices, 60 * 5);
 }
 
 function jch_send_notices()
@@ -427,7 +428,7 @@ function jch_send_notices()
                 <?php
 
         }
-
+        
         delete_transient('jch_notices');
 }
 
@@ -602,7 +603,7 @@ function jch_options_manage_cache_string()
         $description = __('Click this icon to delete all the cache of combined files saved by the plugin', 'jch-optimize');
 
         $aButton = jch_get_manage_cache_buttons();
-                
+
         echo '<div style="display: -webkit-flex; display: -ms-flex; display: -moz-flex; display: flex;">';
         echo jch_gen_button_icons($aButton, $description, $attribute);
 }

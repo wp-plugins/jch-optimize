@@ -176,7 +176,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
         public static function checkModRewriteEnabled($params)
         {
                 JCH_DEBUG ? JchPlatformProfiler::start('CheckModRewriteEnabled') : null;
-                
+
                 $oFileRetriever = JchOptimizeFileRetriever::getInstance();
 
                 if (!$oFileRetriever->isHttpAdapterAvailable())
@@ -290,23 +290,24 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
         public static function minifyHtml($sHtml, $oParams)
         {
                 JCH_DEBUG ? JchPlatformProfiler::start('MinifyHtml') : null;
-                
-                $aOptions = array();
 
-                if ($oParams->get('css_minify', 0))
-                {
-                        $aOptions['cssMinifier'] = array('JchOptimize\CSS_Optimize', 'optimize');
-                }
-
-                if ($oParams->get('js_minify', 0))
-                {
-                        $aOptions['jsMinifier'] = array('JchOptimize\JS_Optimize', 'optimize');
-                }
-
-                $aOptions['minify_level'] = $oParams->get('html_minify_level', 2);
 
                 if ($oParams->get('html_minify', 0))
                 {
+                        $aOptions = array();
+
+                        if ($oParams->get('css_minify', 0))
+                        {
+                                $aOptions['cssMinifier'] = array('JchOptimize\CSS_Optimize', 'optimize');
+                        }
+
+                        if ($oParams->get('js_minify', 0))
+                        {
+                                $aOptions['jsMinifier'] = array('JchOptimize\JS_Optimize', 'optimize');
+                        }
+
+                        $aOptions['minify_level'] = $oParams->get('html_minify_level', 2);
+
                         $sHtmlMin = HTML_Optimize::optimize($sHtml, $aOptions);
 
                         if ($sHtmlMin == '')
@@ -317,9 +318,9 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                         }
 
                         $sHtml = $sHtmlMin;
-                }
 
-                JCH_DEBUG ? JchPlatformProfiler::stop('MinifyHtml', TRUE) : null;
+                        JCH_DEBUG ? JchPlatformProfiler::stop('MinifyHtml', TRUE) : null;
+                }
 
                 return $sHtml;
         }
@@ -403,6 +404,16 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
                         fwrite($fp, $out);
                         fclose($fp);
                 }
+        }
+        
+        /**
+         * 
+         * @param type $sHtml
+         */
+        public static function validateHtml($sHtml)
+        {
+                return preg_match('#^(?><?[^<]*+)+?<html(?><?[^<]*+)+?<head(?><?[^<]*+)+?</head(?>'
+                        . '<?[^<]*+)+?<body(?><?[^<]*+)+?</body(?><?[^<]*+)+?</html.*+$#i', $sHtml);
         }
 
 

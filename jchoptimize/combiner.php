@@ -139,7 +139,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                         if ($this->params->get('pro_optimizeCssDelivery', '0'))
                         {
-                                if (!empty($aSpriteCss) && isset($aSpriteCss['needles']) && isset($aSpriteCss['replacements']))
+                                if (is_array($aSpriteCss) && !empty($aSpriteCss) && isset($aSpriteCss['needles']) && isset($aSpriteCss['replacements']))
                                 {
                                         $this->$sType = str_replace($aSpriteCss['needles'], $aSpriteCss['replacements'], $this->$sType);
                                 }

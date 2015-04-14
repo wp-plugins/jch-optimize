@@ -105,9 +105,9 @@ class JS_Optimize extends Optimize
           
                 if (isset($this->options['prepare_only']) &&  $this->options['prepare_only'] ==  TRUE)
                 {
-                        global $REXEXP_LITERAL;
+                        global $REGEXP_LITERAL;
                         
-                        $REXEXP_LITERAL = $x;
+                        $REGEXP_LITERAL = $x;
                         
                         return $js;
                 }

@@ -35,7 +35,7 @@ class JchPlatformHtml implements JchInterfaceHtml
         {
                 JCH_DEBUG ? JchPlatformProfiler::mark('beforeGetHtml') : null;
                 
-                $url = site_url() . '/?jchbackend=1';
+                $url = home_url() . '/?jchbackend=1';
                 
                 try
                 {
