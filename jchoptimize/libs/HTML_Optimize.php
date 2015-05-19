@@ -118,13 +118,13 @@ class HTML_Optimize extends Optimize
                 {
                         //Remove comments (not containing IE conditional comments)
                         $this->_html = preg_replace(
-                                "#(?><?[^<]*+(?>$sc|$st|<!--\[(?><?[^<]*+)*?"
+                                "#(?><?[^<]*+(?>$pr|$sc|$st|$tx|<!--\[(?><?[^<]*+)*?"
                                 . "<!\s*\[(?>-?[^-]*+)*?--!?>|<!DOCTYPE[^>]++>)?)*?\K(?:$x|$)#i", '', $this->_html);
                 }
               
                 //Reduce runs of whitespace outside all elements to one
                 $this->_html = preg_replace(
-                        "#(?>[^<]*+(?:$sc|$st|$x|<(?>[^>'\"]*+(?:$s1|$s2)?)*?>)?)*?\K"
+                        "#(?>[^<]*+(?:$pr|$sc|$st|$tx|$x|<(?>[^>'\"]*+(?:$s1|$s2)?)*?>)?)*?\K"
                         . '(?:[\t\f ]++(?=[\r\n]\s*+<)|(?>\r?\n|\r)\K\s++(?=<)|[\t\f]++(?=[ ]\s*+<)|[\t\f]\K\s*+(?=<)|[ ]\K\s*+(?=<)|$)#i', '',
                         $this->_html
                 );
@@ -144,7 +144,7 @@ class HTML_Optimize extends Optimize
 
                 //Replace line feed with space (legacy)
                 $this->_html = preg_replace(
-                        "#(?>[^<]*+(?:<script\b[^>]*+>(?><?[^<]*+)*?</script>|$x|<(?>[^>'\"]*+(?:$s1|$s2)?)*?>)?)*?\K"
+                        "#(?>[^<]*+(?:$pr|$sc|$st|$tx|$x|<(?>[^>'\"]*+(?:$s1|$s2)?)*?>)?)*?\K"
                         . '(?:[\r\n\t\f]++(?=<)|$)#i', ' ', $this->_html
                 );
 
@@ -167,7 +167,7 @@ class HTML_Optimize extends Optimize
                 $i2 = 'img|input';
 
                 $this->_html = preg_replace(
-                        "#(?>\s*+(?:$x|<(?:(?>$i)\b[^>]*+>|(?:/(?>$i)\b>|(?>$i2)\b[^>]*+>)\s*+)|<[^>]*+>)|[^<]++)*?\K"
+                        "#(?>\s*+(?:$pr|$sc|$st|$tx|$x|<(?:(?>$i)\b[^>]*+>|(?:/(?>$i)\b>|(?>$i2)\b[^>]*+>)\s*+)|<[^>]*+>)|[^<]++)*?\K"
                         . "(?:\s++(?=<(?>$b|$b2)\b)|(?:</(?>$b)\b>|<(?>$b2)\b[^>]*+>)\K\s++(?!<(?>$i|$i2)\b)|$)#i", '', $this->_html
                 );
 

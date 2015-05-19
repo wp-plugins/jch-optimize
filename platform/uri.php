@@ -114,7 +114,7 @@ class JchPlatformUri implements JchInterfaceUri
         {
                 if(empty(self::$base))
                 {
-                        self::$base['pathonly'] = ($url = home_url(NULL, 'relative')) == '' ? '/' : $url;
+                        self::$base['pathonly'] = home_url(NULL, 'relative');
                         self::$base['base'] = home_url('/');
                 }
 

@@ -253,9 +253,7 @@ class JchOptimizeHelper extends JchOptimizeHelperBase
          */
         public static function getBaseFolder()
         {
-                $sJbase = JchPlatformUri::base(true);
-
-                return (($sJbase == '/') ? $sJbase : $sJbase . '/');
+                return JchPlatformUri::base(true) . '/';
         }
 
         /**

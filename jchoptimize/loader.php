@@ -29,11 +29,9 @@ if (!defined('_JCH_EXEC'))
 
 defined('_JCH_EXEC') or die('Restricted access');
 
+
 function loadJchOptimizeClass($sClass)
 {
-//        global $_PROFILER;
-//        JDEBUG ? $_PROFILER->mark('beforeLoadClass - ' . $sClass) : null;
-
         if(is_array($sClass))
         {
                 foreach($sClass as $class)
@@ -90,7 +88,7 @@ function loadJchOptimizeClass($sClass)
 
         if (!file_exists($file))
         {
-                throw new Exception(sprintf('File not found: %s', $file));
+                return false;
         }
         else
         {
@@ -98,11 +96,9 @@ function loadJchOptimizeClass($sClass)
 
                 if (!class_exists($sClass) && !interface_exists($sClass))
                 {
-                        throw new Exception(sprintf('Class not found: %s', $sClass));
+                        return false;
                 }
         }
-
-//        JDEBUG ? $_PROFILER->mark('afterLoadClass - ' . $sClass) : null;
 }
 
 spl_autoload_register('loadJchOptimizeClass');

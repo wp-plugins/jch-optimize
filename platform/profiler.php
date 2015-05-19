@@ -33,7 +33,10 @@ class JchPlatformProfiler implements JchInterfaceProfiler
         {
 
                 return '<li id="wp-admin-bar-root-default" class="menupop">' .
-                        '<a class="ab-item" aria-haspopup="true">Profiler (JCH Optimize)</a>' .
+                        '<a class="ab-item" aria-haspopup="true">' .
+                        '<span class="ab-icon dashicons-clock" style="padding-top: 5px;"></span>' .
+                        '<span class="ab-label">Profiler (JCH Optimize)</span>' .
+                        '</a>' .
                         '<div class="ab-sub-wrapper">' .
                         '<ul id="wp-admin-bar-jch-profiler-items" class="ab-submenu" style="overflow:auto;max-width:700px;max-height:500px;">';
         }

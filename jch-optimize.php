@@ -4,7 +4,7 @@
  * Plugin Name: JCH Optimize
  * Plugin URI: http://www.jch-optimize.net/
  * Description: This plugin aggregates and minifies CSS and Javascript files for optimized page download
- * Version: 1.1.4
+ * Version: 1.2.0
  * Author: Samuel Marshall
  * License: GNU/GPLv3
  * Text Domain: jch-optimize
@@ -39,7 +39,7 @@ define('JCH_CACHE_DIR', WP_CONTENT_DIR . '/cache/jch-optimize/');
 
 if (!defined('JCH_VERSION'))
 {
-        define('JCH_VERSION', '1.1.4');
+        define('JCH_VERSION', '1.2.0');
 }
 
 require_once(JCH_PLUGIN_DIR . 'jchoptimize/loader.php');
@@ -57,12 +57,11 @@ else
 {
         if (defined('WP_USE_THEMES') && WP_USE_THEMES && $backend != 1)
         {
+                add_action('init', 'jch_buffer_start', 0);
                 add_action('template_redirect', 'jch_buffer_start', 0);
-                add_action('shutdown', 'jch_buffer_end', 0);
+                add_action('shutdown', 'jch_buffer_end', -1);
         }
 }
-
-
 
 function jch_load_plugin_textdomain()
 {
@@ -96,14 +95,30 @@ function jch_buffer_start()
 
 function jch_buffer_end()
 {
-        $sHtml = '';
+        $bFlag = FALSE;
         
-        while(ob_get_level())
+	while(ob_get_level())
         {
-                $sHtml = ob_get_clean() . $sHtml;
+                ob_end_flush();
+                
+                $sHtml = ob_get_contents();
+                
+                if (JchOptimizeHelper::validateHtml($sHtml))
+                {
+                        $bFlag = TRUE;
+                        
+                        break;
+                }
         }
 
-        if (JchOptimizeHelper::validateHtml($sHtml))
+        if(ob_get_level())
+        {
+                ob_clean();
+        }
+
+        ob_start();
+                        
+        if ($bFlag)
         {
                 echo jchoptimize($sHtml);
         }
@@ -151,3 +166,11 @@ PHPCODE;
 }
 
 register_activation_hook(__FILE__, 'jch_optimize_activate');
+
+function jch_optimize_uninstall()
+{
+        delete_option('jch_options');
+}
+
+register_uninstall_hook(__FILE__, 'jch_optimize_uninstall');
+

@@ -93,7 +93,7 @@ function jch_options_page()
                                 <div class="tab-pane active" id="description">
                                         <div id="extension-container" style="text-align:left;">
                                                 <h1>JCH Optimize Plugin</h1>
-                                                <h3>(Version 1.1.4)</h3>
+                                                <h3>(Version 1.2.0)</h3>
                                                 <?php
 
                                                 
@@ -221,7 +221,11 @@ function jch_initialize_settings()
         add_settings_field('jch_options_log', __('Log Exceptions', 'jch-optimize'), 'jch_options_log_string', 'jch-sections', 'jch_advanced_manual');
         add_settings_field('jch_options_try_catch', __('Use try catch', 'jch-optimize'), 'jch_options_try_catch_string', 'jch-sections',
                                                        'jch_advanced_manual');
-
+        
+        add_settings_section('jch_pro_group', '', 'jch_pro_group_section_text', 'jch-sections');
+        add_settings_field('jch_options_pro_downloadid', __('Download ID', 'jch-optimize'), 'jch_options_pro_downloadid_string',
+                                                                'jch-sections', 'jch_pro_group');
+        
         add_settings_section('jch_pro_auto', '', 'jch_pro_auto_section_text', 'jch-sections');
         add_settings_field('jch_options_pro_replaceImports', __('Replace @imports in CSS', 'jch-optimize'), 'jch_options_pro_replaceImports_string',
                                                                 'jch-sections', 'jch_pro_auto');
@@ -318,8 +322,7 @@ function jch_load_scripts()
 
                 jQuery(document).ready(function () {
                         jQuery(".chzn-custom-value").chosen({width: "240px"});
-                });
-                jQuery(document).ready(function () {
+                        
                         jQuery('.collapsible').collapsible();
                 });
 
@@ -462,12 +465,15 @@ function jch_group_start($type)
                         $class       = '';
                         break;
                 default:
+                        $header = '';
+                        $description = '';
+                        $class= '';
                         break;
         }
 
         echo '<div class="jch-group">'
         . '<div ' . $class . '>'
-        . '             <h3>' . $header . '<span class="fa"></span></h3>'
+        . ($header != '' ? '             <h3>' . $header . '<span class="fa"></span></h3>' : '')
         . '             <p><em>' . $description . '</em></p>'
         . '</div><div>';
 }
@@ -768,12 +774,31 @@ function jch_gen_button_icons(array $aButton, $description = '', $attribute = ''
         return $sField;
 }
 
-function jch_pro_auto_section_text()
+function jch_pro_group_section_text()
 {
         jch_group_end();
 
         echo '</div>
   <div class="tab-pane" id="pro">';
+
+        jch_group_start('');
+}
+
+function jch_options_pro_downloadid_string()
+{
+        $description = __('Enter your download ID to enable automatic updates of the pro version. Log into your account on the jch-optimize.net website and access the download id from the MyAccount -> My Download Id menu item',
+                          'jch-optimize');
+
+        
+          echo jch_gen_proonly_field($description);
+          
+
+        
+}
+
+function jch_pro_auto_section_text()
+{
+        jch_group_end();
 
         jch_group_start('auto');
 }

@@ -83,7 +83,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
                 $this->params = is_null($params) ? NULL : $params;
 
                 $this->bBackend = $bBackend;
-                $this->e        = self::DOUBLE_QUOTE_STRING . '|' . self::SINGLE_QUOTE_STRING . '|' . self::BLOCK_COMMENTS . '|'
+                $this->e        = self::ESC_CHARS . '|' . self::DOUBLE_QUOTE_STRING . '|' . self::SINGLE_QUOTE_STRING . '|' . self::BLOCK_COMMENTS . '|'
                         . self::LINE_COMMENTS;
                 $this->u        = self::URI . '|' . $this->e;
         }
@@ -105,7 +105,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
                         $obj = $this;
 
                         $sContent = preg_replace_callback(
-                                "#(?>@?[^@'\"/]*+(?:{$this->u}|/|\()?)*?\K(?:@media ([^{]*+)|\K$)#i",
+                                "#(?>@?[^\\\\@'\"/]*+(?:{$this->u}|/|\()?)*?\K(?:@media ([^{]*+)|\K$)#i",
                                 function($aMatches) use ($sParentMedia, $obj)
                         {
                                 return $obj->_mediaFeaturesCB($aMatches, $sParentMedia);
@@ -323,7 +323,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
                 $obj = $this;
 
                 $sCorrectedContent = preg_replace_callback(
-                        "#(?>[(]?[^('\"/]*+(?:{$this->e}|/)?)*?(?:(?<=url)\(\s*+\K['\"]?((?<!['\"])[^\s)]*+|(?<!')[^\"]*+|[^']*+)['\"]?|\K$)#i",
+                        "#(?>[(]?[^('\\\\/\"]*+(?:{$this->e}|/)?)*?(?:(?<=url)\(\s*+\K['\"]?((?<!['\"])[^\s)]*+|(?<!')[^\"]*+|[^']*+)['\"]?|\K$)#i",
                         function ($aMatches) use ($aUrl, $obj)
                 {
                         return $obj->_correctUrlCB($aMatches, $aUrl);
@@ -485,7 +485,7 @@ class JchOptimizeCssParser extends JchOptimizeCssParserBase
         {
                 if (preg_match('#{#', $sCss))
                 {
-                        preg_match_all("#(?>[^{}'\"/]*+(?:{$this->u}|/|\()?)+?(?:(?<b>{(?>[^{}]++|(?&b))*+})?)#", rtrim($sCss) . '}}', $m,
+                        preg_match_all("#(?>[^\\\\{}'\"/]*+(?:{$this->u}|/|\()?)+?(?:(?<b>{(?>[^{}]++|(?&b))*+})?)#", rtrim($sCss) . '}}', $m,
                                                                                                                         PREG_PATTERN_ORDER);
 
                         $sCss = implode('', $m[0]);

@@ -1,16 +1,16 @@
 === JCH Optimize ===
 Contributors: codealfa
-Tags: improve performance, optimize download speed, minify, aggregate, pagespeed, gtmetrix, webpagetest, yslow, minification, css, javascript, html, lazy load, seo, search engine optimization, website optimization, download speed, speed up website, optimize css delivery, render blocking, css sprite, gzip, combine css, combine javascript, cdn, content delivery network, website performance, website speed, fast download, web performance, website analysis, speed up download, minimize http requests, reduce bandwidth, caching, cache
-Tested up to: 4.1
-Stable tag: 1.1.4
+Tags: improve performance, optimize download speed, minify, aggregate, pagespeed, gtmetrix, webpagetest, yslow, minification, css, javascript, html, lazy load, seo, search engine optimization, website optimization, download speed, speed up website, optimize css delivery, render blocking, css sprite, gzip, combine css, combine javascript, cdn, content delivery network, website performance, website speed, fast download, web performance, website analysis, speed up download, minimize http requests, reduce bandwidth, caching, cache, speed up wordpress website
+Tested up to: 4.2.2
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-This plugin aggregates and minifies CSS and Javascript files for optimized page download
+This plugin automatically combines and minifies css and javascript files in your wordpress site to reduce http requests and optimize download time.
 
 == Description ==
 
-Speed up your WordPress site instantly with JCH Optimize! This plugin optimize your website download speed by automatically aggregating CSS and javascript files to reduce the number of http requests made by the browser to download your web page. The combined CSS and javascript files can be further optimize by minifying and compressing the file with gzip. Also, the HTML output can be compressed for optimized download. These optimizations may reduce server load, bandwidth requirements, and page loading times.
+Speed up your WordPress site instantly with JCH Optimize! This plugin optimize your website download speed by automatically aggregating CSS and javascript files to reduce the number of http requests made by the browser to download your web page. The combined CSS and javascript files can be further optimize by minifying and compressing the file with gzip. Also, the HTML output can be minified for optimized download. These optimizations may reduce server load, bandwidth requirements, and page loading times.
 
 = Major Features =
 
@@ -55,8 +55,17 @@ Simply deactivate or uninstall the plugin to reverse any changes it has made. Th
 
 == Changelog ==
 
+= 1.2.0 =
+* Fixed bug in Autoloader function that conflicts with other plugins that have classes beginning with 'JCH'
+* Fixed bug with HTML Minify removing spaces from inside pre elements when it contains other HTML elements
+* Fixed compatibility issue with plugins using PHP internal buffering eg. CDN Linker, cache plugins, etc.
+* Will delete plugin options on uninstall
+* Multisite supported
+* Fixed issue with Optimize Images not working with open_basedir setting (PRO VERSION)
+* Now able to automatically update the Pro version when your download id is saved in the plugin (PRO VERSION)
+
 = 1.1.4 =
-* Improved method of accessing HTML for optimization. considering levels of buffering
+* Improved method of accessing HTML for optimization considering levels of buffering
 * Corrected function used to access home url in backend so that exclude options lists can be populated
 * Fixed bug in and improved HTML minification library
 * Fixed bug with Sprite Generator
@@ -86,9 +95,8 @@ Simply deactivate or uninstall the plugin to reverse any changes it has made. Th
 * Added levels of HTML minification
 
 = 1.0.2 =
-* Fixed bug in HMTL Minnify library manifested on XHTML templates
+* Fixed bug in HMTL Minify library manifested on XHTML templates
 * Fails gracefully on PHP5.2
 
 = 1.0.1 =
 * First public release on WordPress plugins repository.
-

@@ -30,9 +30,11 @@ interface JchInterfaceUri
         public static function getInstance();
         
         /**
-         * 
+         * $pathonly == TRUE => /folder or ''
+         * $pathonly == FALSE => http://localhost/folder/ or http://localhost/
+         * @param type $pathonly
          */
-        public static function base();
+        public static function base($pathonly = FALSE);
         
         /**
          * 

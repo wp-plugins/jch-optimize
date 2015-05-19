@@ -46,13 +46,6 @@ class CSS_Optimize extends Optimize
         protected $_options = null;
 
         /**
-         * @var bool Are we "in" a hack?
-         *
-         * I.e. are some browsers targetted until the next comment?
-         */
-        protected $_inHack = false;
-
-        /**
          * Constructor
          *
          * @param array $options (currently ignored)
@@ -78,38 +71,38 @@ class CSS_Optimize extends Optimize
                 
                 $s = $s1 . '|' . $s2;
                 $u = self::URI;
-                $e = $s . '|' . $u;
+                $e = self::ESC_CHARS . '|' . $s . '|' . $u;
 
                 // Remove all comments
 
-                $css = preg_replace("#(?>/?[^/\"'(]*+(?:$e|\()?)*?\K(?>/\*(?:\*?[^*]*+)*?\*/|//[^\r\n]*+|$)#s", '', $css);
+                $css = preg_replace("#(?>/?[^\\\\/\"'(]*+(?:$e|\()?)*?\K(?>/\*(?:\*?[^*]*+)*?\*/|//[^\r\n]*+|$)#s", '', $css);
 
                 // remove ws around , ; : { } in CSS Declarations and media queries
                 $css = preg_replace(
-                        "#(?>(?:[{};]|^)[^{}@;]*+{|(?:(?<![,;:{}])\s++(?![,;:{}]))?[^\s{};\"'(]*+(?:$e|[\"'({};])?)+?\K"
+                        "#(?>(?:[{};]|^)[^{}@;]*+{|(?:(?<![,;:{}])\s++(?![,;:{}]))?[^\s{};\"'(\\\\]*+(?:$e|[\"'({};])?)+?\K"
                         . "(?:\s++(?=[,;:{}])|(?<=[,;:{}])\s++|\K$)#s", '',
                         $css
                 );
 
                 //remove ws around , + > ~ { } in selectors
                 $css = preg_replace(
-                        "#(?>(?:(?<![,+>~{}])\s++(?![,+>~{}]))?[^\s{\"'(]*+(?:{[^{}]++}|{|$e|\()?)*?\K"
+                        "#(?>(?:(?<![,+>~{}])\s++(?![,+>~{}]))?[^\s{\"'(\\\\]*+(?:{[^{}]++}|{|$e|\()?)*?\K"
                         . "(?:\s++(?=[,+>~{}])|(?<=[,+>~{};])\s++|$\K)#s", '', $css
                 );
 
                 //remove last ; in block
-                $css = preg_replace("#(?>(?:;(?!}))?[^;\"'(]*+(?:$e|\()?)*?(?:\K;(?=})|$\K)#s", '', $css);
+                $css = preg_replace("#(?>(?:;(?!}))?[^;\"'(\\\\]*+(?:$e|\()?)*?(?:\K;(?=})|$\K)#s", '', $css);
 
                 // remove ws inside urls
                 $css = preg_replace("#(?>\(?[^\"'(]*+(?:$s)?)*?(?:(?<=\burl)\(\K\s++|\G"
                         . "(?(?=[\"'])['\"][^'\"]++['\"]|[^\s]++)\K\s++(?=\))|$\K)#s", '', $css);
 
                 // minimize hex colors
-                $css = preg_replace("/(?>\#?[^\#\"'(]*+(?:$e|\()?)*?(?:(?<!=)\#\K"
+                $css = preg_replace("/(?>\#?[^\#\"'(\\\\]*+(?:$e|\()?)*?(?:(?<!=)\#\K"
                         . "([a-f\d])\g{1}([a-f\d])\g{2}([a-f\d])\g{3}(?=[\s;}])|$\K)/is", '$1$2$3', $css);
 
                 // reduce remaining ws to single space
-                $css = preg_replace("#(?>[^\s'\"(]*+(?:$e|\(|\s(?!\s))?)*?\K(?:\s\s++|$)#s", ' ', $css);
+                $css = preg_replace("#(?>[^\s'\"(\\\\]*+(?:$e|\(|\s(?!\s))?)*?\K(?:\s\s++|$)#s", ' ', $css);
 
                 return trim($css);
         }

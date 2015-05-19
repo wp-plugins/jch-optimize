@@ -74,9 +74,9 @@ class JchOptimizeFileRetriever
                         {
                                 JchOptimizelogger::log($sPath . ': ' . $ex->getMessage(), JchPlatformPlugin::getPluginParams());
                         }
-                        catch (BadFunctionCallException $ex)
+                        catch (Exception $ex)
                         {
-                                throw new Exception($ex->getMessage());
+                                throw new Exception($sPath . ': ' . $ex->getMessage());
                         }
 
                         if ($this->response_code != 200 && !$this->allow_400)

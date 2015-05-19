@@ -34,22 +34,21 @@ if (!isset($wp_did_header))
 
 require( ABSPATH . WPINC . '/formatting.php' );
 require( ABSPATH . WPINC . '/link-template.php' );
-require( ABSPATH . WPINC . '/widgets.php' );
 
 wp_plugin_directory_constants();
 
 $GLOBALS['wp_plugin_paths'] = array();
 
-foreach (wp_get_active_and_valid_plugins() as $plugin)
+$plugin = WP_PLUGIN_DIR . '/jch-optimize/jch-optimize.php';
+
+if(!file_exists($plugin))
 {
-        if (strpos($plugin, 'jch-optimize') !== FALSE)
-        {
-                wp_register_plugin_realpath($plugin);
-                include_once( $plugin );
-                break;
-        }
+        exit('Plugin not found');
 }
-unset($plugin);
+
+wp_register_plugin_realpath($plugin);
+
+require_once($plugin);
 
 function __(){};
 

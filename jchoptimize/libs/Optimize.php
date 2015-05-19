@@ -26,4 +26,7 @@ class Optimize
         
         //regex for line comments
         const LINE_COMMENTS = '//[^\r\n]*+';
+        
+        //regex for escaped characters
+        const ESC_CHARS = '\\\\[\'\"\/]|\\\\';
 }
