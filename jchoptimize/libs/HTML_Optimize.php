@@ -18,6 +18,7 @@ namespace JchOptimize;
  *
  * @author Samuel Marshall<sdmarshall73@gmail.com>
  */
+
 class HTML_Optimize extends Optimize
 {
 

@@ -37,6 +37,7 @@ use JchPlatformPaths;
  *
  * If LICENSE file missing, see <http://www.gnu.org/licenses/>.
  */
+
 class CssSpriteGen
 {
 

@@ -25,9 +25,14 @@ class JchPlatformPaths implements JchInterfacePaths
          * 
          * @return type
          */
-        public static function assetPath()
+        public static function assetPath($pathonly=FALSE)
         {
-                return self::rewriteBase() . 'jch-optimize/assets';
+                if($pathonly)
+                {
+                        return self::rewriteBase() . 'jch-optimize/assets';
+                }
+                
+                return plugins_url() . '/jch-optimize/assets';
         }
 
         /**
@@ -40,10 +45,8 @@ class JchPlatformPaths implements JchInterfacePaths
 
                 if (!isset($rewrite_base))
                 {
-                        $uri = JchPlatformUri::getInstance();
-                        $domain = $uri->toString(array('scheme', 'user', 'pass', 'host', 'port'));
-                        
-                        $rewrite_base = trailingslashit(str_replace($domain, '', plugins_url()));
+                        $uri = JchPlatformUri::getInstance(plugins_url());
+                        $rewrite_base = trailingslashit($uri->toString(array('path')));
                 }
 
                 return $rewrite_base;

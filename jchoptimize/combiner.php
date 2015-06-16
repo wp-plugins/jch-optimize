@@ -4,11 +4,12 @@ use JchOptimize\JS_Optimize;
 use JchOptimize\CSS_Optimize;
 
 /**
- * JCH Optimize - Joomla! plugin to aggregate and minify external resources for
- * optmized downloads
+ * JCH Optimize - Aggregate and minify external resources for optmized downloads
+ * 
  * @author Samuel Marshall <sdmarshall73@gmail.com>
- * @copyright Copyright (c) 2014 Samuel Marshall
+ * @copyright Copyright (c) 2010 Samuel Marshall
  * @license GNU/GPLv3, See LICENSE file
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -104,8 +105,8 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
          */
         public function getContents($aUrlArray, $sType, $oParser)
         {
-                JCH_DEBUG ? JchPlatformProfiler::start('GetContents - ' . $sType, TRUE) : null;                
-                
+                JCH_DEBUG ? JchPlatformProfiler::start('GetContents - ' . $sType, TRUE) : null;
+
                 $oCssParser   = $this->oCssParser;
                 $sCriticalCss = '';
                 $aSpriteCss   = array();
@@ -174,8 +175,8 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                         'font-face'   => $aFontFace
                 );
 
-                JCH_DEBUG ? JchPlatformProfiler::stop('GetContents - ' . $sType) : null; 
-                
+                JCH_DEBUG ? JchPlatformProfiler::stop('GetContents - ' . $sType) : null;
+
                 return $aContents;
         }
 
@@ -200,9 +201,9 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                 foreach ($aUrlArray as $aUrl)
                 {
                         $sUrl = $this->prepareFileUrl($aUrl, $sType);
-                        
+
                         JCH_DEBUG ? JchPlatformProfiler::start('CombineFile - ' . $sUrl) : null;
-                        
+
                         if ($sType == 'js')
                         {
                                 $sJsContents = $this->handleAsyncUrls($aUrl);
@@ -241,7 +242,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                                 $sContent = $this->cacheContent($aUrl, $sType, $oFileRetriever, $oCssParser, FALSE);
                                 $sContents .= $this->addCommentedUrl($sType, $aUrl) . $sContent . '|"LINE_END"|';
                         }
-                        
+
                         JCH_DEBUG ? JchPlatformProfiler::stop('CombineFile - ' . $sUrl, TRUE) : null;
                 }
 
@@ -303,7 +304,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                         $sContent = $sImportContent;
                         unset($sImportContent);
-                        
+
                         $sContent = $oCssParser->correctUrl($sContent, $aUrl);
                         $sContent = $this->replaceImports($sContent, $aUrl);
                         $sContent = $oCssParser->handleMediaQueries($sContent, $aUrl['media']);
@@ -403,7 +404,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
 
                 return $sContent;
         }
-        
+
         /**
          * 
          * @param type $aUrl
@@ -412,10 +413,10 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
          */
         public function prepareFileUrl($aUrl, $sType)
         {
-                $sUrl = isset($aUrl['url']) ? 
-                        JchOptimizeAdmin::prepareFileValues($aUrl['url'], '', 40) : 
-                                ($sType == 'css' ? 'Style' : 'Script') . ' Declaration';
-                
+                $sUrl = isset($aUrl['url']) ?
+                        JchOptimizeAdmin::prepareFileValues($aUrl['url'], '', 40) :
+                        ($sType == 'css' ? 'Style' : 'Script') . ' Declaration';
+
                 return $sUrl;
         }
 
@@ -486,7 +487,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
          * @param string $sType           js or css
          * @return string
          */
-        public function prepareContents($sContents, $test=FALSE)
+        public function prepareContents($sContents, $test = FALSE)
         {
                 $sContents = str_replace(
                         array(
@@ -503,7 +504,7 @@ class JchOptimizeCombiner extends JchOptimizeCombinerBase
                         ($test) ? 'DELIMITER' : '',
                         $this->sLnEnd
                         ), trim($sContents));
-                
+
 
                 return $sContents;
         }

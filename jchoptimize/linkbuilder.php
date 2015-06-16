@@ -1,11 +1,12 @@
 <?php
 
 /**
- * JCH Optimize - Joomla! plugin to aggregate and minify external resources for
- * optmized downloads
+ * JCH Optimize - Aggregate and minify external resources for optmized downloads
+ * 
  * @author Samuel Marshall <sdmarshall73@gmail.com>
  * @copyright Copyright (c) 2010 Samuel Marshall
  * @license GNU/GPLv3, See LICENSE file
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,6 +19,8 @@
  *
  * If LICENSE file missing, see <http://www.gnu.org/licenses/>.
  */
+
+
 defined('_JCH_EXEC') or die('Restricted access');
 
 class JchOptimizeLinkBuilderBase
@@ -217,7 +220,6 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
          */
         protected function buildUrl($sId, $sType)
         {
-                $sPath = JchPlatformPaths::assetPath();
                 $iTime = (int) $this->params->get('lifetime', '30');
                 $bGz   = $this->isGZ();
                 
@@ -225,15 +227,16 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
 
                 if ($htaccess == 1 || $htaccess == 3)
                 {
+                        $sPath = $this->cookieLessDomain();
                         $sPath = $htaccess == 3 ? $sPath . '3' : $sPath;
-                        $sUrl = JchOptimizeHelper::cookieLessDomain($this->params) . $sPath . JchPlatformPaths::rewriteBase()
+                        $sUrl = $sPath . JchPlatformPaths::rewriteBase()
                                 . ($bGz ? 'gz/' : 'nz/') . $iTime . '/JCHI/' . $sId . '.' . $sType;
                 }
                 else
                 {
-                        $oUri = clone JchPlatformUri::getInstance();
+                        $oUri = clone JchPlatformUri::getInstance(JchPlatformPaths::assetPath());
 
-                        $oUri->setPath($sPath . '2/jscss.php');
+                        $oUri->setPath( $oUri->getPath(). '2/jscss.php');
 
                         $aVar         = array();
                         $aVar['f']    = $sId;
@@ -244,10 +247,24 @@ class JchOptimizeLinkBuilder extends JchOptimizelinkBuilderBase
 
                         $oUri->setQuery($aVar);
 
-                        $sUrl = htmlentities($oUri->toString(array('path', 'query')));
+                        $sUrl = htmlentities($oUri->toString());
                 }
                 
                 return ($sUrl);
+        }
+        
+        /**
+         * 
+         * @return type
+         */
+        protected function cookieLessDomain()
+        {
+                if(JchOptimizeHelper::cookieLessDomain($this->params))
+                {
+                        return JchOptimizeHelper::cookieLessDomain($this->params) . JchPlatformPaths::assetPath(TRUE);
+                }
+                
+                return JchPlatformPaths::assetPath();
         }
 
         /**

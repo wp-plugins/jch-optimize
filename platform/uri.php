@@ -114,8 +114,12 @@ class JchPlatformUri implements JchInterfaceUri
         {
                 if(empty(self::$base))
                 {
-                        self::$base['pathonly'] = home_url(NULL, 'relative');
-                        self::$base['base'] = home_url('/');
+                        $uri = self::getInstance();
+                        
+                        $path = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+                        
+                        self::$base['pathonly'] = $path;
+                        self::$base['base'] = $uri->toString(array('scheme', 'host', 'port')) . $path . '/';
                 }
 
                 return $pathonly ? self::$base['pathonly'] : self::$base['base'];
@@ -146,8 +150,11 @@ class JchPlatformUri implements JchInterfaceUri
                 
                 if($uri == 'SERVER')
                 {
-                        $domain = preg_replace('#' . preg_quote(home_url(NULL, 'relative'), '#') .'$#i', '', home_url());
-                        $uri = $domain . $_SERVER['REQUEST_URI'];
+                        $scheme = is_ssl() ? 'https://' : 'http://';
+                        $uri = $scheme . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                        
+                        // Extra cleanup to remove invalid chars in the URL to prevent injections through the Host header
+                        $uri = str_replace(array("'", '"', '<', '>'), array("%27", "%22", "%3C", "%3E"), $uri);
                 }
 
                 $this->aUri = parse_url($uri);

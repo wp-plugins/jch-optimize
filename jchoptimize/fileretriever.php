@@ -1,11 +1,12 @@
 <?php
 
 /**
- * JCH Optimize - Joomla! plugin to aggregate and minify external resources for
- * optmized downloads
+ * JCH Optimize - Aggregate and minify external resources for optmized downloads
+ * 
  * @author Samuel Marshall <sdmarshall73@gmail.com>
  * @copyright Copyright (c) 2010 Samuel Marshall
  * @license GNU/GPLv3, See LICENSE file
+ * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,6 +19,8 @@
  *
  * If LICENSE file missing, see <http://www.gnu.org/licenses/>.
  */
+
+
 defined('_JCH_EXEC') or die('Restricted access');
 
 /**
@@ -56,6 +59,8 @@ class JchOptimizeFileRetriever
                         {
                                 throw new Exception(JchPlatformUtility::translate('No Http Adapter available'));
                         }
+                        
+                        $this->response_code = 0;
 
                         try
                         {

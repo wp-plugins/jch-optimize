@@ -93,7 +93,7 @@ function jch_options_page()
                                 <div class="tab-pane active" id="description">
                                         <div id="extension-container" style="text-align:left;">
                                                 <h1>JCH Optimize Plugin</h1>
-                                                <h3>(Version 1.2.0)</h3>
+                                                <h3>(Version 1.2.1)</h3>
                                                 <?php
 
                                                 
@@ -112,8 +112,8 @@ function jch_options_page()
                                                 </ul>
                                                 <h2>Instructions</h2>
                                                 <p>Use the Automatic Settings (Minimum - Optimum) to configure the plugin. This automatically sets the options in the 'Automatic Settings Groups'. You can then try the other manual options to further configure the plugin and optimize your site. Use the Exclude options to exclude files/plugins/images that don't work so well with the plugin.</p>
-                                                <p>Check out the <a href="https://www.jch-optimize.net/documentation.html" target="_blank">documentation</a> and <a href="https://www.jch-optimize.net/documentation/tutorials.html" target="_blank">tutorials</a> on the plugin's website to learn how to use and configure the plugin.</p>
                                                 <h2>Support</h2>
+                                                <p>First check out the <a href="https://www.jch-optimize.net/documentation.html" target="_blank">documentation</a> and especially the <a href="https://www.jch-optimize.net/documentation/tutorials.html" target="_blank">tutorials</a> on the plugin's website to learn how to use and configure the plugin.</p>
                                                 <p>To get a more verbose description of the plugin options go <a href="https://www.jch-optimize.net/documentation/plugin-options.html" target="_blank">here</a>.
                                                 </p>
                                                 <p><a href="https://www.jch-optimize.net/support/knowlegebase.html" target="_blank">Here</a> are a couple common problems encountered by some persons using the plugin.</p>
@@ -312,7 +312,7 @@ function jch_load_scripts()
         <style type="text/css">
                 .chosen-container-multi .chosen-choices li.search-field input[type=text]{ height: 25px; }    
                 .chosen-container{margin-right: 4px;}
-                <?php                      ?>        
+  
         </style>  
         <script type="text/javascript">
                 function submitJchSettings()
@@ -490,7 +490,7 @@ function jch_basic_pre_section_text()
 
 function jch_options_auto_settings_string()
 {
-        $description = __('These six icons represent six preconfigured settings in increasingly optimized order. The risks of conflicts will also increase so try each in turn to find the optimum settings for your site. The first, which is the safest, is the default and should work on most websites. These settings do not affect the files/extensions/images etc. you have excluded.',
+        $description = __('The Automatic settings configure the options in the Automatic Groups for you automatically. These six icons represent six preconfigured settings in increasingly optimized order. The risks of conflicts will also increase so try each in turn to find the optimum settings for your site. The first, which is the safest, is the default and should work on most websites. These settings do not affect the files/extensions/images etc. you have excluded.',
                           'jch-optimize');
 
         $aButton = jch_get_auto_settings_buttons();

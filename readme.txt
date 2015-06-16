@@ -2,7 +2,7 @@
 Contributors: codealfa
 Tags: improve performance, optimize download speed, minify, aggregate, pagespeed, gtmetrix, webpagetest, yslow, minification, css, javascript, html, lazy load, seo, search engine optimization, website optimization, download speed, speed up website, optimize css delivery, render blocking, css sprite, gzip, combine css, combine javascript, cdn, content delivery network, website performance, website speed, fast download, web performance, website analysis, speed up download, minimize http requests, reduce bandwidth, caching, cache, speed up wordpress website
 Tested up to: 4.2.2
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -10,7 +10,7 @@ This plugin automatically combines and minifies css and javascript files in your
 
 == Description ==
 
-Speed up your WordPress site instantly with JCH Optimize! This plugin optimize your website download speed by automatically aggregating CSS and javascript files to reduce the number of http requests made by the browser to download your web page. The combined CSS and javascript files can be further optimize by minifying and compressing the file with gzip. Also, the HTML output can be minified for optimized download. These optimizations may reduce server load, bandwidth requirements, and page loading times.
+Speed up your WordPress site instantly with JCH Optimize! This plugin provides all the front end optimizations you need to optimize your website download speed. Core feature is to automatically aggregate CSS and javascript files to reduce the number of http requests made by the browser to download your web page. The combined CSS and javascript files can be further optimized by minifying and compressing the file with gzip. Also, the HTML output can be minified for optimized download. These optimizations may reduce server load, bandwidth requirements, and page loading times.
 
 = Major Features =
 
@@ -24,10 +24,11 @@ This plugin runs on a framework that is tried and proven within the Joomla! comm
 
 There is a [pro version available](https://www.jch-optimize.net/subscribe/new/jchoptimizewp.html?layout=default) on the [plugin's website](https://www.jch-optimize.net) with more features to further optimize your website such as:
 
-* Optimize CSS Delivery
+* Load combined javascript file asynchronously
+* Optimize CSS Delivery to eliminate render blocking
 * CDN/Cookie-less Domain support
 * Optimize images
-* lazy load images
+* Lazy load images
 
 == Installation ==
 
@@ -54,6 +55,9 @@ The combined files are accessed by the browser via a jscss.php file in the `/wp-
 Simply deactivate or uninstall the plugin to reverse any changes it has made. The plugin doesn't modify any existing file or code but merely manipulates the HTML before it is sent to the brower. Any apparent persistent change after the plugin is deactivated is due to caching so ensure to flush all your WordPress, third party or browser cache.
 
 == Changelog ==
+= 1.2.1 =
+* Fix links to combined file to include scheme and domain for better compatibility with other plugins
+* Improved code that manipulates urls in the plugins
 
 = 1.2.0 =
 * Fixed bug in Autoloader function that conflicts with other plugins that have classes beginning with 'JCH'

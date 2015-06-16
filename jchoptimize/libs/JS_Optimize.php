@@ -45,6 +45,7 @@ namespace JchOptimize;
  * @license http://opensource.org/licenses/mit-license.php MIT License
  * 
  */
+
 class JS_Optimize extends Optimize
 {
 
